@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Script from "next/script"
+import { SiteFooter } from '@/components/site-footer'
 
 const geistSans = Geist({
   subsets: ['latin'],
@@ -88,7 +89,10 @@ export default function RootLayout({
         })();`}
     </Script>
       <GoogleOAuthProvider clientId={clientId}>
-        {children}
+        <div className="flex min-h-svh flex-col">
+          <div className="min-h-0 flex-1">{children}</div>
+          <SiteFooter />
+        </div>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </GoogleOAuthProvider>
     </body>
