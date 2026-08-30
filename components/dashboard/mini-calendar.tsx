@@ -39,7 +39,7 @@ export function MiniCalendar({
   const days = buildMonthGrid(viewDate)
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <div className="rounded-widget border border-card-border bg-card p-4">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-sm font-semibold text-foreground">
           {viewDate.getFullYear()}년 {MONTHS_KO[viewDate.getMonth()]}

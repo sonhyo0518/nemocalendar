@@ -1,4 +1,15 @@
 // Shared types and mock data for the calendar dashboard.
+export { DEFAULT_BANNER_COLOR, DEFAULT_ANNIV_COLOR } from "./color-presets"
+
+export type DashboardUser = {
+  name: string
+  email: string
+  profile_img_url?: string | null
+  banner_img_url?: string | null
+  theme_color?: string | null
+  location?: string | null
+  calendarConnected?: boolean
+}
 
 export type EventCategory = "work" | "personal" | "study" | "health" | "etc"
 
@@ -41,10 +52,50 @@ export const CATEGORY_META: Record<
 export interface CalendarEvent {
   id: string
   title: string
-  date: string // yyyy-mm-dd
-  time?: string
-  category: EventCategory
+  date: string // start yyyy-mm-dd
+  endDate?: string // inclusive end yyyy-mm-dd
+  allDay?: boolean
+  time?: string // 시작 HH:mm
+  endTime?: string // 종료 HH:mm (시간 일정일 때만)
+  category: EventCategory // todo 보드 호환용; Google은 보통 'etc'
+  calendarId?: string
+  calendarName?: string
+  calendarColor?: string
+  googleEventId?: string
   fromGoogle?: boolean
+}
+
+/** 여러 날에 걸친 일정인지 */
+export function isMultiDayEvent(e: CalendarEvent): boolean {
+  return (e.endDate ?? e.date) > e.date
+}
+
+export const HOLIDAY_CALENDAR_NAMES = [
+  "대한민국의 휴일",
+  "Holidays in South Korea",
+  "South Korea Holidays",
+] as const
+
+export function isHolidayCalendarName(name?: string | null): boolean {
+  if (!name) return false
+  return (HOLIDAY_CALENDAR_NAMES as readonly string[]).includes(name)
+}
+
+export function isHolidayCalendarOption(c: GoogleCalendarOption): boolean {
+  return isHolidayCalendarName(c.summary)
+}
+
+export function isKoreanHolidayEvent(e: CalendarEvent): boolean {
+  return isHolidayCalendarName(e.calendarName)
+}
+
+export interface GoogleCalendarOption {
+  id: string
+  summary: string
+  backgroundColor: string
+  foregroundColor?: string
+  primary?: boolean
+  selected?: boolean
 }
 
 export interface Pin {
@@ -52,19 +103,36 @@ export interface Pin {
   text: string
 }
 
-export interface MiniTodo {
+export interface BookmarkFolder {
   id: string
-  text: string
-  done: boolean
+  name: string
+  sequence: number
+}
+
+export interface Bookmark {
+  id: string
+  url: string
+  title: string
+  description?: string | null
+  faviconUrl?: string | null
+  previewImageUrl?: string | null
+  folderId?: string | null
+  sequence: number
 }
 
 export type TodoPriority = "high" | "medium" | "low"
 export type TodoStatus = "todo" | "in-progress" | "done"
 
+export interface TodoCategory {
+  id: string
+  name: string
+  color: string
+}
+
 export interface BoardTask {
   id: string
   title: string
-  category: EventCategory
+  categoryId: string
   due?: string
   priority: TodoPriority
   status: TodoStatus
@@ -75,6 +143,7 @@ export interface Anniversary {
   title: string
   date: string // yyyy-mm-dd
   type: "dday" | "anniversary"
+  color?: string
 }
 
 export const PRIORITY_META: Record<
@@ -142,54 +211,8 @@ export function buildMonthGrid(viewDate: Date): Date[] {
   return Array.from({ length: 42 }, (_, i) => addDays(start, i))
 }
 
-// ---- mock data (relative to today so it always looks fresh) ----
-
-function offsetKey(days: number): string {
-  return toKey(addDays(new Date(), days))
+/** 월 그리드 첫날~마지막날 (yyyy-mm-dd). 주 보기도 이 달 그리드를 쓰면 됨 */
+export function monthGridRange(viewDate: Date): { from: string; to: string } {
+  const days = buildMonthGrid(viewDate)
+  return { from: toKey(days[0]), to: toKey(days[days.length - 1]) }
 }
-
-export const INITIAL_EVENTS: CalendarEvent[] = [
-  { id: "e1", title: "팀 스탠드업", date: offsetKey(0), time: "10:00", category: "work", fromGoogle: true },
-  { id: "e2", title: "디자인 리뷰", date: offsetKey(0), time: "14:00", category: "work" },
-  { id: "e3", title: "요가 클래스", date: offsetKey(1), time: "19:00", category: "health" },
-  { id: "e4", title: "React 스터디", date: offsetKey(2), time: "20:00", category: "study", fromGoogle: true },
-  { id: "e5", title: "치과 예약", date: offsetKey(3), time: "11:30", category: "health" },
-  { id: "e6", title: "엄마 생신 저녁", date: offsetKey(4), time: "18:00", category: "personal" },
-  { id: "e7", title: "분기 보고서 마감", date: offsetKey(5), category: "work", fromGoogle: true },
-  { id: "e8", title: "친구 결혼식", date: offsetKey(6), time: "12:00", category: "personal" },
-  { id: "e9", title: "런닝 10km", date: offsetKey(-1), time: "07:00", category: "health" },
-  { id: "e10", title: "독서 모임", date: offsetKey(8), time: "20:00", category: "study" },
-  { id: "e11", title: "장보기", date: offsetKey(2), category: "etc" },
-  { id: "e12", title: "1:1 미팅", date: offsetKey(0), time: "16:00", category: "work", fromGoogle: true },
-]
-
-export const INITIAL_PINS: Pin[] = [
-  { id: "p1", text: "회의실 예약 확인하기" },
-  { id: "p2", text: "프로젝트 마감 D-5" },
-  { id: "p3", text: "생일 선물 주문" },
-  { id: "p4", text: "구글 캘린더 동기화 설정" },
-]
-
-export const INITIAL_MINI_TODOS: MiniTodo[] = [
-  { id: "m1", text: "이메일 답장", done: false },
-  { id: "m2", text: "물 2L 마시기", done: true },
-  { id: "m3", text: "PR 리뷰", done: false },
-]
-
-export const INITIAL_BOARD_TASKS: BoardTask[] = [
-  { id: "t1", title: "랜딩 페이지 리디자인", category: "work", due: offsetKey(3), priority: "high", status: "in-progress" },
-  { id: "t2", title: "API 문서 정리", category: "work", due: offsetKey(5), priority: "medium", status: "todo" },
-  { id: "t3", title: "주간 회고 작성", category: "work", priority: "low", status: "done" },
-  { id: "t4", title: "여행 숙소 예약", category: "personal", due: offsetKey(10), priority: "high", status: "todo" },
-  { id: "t5", title: "운동 루틴 짜기", category: "health", priority: "medium", status: "in-progress" },
-  { id: "t6", title: "알고리즘 5문제", category: "study", due: offsetKey(1), priority: "medium", status: "todo" },
-  { id: "t7", title: "책 2챕터 읽기", category: "study", priority: "low", status: "done" },
-  { id: "t8", title: "냉장고 정리", category: "etc", priority: "low", status: "todo" },
-]
-
-export const INITIAL_ANNIVERSARIES: Anniversary[] = [
-  { id: "a1", title: "프로젝트 출시", date: offsetKey(12), type: "dday" },
-  { id: "a2", title: "입사 기념일", date: offsetKey(45), type: "anniversary" },
-  { id: "a3", title: "결혼 기념일", date: offsetKey(23), type: "anniversary" },
-  { id: "a4", title: "자격증 시험", date: offsetKey(30), type: "dday" },
-]

@@ -17,18 +17,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { authFetch } from "@/lib/api"
 
 type Condition = "sunny" | "partly" | "cloudy" | "rain"
 
-const MOCK_WEATHER: Record<
-  string,
-  { condition: Condition; high: number; low: number; desc: string }
-> = {
-  서울: { condition: "partly", high: 24, low: 16, desc: "구름 조금" },
-  부산: { condition: "sunny", high: 27, low: 19, desc: "맑음" },
-  제주: { condition: "rain", high: 22, low: 18, desc: "비" },
-  대구: { condition: "cloudy", high: 25, low: 17, desc: "흐림" },
-  인천: { condition: "partly", high: 23, low: 15, desc: "구름 조금" },
+const CITY_PRESETS = ["서울", "부산", "제주", "대구", "인천"]
+
+type WeatherData = {
+  condition: Condition
+  temp: number
+  high: number
+  low: number
+  desc: string
 }
 
 const ICONS: Record<Condition, React.ElementType> = {
@@ -38,28 +39,157 @@ const ICONS: Record<Condition, React.ElementType> = {
   rain: CloudRain,
 }
 
-export function WeatherWidget() {
+export function WeatherWidget({
+  className,
+  location: savedLocation = "서울",
+  onLocationChange,
+  onUnauthorized,
+}: {
+  className?: string
+  location?: string
+  onLocationChange?: (location: string) => void
+  onUnauthorized?: () => void
+}) {
+  const [data, setData] = React.useState<WeatherData | null>(null)
+  const [status, setStatus] = React.useState<"loading" | "ok" | "error">("loading")
   const [location, setLocation] = React.useState("서울")
   const [open, setOpen] = React.useState(false)
   const [draft, setDraft] = React.useState("서울")
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
 
-  const data = MOCK_WEATHER[location] ?? MOCK_WEATHER["서울"]
-  const Icon = ICONS[data.condition]
+  type SuggestItem = {
+    name: string
+    label: string
+    lat: number
+    lon: number
+  }
+  
+  const [suggestions, setSuggestions] = React.useState<SuggestItem[]>([])
+  const [suggestLoading, setSuggestLoading] = React.useState(false)
+  
+  React.useEffect(() => {
+    if (!mounted) return
+    queueMicrotask(() => {
+      setLocation(savedLocation)
+      setDraft(savedLocation)
+    })
+  }, [savedLocation, mounted])
 
+  React.useEffect(() => {
+    let cancelled = false
+  
+    void Promise.resolve().then(() => {
+      if (!cancelled) setStatus("loading")
+    })
+  
+    authFetch(`/api/weather?city=${encodeURIComponent(location)}`, {
+        onUnauthorized,
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error("fetch failed")
+          return r.json() as Promise<WeatherData>
+        })
+      .then((json) => {
+        if (!cancelled) {
+          setData(json)
+          setStatus("ok")
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("error")
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [location, onUnauthorized])
+
+  const activeSuggestions =
+  open && draft.trim().length >= 1 ? suggestions : []
+
+  React.useEffect(() => {
+    if (!open) return
+    const q = draft.trim()
+    if (q.length < 1) return  // setSuggestions 제거
+
+  const t = window.setTimeout(() => {
+      let cancelled = false
+      setSuggestLoading(true)
+      authFetch(`/api/weather/suggest?q=${encodeURIComponent(q)}`, {
+        onUnauthorized,
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error("suggest failed")
+          return r.json() as Promise<{ suggestions: SuggestItem[] }>
+        })
+        .then((json) => {
+          if (!cancelled) setSuggestions(json.suggestions ?? [])
+        })
+        .catch(() => {
+          if (!cancelled) setSuggestions([])
+        })
+        .finally(() => {
+          if (!cancelled) setSuggestLoading(false)
+        })
+  
+      return () => {
+        cancelled = true
+      }
+    }, 300)
+  
+    return () => window.clearTimeout(t)
+  }, [draft, open, onUnauthorized])
+
+  const Icon = data ? ICONS[data.condition] : Cloud
+
+  async function persist(name: string) {
+    setLocation(name)
+    onLocationChange?.(name)
+    try {
+      await authFetch("/api/user/location", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location: name }),
+        onUnauthorized,
+      })
+    } catch {
+      // 로그인 안 된 상태 등 — UI는 이미 로컬 location 반영
+    }
+  }
+  
   function save() {
     const name = draft.trim()
-    if (name) setLocation(name)
+    if (name) void persist(name)
     setOpen(false)
   }
 
+  
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <div
+      className={cn(
+        "flex flex-col rounded-widget border border-card-border bg-card p-4",
+        className,
+      )}
+    >
       <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-          <MapPin className="size-3.5 text-primary" />
-          {location}
+        <div className="flex min-w-0 items-center gap-1.5">
+          <MapPin className="size-3.5 shrink-0 text-theme" />
+          <h3 className="text-sm font-semibold text-foreground">날씨</h3>
+          <span className="truncate text-xs text-muted-foreground">
+            {mounted ? location : "서울"}
+          </span>
         </div>
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next)
+            if (!next) setSuggestions([])
+          }}
+        >
           <PopoverTrigger
             render={
               <Button size="icon-xs" variant="ghost" aria-label="위치 편집" />
@@ -79,15 +209,41 @@ export function WeatherWidget() {
                   if (e.key === "Enter" && !e.nativeEvent.isComposing) save()
                 }}
               />
+              {(suggestLoading || activeSuggestions.length > 0) && (
+                <ul className="max-h-36 overflow-y-auto rounded-md border border-border">
+                  {suggestLoading && activeSuggestions.length === 0 ? (
+                    <li className="px-2 py-1.5 text-xs text-muted-foreground">
+                      검색 중…
+                    </li>
+                  ) : (
+                    activeSuggestions.map((s) => (
+                      <li key={`${s.name}-${s.lat}-${s.lon}`}>
+                        <button
+                          type="button"
+                          className="w-full px-2 py-1.5 text-left text-sm hover:bg-muted"
+                          onClick={() => {
+                            setDraft(s.name)
+                            void persist(s.name)
+                            setOpen(false)
+                            setSuggestions([])
+                          }}
+                        >
+                          {s.label}
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
               <div className="flex flex-wrap gap-1">
-                {Object.keys(MOCK_WEATHER).map((c) => (
+                {CITY_PRESETS.map((c) => (
                   <Button
                     key={c}
                     size="xs"
                     variant="outline"
                     onClick={() => {
-                      setLocation(c)
                       setDraft(c)
+                      void persist(c)
                       setOpen(false)
                     }}
                   >
@@ -104,23 +260,35 @@ export function WeatherWidget() {
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Icon className="size-10 text-primary" />
-          <div>
-            <p className="text-2xl font-semibold tabular-nums text-foreground">
-              {data.high}°
-            </p>
-            <p className="text-xs text-muted-foreground">{data.desc}</p>
-          </div>
-        </div>
-        <div className="text-right text-xs text-muted-foreground">
-          <p className="font-medium text-[var(--event-rose)]">
-            최고 {data.high}°
+        {status === "loading" && (
+          <p className="text-sm text-muted-foreground">불러오는 중…</p>
+        )}
+        {status === "error" && (
+          <p className="text-sm text-muted-foreground">
+            날씨를 찾을 수 없어요
           </p>
-          <p className="font-medium text-[var(--event-blue)]">
-            최저 {data.low}°
-          </p>
-        </div>
+        )}
+        {status === "ok" && data && (
+          <>
+            <div className="flex items-center gap-3">
+              <Icon className="size-10 text-theme" />
+              <div>
+              <p className="text-2xl font-semibold tabular-nums text-foreground">
+                {data.temp}°
+              </p>
+                <p className="text-xs text-muted-foreground">{data.desc}</p>
+              </div>
+            </div>
+            <div className="text-right text-xs text-muted-foreground">
+              <p className="font-medium text-[var(--event-rose)]">
+                최고 {data.high}°
+              </p>
+              <p className="font-medium text-[var(--event-blue)]">
+                최저 {data.low}°
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
