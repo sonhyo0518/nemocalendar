@@ -257,6 +257,7 @@ export function MainCalendar({
     }
   }
   
+  // 일정 삭제
   async function removeEvent() {
     if (!editingEvent || isKoreanHolidayEvent(editingEvent)) return
     if (!window.confirm(`「${editingEvent.title}」 일정을 삭제할까요?`)) return
