@@ -140,6 +140,8 @@ export function CalendarDashboard() {
                     onDeleteEvent={deleteEvent}
                     calendars={calendars}
                     themeColor={user?.theme_color ?? DEFAULT_BANNER_COLOR}
+                    calendarConnected={calendarConnected}
+                    isLoggedIn={Boolean(user)}
                     flush
                   />
                 )

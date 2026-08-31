@@ -66,6 +66,8 @@ interface MainCalendarProps {
   onDeleteEvent: (e: CalendarEvent) => Promise<void>
   calendars: GoogleCalendarOption[]
   themeColor?: string | null
+  calendarConnected?: boolean
+  isLoggedIn?: boolean
   flush?: boolean
 }
 
@@ -81,6 +83,8 @@ export function MainCalendar({
   calendars,
   themeColor,
   flush = false,
+  calendarConnected = false,
+  isLoggedIn = false,
 }: MainCalendarProps) {
   const accent = themeColor ?? "var(--theme)"
   const [mode, setMode] = React.useState<ViewMode>("month")
@@ -185,7 +189,19 @@ export function MainCalendar({
     setDayDialogOpen(true)
   }
   
+  const canAddEvents = isLoggedIn && calendarConnected
+
+  function showCalendarConnectGuide() {
+    alert("Google 캘린더를 연결해야 일정을 추가할 수 있어요.\n상단의 '캘린더 연결' 버튼을 눌러 주세요.")
+  }
+
   function openAdd(dateKey: string) {
+    if (!canAddEvents) {
+      showCalendarConnectGuide()
+      return
+    }
+    setEditingEvent(null)
+    setFormDate(dateKey)
     setEditingEvent(null)
     setFormDate(dateKey)
     setTitle("")
@@ -452,18 +468,28 @@ export function MainCalendar({
                           </span>
                         )}
 
-                        <button
-                          type="button"
-                          aria-label="일정 추가"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onSelectDate(day)
-                            openAdd(key)
-                          }}
-                          className="absolute top-0 right-0 rounded border border-border p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100"
-                        >
-                          <Plus className="size-3" />
-                        </button>
+                      <button
+                        type="button"
+                        aria-label="일정 추가"
+                        disabled={!canAddEvents}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (!canAddEvents) {
+                            showCalendarConnectGuide()
+                            return
+                          }
+                          onSelectDate(day)
+                          openAdd(key)
+                        }}
+                        className={cn(
+                          "absolute top-0 right-0 rounded border border-border p-0.5 text-muted-foreground transition-opacity",
+                          canAddEvents
+                            ? "opacity-0 hover:bg-muted group-hover:opacity-100"
+                            : "cursor-not-allowed opacity-30",
+                        )}
+                      >
+                        <Plus className="size-3" />
+                      </button>
                       </div>
                       <div
                         className="flex flex-col"
@@ -602,15 +628,16 @@ export function MainCalendar({
                 </span>
               )}
             </DialogTitle>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="outline"
-                aria-label="일정 추가"
-                onClick={() => openAdd(dayDialogKey)}
-              >
-                <Plus className="size-4" />
-              </Button>
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="outline"
+              aria-label="일정 추가"
+              disabled={!canAddEvents}
+              onClick={() => openAdd(dayDialogKey)}
+            >
+              <Plus className="size-4" />
+            </Button>
             </div>
           </DialogHeader>
           {dayDialogEvents.length === 0 ? (
@@ -659,7 +686,12 @@ export function MainCalendar({
           <DialogFooter>
             <DialogClose render={<Button variant="ghost">닫기</Button>} />
             <Button
+              disabled={!canAddEvents}
               onClick={() => {
+                if (!canAddEvents) {
+                  showCalendarConnectGuide()
+                  return
+                }
                 setDayDialogOpen(false)
                 openAdd(dayDialogKey)
               }}

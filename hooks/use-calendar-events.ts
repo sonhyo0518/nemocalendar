@@ -142,6 +142,10 @@ export function useCalendarEvents({
 
   const addEvent = useCallback(
     async (event: Omit<CalendarEvent, "id">) => {
+      if (!calendarConnected) {
+        alert("Google 캘린더를 연결해야 일정을 추가할 수 있어요.")
+        return
+      }
       try {
         const data = await authJson<{ event: CalendarEvent }>(
           "/api/calendar/events",
