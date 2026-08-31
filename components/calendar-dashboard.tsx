@@ -199,11 +199,12 @@ export function CalendarDashboard() {
                 />
               </div>
               
-            <WeatherWidget
-              location={user?.location ?? "서울"}
-              onLocationChange={handleLocationChange}
-              onUnauthorized={handleSignOut}
-            />
+              <WeatherWidget
+                isLoggedIn={Boolean(user)}
+                location={user?.location ?? "서울"}
+                onLocationChange={handleLocationChange}
+                onUnauthorized={handleSignOut}
+              />
               <AnniversaryWidget
                 items={anniversaries}
                 onAdd={addAnniversary}

@@ -19,6 +19,11 @@ export function clearAuthSession() {
   localStorage.removeItem("user")
 }
 
+export function hasStoredSession(): boolean {
+  if (typeof window === "undefined") return false
+  return Boolean(localStorage.getItem("user"))
+}
+
 let refreshInFlight: Promise<void> | null = null
 
 export async function refreshAccessToken(): Promise<void> {
@@ -78,12 +83,13 @@ export async function authFetch(
     headers: finalHeaders,
     credentials: 'include',
   })
-
+  
   if (
     res.status === 401 &&
     auth &&
     !_retried &&
-    path !== "/api/user/refresh"
+    path !== "/api/user/refresh" &&
+    hasStoredSession()
   ) {
     try {
       await refreshAccessToken()

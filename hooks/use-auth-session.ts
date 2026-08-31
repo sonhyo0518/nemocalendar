@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { DashboardUser } from "@/lib/dashboard-data"
 import { persistUser, readStoredUser } from "@/lib/dashboard-cache"
-import { ApiError, authJson, clearAuthSession } from "@/lib/api"
+import { ApiError, API_BASE, authJson, clearAuthSession } from "@/lib/api"
 
 function notifyApiError(err: unknown, fallback: string) {
   if (err instanceof ApiError && err.status === 401) return
@@ -74,12 +74,12 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     signedOutRef.current = true
     const email = user?.email
     try {
-      await authJson("/api/user/logout", {
+      await fetch(`${API_BASE}/api/user/logout`, {
         method: "POST",
-        onUnauthorized: () => {},
+        credentials: "include",
       })
     } catch {
-      // 쿠키 만료 등 — 로컬 상태는 아래에서 정리
+      // 네트워크 오류 등 — 로컬 상태는 아래에서 정리
     }
     clearAuthSession()
     onSignedOut?.(email)
@@ -160,6 +160,12 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
       })
       .catch((err) => {
         if (cancelled) return
+        if (err instanceof ApiError && err.status === 401) {
+          if (!signedOutRef.current) {
+            void handleSignOut()
+          }
+          return
+        }
         notifyApiError(err, "사용자 정보를 불러오지 못했습니다.")
       })
 

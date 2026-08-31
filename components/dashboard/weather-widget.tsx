@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { authFetch } from "@/lib/api"
+import { API_BASE, authFetch } from "@/lib/api"
 
 type Condition = "sunny" | "partly" | "cloudy" | "rain"
 
@@ -41,11 +41,13 @@ const ICONS: Record<Condition, React.ElementType> = {
 
 export function WeatherWidget({
   className,
+  isLoggedIn = false,
   location: savedLocation = "서울",
   onLocationChange,
   onUnauthorized,
 }: {
   className?: string
+  isLoggedIn?: boolean
   location?: string
   onLocationChange?: (location: string) => void
   onUnauthorized?: () => void
@@ -74,10 +76,11 @@ export function WeatherWidget({
   React.useEffect(() => {
     if (!mounted) return
     queueMicrotask(() => {
-      setLocation(savedLocation)
-      setDraft(savedLocation)
+      const next = isLoggedIn ? savedLocation : "서울"
+      setLocation(next)
+      setDraft(next)
     })
-  }, [savedLocation, mounted])
+  }, [savedLocation, mounted, isLoggedIn])
 
   React.useEffect(() => {
     let cancelled = false
@@ -86,13 +89,19 @@ export function WeatherWidget({
       if (!cancelled) setStatus("loading")
     })
   
-    authFetch(`/api/weather?city=${encodeURIComponent(location)}`, {
-        onUnauthorized,
-      })
-        .then((r) => {
-          if (!r.ok) throw new Error("fetch failed")
-          return r.json() as Promise<WeatherData>
+    const city = isLoggedIn ? location : "서울"
+  
+    const load = isLoggedIn
+      ? authFetch(`/api/weather?city=${encodeURIComponent(city)}`, {
+          onUnauthorized,
         })
+      : fetch(`${API_BASE}/api/weather/guest`)
+  
+    load
+      .then((r) => {
+        if (!r.ok) throw new Error("fetch failed")
+        return r.json() as Promise<WeatherData>
+      })
       .then((json) => {
         if (!cancelled) {
           setData(json)
@@ -102,21 +111,21 @@ export function WeatherWidget({
       .catch(() => {
         if (!cancelled) setStatus("error")
       })
-
+  
     return () => {
       cancelled = true
     }
-  }, [location, onUnauthorized])
-
+  }, [location, onUnauthorized, isLoggedIn])
+  
   const activeSuggestions =
   open && draft.trim().length >= 1 ? suggestions : []
 
   React.useEffect(() => {
-    if (!open) return
+    if (!isLoggedIn || !open) return
     const q = draft.trim()
-    if (q.length < 1) return  // setSuggestions 제거
-
-  const t = window.setTimeout(() => {
+    if (q.length < 1) return
+  
+    const t = window.setTimeout(() => {
       let cancelled = false
       setSuggestLoading(true)
       authFetch(`/api/weather/suggest?q=${encodeURIComponent(q)}`, {
@@ -142,11 +151,12 @@ export function WeatherWidget({
     }, 300)
   
     return () => window.clearTimeout(t)
-  }, [draft, open, onUnauthorized])
+  }, [draft, open, onUnauthorized, isLoggedIn])
 
   const Icon = data ? ICONS[data.condition] : Cloud
 
   async function persist(name: string) {
+    if (!isLoggedIn) return
     setLocation(name)
     onLocationChange?.(name)
     try {
@@ -157,7 +167,7 @@ export function WeatherWidget({
         onUnauthorized,
       })
     } catch {
-      // 로그인 안 된 상태 등 — UI는 이미 로컬 location 반영
+      // 로그인 만료 등
     }
   }
   
@@ -167,7 +177,6 @@ export function WeatherWidget({
     setOpen(false)
   }
 
-  
   return (
     <div
       className={cn(
@@ -183,6 +192,7 @@ export function WeatherWidget({
             {mounted ? location : "서울"}
           </span>
         </div>
+        {isLoggedIn && (
         <Popover
           open={open}
           onOpenChange={(next) => {
@@ -257,6 +267,7 @@ export function WeatherWidget({
             </div>
           </PopoverContent>
         </Popover>
+        )}
       </div>
 
       <div className="flex items-center justify-between">
