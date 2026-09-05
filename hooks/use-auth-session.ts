@@ -20,7 +20,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
   const signedOutRef = useRef(false)
 
   const [user, setUser] = useState<DashboardUser | null>(() => readStoredUser())
-  const [authReady] = useState(() => typeof window !== "undefined")
+  const [authReady, setAuthReady] = useState(false)
   const [calendarConnected, setCalendarConnected] = useState(() =>
     Boolean(readStoredUser()?.calendarConnected),
   )
@@ -125,8 +125,12 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
   }, [])
   
   useEffect(() => {
-    if (!user?.email) return
+    if (!user?.email) {
+      setAuthReady(true)
+      return
+    }
     let cancelled = false
+    setAuthReady(false)
     authJson<{ user: DashboardUser & { calendarConnected?: boolean } }>(
       "/api/user/me",
       { onUnauthorized: handleSignOut },
@@ -177,9 +181,10 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
         notifyApiError(err, "사용자 정보를 불러오지 못했습니다.")
       })
 
-    return () => {
-      cancelled = true
-    }
+      .finally(() => {
+        if (!cancelled) setAuthReady(true)
+      })
+    return () => { cancelled = true }
   }, [user?.email, handleSignOut])
 
   return {

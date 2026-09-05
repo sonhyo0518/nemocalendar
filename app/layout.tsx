@@ -84,11 +84,9 @@ export default function RootLayout({
               "url(" + JSON.stringify(u.banner_img_url) + ")"
             );
           }
-          if (u && (u.theme_color || u.banner_color)) {
-            document.documentElement.style.setProperty(
-              "--banner-theme",
-              u.theme_color || u.banner_color
-            );
+          var theme = u && (u.theme_color || u.banner_color);
+          if (theme && /^#[0-9A-Fa-f]{6}$/.test(theme)) {
+            document.documentElement.style.setProperty("--banner-theme", theme);
           }
         } catch (e) {}
         })();`}
