@@ -90,6 +90,26 @@ export function WeatherWidget({
     })
   
     const city = isLoggedIn ? location : "서울"
+    const storageKey = `weather-cache:${city}`
+    const CLIENT_TTL_MS = 1000 * 60 * 60 // 1시간
+  
+    try {
+      const raw = sessionStorage.getItem(storageKey)
+      if (raw) {
+        const parsed = JSON.parse(raw) as { at: number; data: WeatherData }
+        if (Date.now() - parsed.at < CLIENT_TTL_MS) {
+          if (!cancelled) {
+            setData(parsed.data)
+            setStatus("ok")
+          }
+          return () => {
+            cancelled = true
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
   
     const load = isLoggedIn
       ? authFetch(`/api/weather?city=${encodeURIComponent(city)}`, {
@@ -106,6 +126,14 @@ export function WeatherWidget({
         if (!cancelled) {
           setData(json)
           setStatus("ok")
+          try {
+            sessionStorage.setItem(
+              storageKey,
+              JSON.stringify({ at: Date.now(), data: json }),
+            )
+          } catch {
+            // ignore
+          }
         }
       })
       .catch(() => {

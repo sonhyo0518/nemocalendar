@@ -1,5 +1,14 @@
-export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? ""
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
+
+if (
+  process.env.NODE_ENV === "production" &&
+  typeof window !== "undefined" &&
+  !API_BASE
+) {
+  console.error(
+    "[config] NEXT_PUBLIC_API_URL is missing. API calls will fail.",
+  )
+}
 
 export class ApiError extends Error {
   status: number
@@ -61,6 +70,7 @@ type AuthFetchOptions = RequestInit & {
   auth?: boolean
   onUnauthorized?: () => void
   _retried?: boolean
+  _wakeRetried?: boolean
 }
 
 export async function authFetch(
@@ -71,19 +81,42 @@ export async function authFetch(
     auth = true,
     onUnauthorized,
     _retried = false,
+    _wakeRetried = false,
     headers,
     ...rest
   } = options
 
   const finalHeaders = new Headers(headers)
 
-  // JWT는 httpOnly 쿠키로 전송 (credentials: 'include')
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...rest,
-    headers: finalHeaders,
-    credentials: 'include',
-  })
-  
+  let res: Response
+  try {
+    // JWT는 httpOnly 쿠키로 전송 (credentials: 'include')
+    res = await fetch(`${API_BASE}${path}`, {
+      ...rest,
+      headers: finalHeaders,
+      credentials: "include",
+    })
+  } catch (err) {
+    // Render 콜드스타트·일시 네트워크 오류
+    if (!_wakeRetried) {
+      await new Promise((r) => setTimeout(r, 2500))
+      return authFetch(path, { ...options, _wakeRetried: true })
+    }
+    throw err
+  }
+
+  // weather 502는 upstream 한도/실패 — 재시도하면 Open-Meteo만 더 소모
+  const isWeather = path.startsWith("/api/weather")
+  if (
+    !_wakeRetried &&
+    (res.status === 503 ||
+      res.status === 504 ||
+      (!isWeather && res.status === 502))
+  ) {
+    await new Promise((r) => setTimeout(r, 2500))
+    return authFetch(path, { ...options, _wakeRetried: true })
+  }
+
   if (
     res.status === 401 &&
     auth &&

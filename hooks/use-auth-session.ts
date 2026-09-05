@@ -115,7 +115,15 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     },
     [],
   )
-
+  
+  // Render 슬립 완화: 진입 시 health로 프로세스·DB 워밍
+  useEffect(() => {
+    if (!API_BASE) return
+    const ctrl = new AbortController()
+    void fetch(`${API_BASE}/health`, { signal: ctrl.signal }).catch(() => {})
+    return () => ctrl.abort()
+  }, [])
+  
   useEffect(() => {
     if (!user?.email) return
     let cancelled = false

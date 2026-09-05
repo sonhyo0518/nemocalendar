@@ -54,6 +54,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+  if (process.env.NODE_ENV === 'production' && !clientId) {
+    console.error(
+      '[config] NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing. Google login will not work.',
+    );
+  }
   return (
     <html
     lang="ko"
