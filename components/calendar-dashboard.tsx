@@ -126,8 +126,8 @@ export function CalendarDashboard() {
           <DashboardChrome
             mainPanel={mainPanel}
             onMainPanelChange={setMainPanel}
-            folderPanelClassName="order-2 lg:order-none"
-            asideClassName="order-1 lg:sticky lg:top-4 lg:order-none"
+            folderPanelClassName="order-1 lg:order-none"
+            asideClassName="order-2 lg:sticky lg:top-4 lg:order-none"
             main={
               mainPanel === "calendar" ? (
                 !authReady ||
@@ -182,12 +182,15 @@ export function CalendarDashboard() {
             }
             aside={
               <>
-                <PinBoard
-                  pins={pins}
-                  onAdd={addPin}
-                  onUpdate={updatePin}
-                  onRemove={removePin}
-                />
+                {/* mobile: weather → pin → anniversary → filter → pomodoro */}
+                <div className="order-20 lg:order-10">
+                  <PinBoard
+                    pins={pins}
+                    onAdd={addPin}
+                    onUpdate={updatePin}
+                    onRemove={removePin}
+                  />
+                </div>
                 <div className="hidden">
                   <div className="hidden lg:block">
                     <MiniCalendar
@@ -197,7 +200,13 @@ export function CalendarDashboard() {
                     />
                   </div>
                 </div>
-                <div className={mainPanel === "calendar" ? undefined : "hidden"}>
+                <div
+                  className={
+                    mainPanel === "calendar"
+                      ? "order-40 lg:order-20"
+                      : "hidden"
+                  }
+                >
                   <CalendarCategoryFilter
                     calendars={calendars}
                     visibleIds={visibleCalendarIds}
@@ -207,19 +216,25 @@ export function CalendarDashboard() {
                     onColorChange={changeCalendarColor}
                   />
                 </div>
-                <WeatherWidget
-                  isLoggedIn={Boolean(user)}
-                  location={user?.location ?? "서울"}
-                  onLocationChange={handleLocationChange}
-                  onUnauthorized={handleSignOut}
-                />
-                <AnniversaryWidget
-                  items={anniversaries}
-                  onAdd={addAnniversary}
-                  onRemove={removeAnniversary}
-                  onUpdate={updateAnniversary}
-                />
-                <PomodoroTimer />
+                <div className="order-10 lg:order-30">
+                  <WeatherWidget
+                    isLoggedIn={Boolean(user)}
+                    location={user?.location ?? "서울"}
+                    onLocationChange={handleLocationChange}
+                    onUnauthorized={handleSignOut}
+                  />
+                </div>
+                <div className="order-30 lg:order-40">
+                  <AnniversaryWidget
+                    items={anniversaries}
+                    onAdd={addAnniversary}
+                    onRemove={removeAnniversary}
+                    onUpdate={updateAnniversary}
+                  />
+                </div>
+                <div className="order-50 lg:order-50">
+                  <PomodoroTimer />
+                </div>
               </>
             }
           />

@@ -242,7 +242,7 @@ export function TodoBoard({
           </div>
         </div>
 
-        <Button size="sm" onClick={() => openComposer()}>
+        <Button size="sm" variant="outline" onClick={() => openComposer()}>
           <Plus data-icon="inline-start" />새 할 일
         </Button>
       </div>
@@ -819,7 +819,7 @@ function TaskRow({
       />
       <button
         type="button"
-        className="min-w-0 flex-1 text-left"
+        className="min-w-0 max-w-[min(100%,20rem)] shrink text-left"
         onClick={() => onEdit(task)}
       >
         <p
@@ -843,7 +843,7 @@ function TaskRow({
         )}
       </button>
 
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+      <div className="flex shrink-0 items-center gap-1.5">
         {inProgress && !done && (
           <span className="rounded-md bg-theme/10 px-1.5 py-0.5 text-[10px] font-semibold text-theme">
             진행
@@ -902,6 +902,13 @@ function TaskRow({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <button
+        type="button"
+        aria-label={`${task.title} 수정`}
+        className="min-h-6 min-w-2 flex-1 self-stretch"
+        onClick={() => onEdit(task)}
+      />
     </li>
   )
 }
