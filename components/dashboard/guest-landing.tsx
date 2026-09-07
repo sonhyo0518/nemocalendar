@@ -8,7 +8,7 @@ type GuestLandingProps = {
 
 export function GuestLanding({ onStart }: GuestLandingProps) {
   return (
-    <section className="mx-auto grid w-full max-w-5xl gap-8 py-6 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-center lg:gap-10">
+    <section className="mx-auto grid w-full max-w-6xl gap-8 py-6 sm:py-10 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:items-center lg:gap-10">
       <div className="flex max-w-xl flex-col items-start gap-6">
         <div className="space-y-3">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground text-balance sm:text-3xl">
