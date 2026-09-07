@@ -1,14 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useCallback, useState } from "react"
+import { useCallback } from "react"
 
 import { DEFAULT_BANNER_COLOR } from "@/lib/dashboard-data"
 import { notifyApiError } from "@/lib/api"
-import type { FolderPanelId } from "@/lib/dashboard-panel"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCalendarEvents } from "@/hooks/use-calendar-events"
 import { useDashboardWidgets } from "@/hooks/use-dashboard-widgets"
+import { useMainPanel } from "@/hooks/use-main-panel"
 
 export function useCalendarDashboardModel() {
   const calendarApiRef = React.useRef<{
@@ -19,7 +19,7 @@ export function useCalendarDashboardModel() {
     resetWidgetsState: () => void
   }>({ resetWidgetsState: () => {} })
 
-  const [mainPanel, setMainPanel] = useState<FolderPanelId>("calendar")
+  const { mainPanel, setMainPanel } = useMainPanel()
 
   const resetDashboardOnSignOut = useCallback((email?: string) => {
     calendarApiRef.current.resetCalendarState(email)

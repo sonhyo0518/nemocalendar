@@ -8,11 +8,9 @@ import {
   Pencil,
   Plus,
   Trash2,
-  X,
 } from "lucide-react"
 
 import type { Pin } from "@/lib/dashboard-data"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface PinBoardProps {
@@ -22,8 +20,49 @@ interface PinBoardProps {
   onRemove: (id: string) => void
 }
 
-const TEXTAREA_CLASS =
-  "min-h-7 max-h-40 min-w-0 flex-1 resize-none overflow-y-auto rounded-sm border border-input bg-transparent px-2 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+const TEXT_CLASS =
+  "text-[13px] font-medium leading-snug tracking-tight text-foreground"
+
+const TEXTAREA_CLASS = cn(
+  TEXT_CLASS,
+  "min-h-[26px] max-h-40 min-w-0 flex-1 resize-none overflow-y-auto rounded-sm border border-input bg-transparent px-2 py-0.5 outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
+)
+
+const ACTION_BTN_CLASS =
+  "grid size-5 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
+
+const ACTION_DANGER_CLASS =
+  "hover:bg-destructive/10 hover:text-destructive"
+
+const ROW_CLASS =
+  "flex items-start gap-2.5 border-t border-border px-4 py-2"
+
+function PinActionButton({
+  label,
+  danger,
+  disabled,
+  onClick,
+  children,
+}: {
+  label: string
+  danger?: boolean
+  disabled?: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      disabled={disabled}
+      className={cn(ACTION_BTN_CLASS, danger && ACTION_DANGER_CLASS)}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  )
+}
 
 export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
   const [composing, setComposing] = React.useState(false)
@@ -88,6 +127,35 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
     onCancel()
   }
 
+  function renderComposerActions({
+    confirmLabel,
+    cancelLabel,
+    canConfirm,
+    onConfirm,
+    onCancel,
+  }: {
+    confirmLabel: string
+    cancelLabel: string
+    canConfirm: boolean
+    onConfirm: () => void
+    onCancel: () => void
+  }) {
+    return (
+      <div className="mt-0.5 flex shrink-0 gap-0.5">
+        <PinActionButton
+          label={confirmLabel}
+          disabled={!canConfirm}
+          onClick={onConfirm}
+        >
+          <Check className="size-2.5" />
+        </PinActionButton>
+        <PinActionButton label={cancelLabel} danger onClick={onCancel}>
+          <Trash2 className="size-2.5" />
+        </PinActionButton>
+      </div>
+    )
+  }
+
   return (
     <section className="overflow-hidden rounded-widget border border-card-border bg-card">
       <div className="flex items-center gap-2 px-4 py-3">
@@ -143,10 +211,10 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
         <div className="min-h-0 overflow-hidden">
           {composing && (
             <div
-              className="flex items-start gap-1.5 border-t border-border px-4 py-2"
+              className={ROW_CLASS}
               onBlur={(e) => handleComposerBlur(e, closeComposer)}
             >
-              <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
+              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
               <textarea
                 ref={inputRef}
                 rows={1}
@@ -169,25 +237,13 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                   if (e.key === "Escape") closeComposer()
                 }}
               />
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                className="mt-0.5 shrink-0"
-                aria-label="추가"
-                disabled={!draft.trim()}
-                onClick={submit}
-              >
-                <Check />
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                className="mt-0.5 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                aria-label="작성 취소"
-                onClick={closeComposer}
-              >
-                <Trash2 />
-              </Button>
+              {renderComposerActions({
+                confirmLabel: "추가",
+                cancelLabel: "작성 취소",
+                canConfirm: Boolean(draft.trim()),
+                onConfirm: submit,
+                onCancel: closeComposer,
+              })}
             </div>
           )}
 
@@ -207,13 +263,16 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
               {pins.map((pin) => (
                 <li
                   key={pin.id}
-                  className="group relative flex items-start gap-2.5 border-t border-b-transparent border-border px-4 py-2 transition-colors hover:bg-muted/40 last:rounded-b-[var(--radius-widget)] last:border-b-border"
+                  className={cn(
+                    "group relative border-b-transparent transition-colors hover:bg-muted/40 last:rounded-b-[var(--radius-widget)] last:border-b-border",
+                    ROW_CLASS,
+                  )}
                 >
                   <span className="absolute top-[22%] bottom-[22%] left-0 w-[3px] rounded-r bg-theme opacity-0 transition-opacity group-hover:opacity-100" />
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
                   {editingId === pin.id ? (
                     <div
-                      className="flex min-w-0 flex-1 items-start gap-1.5"
+                      className="flex min-w-0 flex-1 items-start gap-2.5"
                       onBlur={(e) => handleComposerBlur(e, cancelEdit)}
                     >
                       <textarea
@@ -241,51 +300,39 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                           if (e.key === "Escape") cancelEdit()
                         }}
                       />
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        className="mt-0.5 shrink-0"
-                        aria-label="저장"
-                        disabled={!editDraft.trim()}
-                        onClick={() => commitEdit(pin.id)}
-                      >
-                        <Check />
-                      </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        className="mt-0.5 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                        aria-label="수정 취소"
-                        onClick={cancelEdit}
-                      >
-                        <Trash2 />
-                      </Button>
+                      {renderComposerActions({
+                        confirmLabel: "저장",
+                        cancelLabel: "수정 취소",
+                        canConfirm: Boolean(editDraft.trim()),
+                        onConfirm: () => commitEdit(pin.id),
+                        onCancel: cancelEdit,
+                      })}
                     </div>
                   ) : (
-                    <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[13px] font-medium tracking-tight text-foreground">
+                    <p
+                      className={cn(
+                        TEXT_CLASS,
+                        "min-w-0 flex-1 whitespace-pre-wrap break-words",
+                      )}
+                    >
                       {pin.text}
                     </p>
                   )}
                   {editingId !== pin.id && (
                     <div className="mt-0.5 flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                      <button
-                        type="button"
-                        title="수정"
-                        aria-label="핀 수정"
-                        className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                      <PinActionButton
+                        label="핀 수정"
                         onClick={() => startEdit(pin)}
                       >
                         <Pencil className="size-2.5" />
-                      </button>
-                      <button
-                        type="button"
-                        title="고정 해제"
-                        aria-label="핀 고정 해제"
-                        className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                      </PinActionButton>
+                      <PinActionButton
+                        label="핀 고정 해제"
+                        danger
                         onClick={() => onRemove(pin.id)}
                       >
-                        <X className="size-2.5" />
-                      </button>
+                        <Trash2 className="size-2.5" />
+                      </PinActionButton>
                     </div>
                   )}
                 </li>
