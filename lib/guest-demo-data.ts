@@ -151,6 +151,10 @@ export const GUEST_DEMO_TODO_CATEGORIES: TodoCategory[] = [
   { id: "c2", name: "개인", color: "#039be5" },
 ]
 
+const demoToday = toKey(new Date())
+const demoYesterday = toKey(addDays(new Date(), -1))
+const demoLater = toKey(addDays(new Date(), 5))
+
 export const GUEST_DEMO_TASKS: BoardTask[] = [
   {
     id: "t1",
@@ -158,6 +162,7 @@ export const GUEST_DEMO_TASKS: BoardTask[] = [
     categoryId: "c1",
     priority: "high",
     status: "in-progress",
+    due: demoToday,
   },
   {
     id: "t2",
@@ -165,6 +170,31 @@ export const GUEST_DEMO_TASKS: BoardTask[] = [
     categoryId: "c2",
     priority: "low",
     status: "todo",
+    due: demoYesterday,
+  },
+  {
+    id: "t3",
+    title: "회의 자료 정리",
+    categoryId: "c1",
+    priority: "medium",
+    status: "todo",
+    due: demoToday,
+  },
+  {
+    id: "t4",
+    title: "분기 계획 초안",
+    categoryId: "c1",
+    priority: "medium",
+    status: "todo",
+    due: demoLater,
+  },
+  {
+    id: "t5",
+    title: "책 반납",
+    categoryId: "c2",
+    priority: "low",
+    status: "done",
+    due: demoYesterday,
   },
 ]
 
