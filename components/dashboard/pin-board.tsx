@@ -1,7 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronDown, Pin as PinIcon, Pencil, Plus, X } from "lucide-react"
+import {
+  Check,
+  ChevronDown,
+  Pin as PinIcon,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react"
 
 import type { Pin } from "@/lib/dashboard-data"
 import { Button } from "@/components/ui/button"
@@ -13,6 +21,9 @@ interface PinBoardProps {
   onUpdate: (id: string, text: string) => void
   onRemove: (id: string) => void
 }
+
+const TEXTAREA_CLASS =
+  "min-h-7 max-h-40 min-w-0 flex-1 resize-none overflow-y-auto rounded-sm border border-input bg-transparent px-2 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
 
 export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
   const [composing, setComposing] = React.useState(false)
@@ -27,7 +38,18 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
     el.style.height = `${el.scrollHeight}px`
   }
 
+  function closeComposer() {
+    setComposing(false)
+    setDraft("")
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setEditDraft("")
+  }
+
   function openComposer() {
+    cancelEdit()
     setCollapsed(false)
     setComposing(true)
     queueMicrotask(() => {
@@ -36,11 +58,6 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
       resizeComposer(el)
       el.focus({ preventScroll: true })
     })
-  }
-
-  function closeComposer() {
-    setComposing(false)
-    setDraft("")
   }
 
   function submit() {
@@ -57,9 +74,18 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
     setEditingId(null)
   }
 
-  function cancelEdit() {
-    setEditingId(null)
-    setEditDraft("")
+  function startEdit(pin: Pin) {
+    closeComposer()
+    setEditingId(pin.id)
+    setEditDraft(pin.text)
+  }
+
+  function handleComposerBlur(
+    e: React.FocusEvent<HTMLDivElement>,
+    onCancel: () => void,
+  ) {
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return
+    onCancel()
   }
 
   return (
@@ -116,14 +142,17 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
       >
         <div className="min-h-0 overflow-hidden">
           {composing && (
-            <div className="flex items-start gap-1.5 border-t border-border px-4 py-2">
+            <div
+              className="flex items-start gap-1.5 border-t border-border px-4 py-2"
+              onBlur={(e) => handleComposerBlur(e, closeComposer)}
+            >
               <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
               <textarea
                 ref={inputRef}
                 rows={1}
                 value={draft}
                 placeholder="기억할 내용을 입력하세요"
-                className="min-h-7 max-h-40 min-w-0 flex-1 resize-none overflow-y-auto rounded-sm border border-input bg-transparent px-2 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                className={TEXTAREA_CLASS}
                 onChange={(e) => {
                   setDraft(e.target.value)
                   resizeComposer(e.currentTarget)
@@ -144,20 +173,20 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                 size="icon-sm"
                 variant="ghost"
                 className="mt-0.5 shrink-0"
-                aria-label="취소"
-                onClick={closeComposer}
-              >
-                <X />
-              </Button>
-              <Button
-                size="icon-sm"
-                variant="ghost"
-                className="mt-0.5 shrink-0"
                 aria-label="추가"
                 disabled={!draft.trim()}
                 onClick={submit}
               >
                 <Check />
+              </Button>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                className="mt-0.5 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                aria-label="작성 취소"
+                onClick={closeComposer}
+              >
+                <Trash2 />
               </Button>
             </div>
           )}
@@ -184,34 +213,21 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
                   {editingId === pin.id ? (
                     <div
-                      className="flex min-w-0 flex-1 items-start gap-1"
-                      onBlur={(e) => {
-                        if (
-                          e.currentTarget.contains(
-                            e.relatedTarget as Node | null,
-                          )
-                        ) {
-                          return
-                        }
-                        cancelEdit()
-                      }}
+                      className="flex min-w-0 flex-1 items-start gap-1.5"
+                      onBlur={(e) => handleComposerBlur(e, cancelEdit)}
                     >
                       <textarea
-                        autoFocus
                         value={editDraft}
                         rows={1}
-                        className="min-h-7 max-h-40 min-w-0 flex-1 resize-none overflow-y-auto rounded-sm border border-input bg-transparent px-2 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                        className={TEXTAREA_CLASS}
                         ref={(el) => {
                           if (!el) return
-                          el.style.height = "auto"
-                          el.style.height = `${el.scrollHeight}px`
+                          resizeComposer(el)
                           el.focus({ preventScroll: true })
                         }}
                         onChange={(e) => {
                           setEditDraft(e.target.value)
-                          const el = e.currentTarget
-                          el.style.height = "auto"
-                          el.style.height = `${el.scrollHeight}px`
+                          resizeComposer(e.currentTarget)
                         }}
                         onKeyDown={(e) => {
                           if (
@@ -228,11 +244,21 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                       <Button
                         size="icon-sm"
                         variant="ghost"
-                        className="mt-0.5"
-                        onClick={() => commitEdit(pin.id)}
+                        className="mt-0.5 shrink-0"
                         aria-label="저장"
+                        disabled={!editDraft.trim()}
+                        onClick={() => commitEdit(pin.id)}
                       >
                         <Check />
+                      </Button>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        className="mt-0.5 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        aria-label="수정 취소"
+                        onClick={cancelEdit}
+                      >
+                        <Trash2 />
                       </Button>
                     </div>
                   ) : (
@@ -247,10 +273,7 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                         title="수정"
                         aria-label="핀 수정"
                         className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                        onClick={() => {
-                          setEditingId(pin.id)
-                          setEditDraft(pin.text)
-                        }}
+                        onClick={() => startEdit(pin)}
                       >
                         <Pencil className="size-2.5" />
                       </button>
