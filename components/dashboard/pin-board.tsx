@@ -5,7 +5,6 @@ import { Check, ChevronDown, Pin as PinIcon, Pencil, Plus, X } from "lucide-reac
 
 import type { Pin } from "@/lib/dashboard-data"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 interface PinBoardProps {
@@ -21,13 +20,21 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
   const [editingId, setEditingId] = React.useState<string | null>(null)
   const [editDraft, setEditDraft] = React.useState("")
   const [collapsed, setCollapsed] = React.useState(false)
-  const inputRef = React.useRef<HTMLInputElement | null>(null)
+  const inputRef = React.useRef<HTMLTextAreaElement | null>(null)
+
+  function resizeComposer(el: HTMLTextAreaElement) {
+    el.style.height = "auto"
+    el.style.height = `${el.scrollHeight}px`
+  }
 
   function openComposer() {
     setCollapsed(false)
     setComposing(true)
     queueMicrotask(() => {
-      inputRef.current?.focus({ preventScroll: true })
+      const el = inputRef.current
+      if (!el) return
+      resizeComposer(el)
+      el.focus({ preventScroll: true })
     })
   }
 
@@ -109,16 +116,24 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
       >
         <div className="min-h-0 overflow-hidden">
           {composing && (
-            <div className="flex items-center gap-1.5 border-t border-border px-4 py-2">
-              <span className="size-1.5 shrink-0 rounded-full bg-theme/80" />
-              <Input
+            <div className="flex items-start gap-1.5 border-t border-border px-4 py-2">
+              <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
+              <textarea
                 ref={inputRef}
+                rows={1}
                 value={draft}
                 placeholder="기억할 내용을 입력하세요"
-                className="h-7 min-w-0 flex-1"
-                onChange={(e) => setDraft(e.target.value)}
+                className="min-h-7 max-h-40 min-w-0 flex-1 resize-none overflow-y-auto rounded-sm border border-input bg-transparent px-2 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                onChange={(e) => {
+                  setDraft(e.target.value)
+                  resizeComposer(e.currentTarget)
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                  if (
+                    e.key === "Enter" &&
+                    (e.metaKey || e.ctrlKey) &&
+                    !e.nativeEvent.isComposing
+                  ) {
                     e.preventDefault()
                     submit()
                   }
@@ -126,20 +141,23 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                 }}
               />
               <Button
-                size="sm"
+                size="icon-sm"
                 variant="ghost"
-                className="h-7 shrink-0 px-2"
+                className="mt-0.5 shrink-0"
+                aria-label="취소"
                 onClick={closeComposer}
               >
-                취소
+                <X />
               </Button>
               <Button
-                size="sm"
-                className="h-7 shrink-0 px-2"
-                onClick={submit}
+                size="icon-sm"
+                variant="ghost"
+                className="mt-0.5 shrink-0"
+                aria-label="추가"
                 disabled={!draft.trim()}
+                onClick={submit}
               >
-                추가
+                <Check />
               </Button>
             </div>
           )}
