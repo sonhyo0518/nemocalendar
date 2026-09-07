@@ -31,9 +31,9 @@ export function GuestDashboardMockup() {
 
   return (
     <div aria-hidden className="pointer-events-none w-full select-none">
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_6.75rem]">
+      <div className="grid items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_6.75rem]">
         {/* 메인: 탭 + 캘린더 */}
-        <div className="min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card/80 shadow-sm backdrop-blur-sm">
+        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-border/70 bg-card/80 shadow-sm backdrop-blur-sm">
           {/* 폴더 탭 */}
           <div className="flex items-center gap-3 border-b border-border/50 px-2.5 pt-2 text-[9px]">
             <span className="border-b-2 border-foreground pb-1.5 font-semibold text-foreground">
@@ -43,7 +43,7 @@ export function GuestDashboardMockup() {
             <span className="pb-1.5 text-muted-foreground">링크</span>
           </div>
 
-          <div className="space-y-1.5 p-2">
+          <div className="flex min-h-0 flex-1 flex-col space-y-1.5 p-2">
             {/* 캘린더 헤더 */}
             <div className="flex items-center justify-between gap-1 px-0.5">
               <div className="flex min-w-0 items-center gap-1.5">
@@ -77,14 +77,14 @@ export function GuestDashboardMockup() {
             </div>
 
             {/* 날짜 격자 */}
-            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-md border border-border/40 bg-border/40">
+            <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-5 gap-px overflow-hidden rounded-md border border-border/40 bg-border/40">
               {cells.map((day, i) => {
                 const bars = day ? events[day] : undefined
                 const selected = day === 8
                 return (
                   <div
                     key={i}
-                    className={`min-h-[1.35rem] bg-card p-0.5 ${
+                    className={`min-h-[1.75rem] bg-card p-0.5 sm:min-h-0 sm:h-full ${
                       selected ? "ring-1 ring-inset ring-[var(--event-blue)]/50 bg-[var(--event-blue)]/5" : ""
                     }`}
                   >
@@ -121,7 +121,7 @@ export function GuestDashboardMockup() {
         </div>
 
         {/* 사이드 위젯 */}
-        <div className="flex flex-row gap-1.5 overflow-x-auto sm:flex-col sm:overflow-visible">
+        <div className="flex flex-row gap-1.5 overflow-x-auto sm:h-full sm:flex-col sm:justify-between sm:overflow-visible">
           <Widget title="고정 메시지">
             <p className="line-clamp-2 text-[7px] leading-snug text-muted-foreground">
               오늘 할 일 · 중요한 일정만 모아두기
