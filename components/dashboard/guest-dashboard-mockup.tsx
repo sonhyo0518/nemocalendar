@@ -84,7 +84,7 @@ export function GuestDashboardMockup() {
                 return (
                   <div
                     key={i}
-                    className={`min-h-[2.1rem] bg-card p-0.5 ${
+                    className={`min-h-[1.35rem] bg-card p-0.5 ${
                       selected ? "ring-1 ring-inset ring-[var(--event-blue)]/50 bg-[var(--event-blue)]/5" : ""
                     }`}
                   >
@@ -134,7 +134,7 @@ export function GuestDashboardMockup() {
             <RowDot color="var(--event-violet)" label="업무" />
           </Widget>
 
-          <Widget title="날씨" className="hidden sm:block">
+          <Widget title="날씨" className="hidden lg:block">
             <div className="flex items-baseline justify-between gap-1">
               <span className="text-[8px] text-foreground/80">서울</span>
               <span className="text-[9px] font-semibold text-foreground">22°</span>
@@ -157,7 +157,7 @@ export function GuestDashboardMockup() {
             </div>
           </Widget>
 
-          <Widget title="뽀모도로" className="hidden sm:block">
+          <Widget title="뽀모도로" className="hidden lg:block">
             <div className="mx-auto flex size-9 items-center justify-center rounded-full border-2 border-[var(--event-rose)]/70 text-[8px] font-semibold text-foreground">
               25:00
             </div>

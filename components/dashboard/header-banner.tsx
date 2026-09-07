@@ -167,7 +167,13 @@ export function HeaderBanner({
 
   return (
     <>
-      <header className="relative flex items-center justify-between gap-4 py-5 sm:py-7 md:py-8">
+      <header
+        className={
+          user
+            ? "relative flex items-center justify-between gap-4 py-5 sm:py-7 md:py-8"
+            : "relative flex items-center justify-between gap-4 py-3 sm:py-4"
+        }
+      >
         <div className="flex items-center gap-3">
         <span className="flex size-9 items-center justify-center rounded-lg bg-theme text-theme-foreground shadow-sm backdrop-blur">
             <CalendarDays className="size-4" />

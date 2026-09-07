@@ -75,7 +75,7 @@ export function CalendarDashboard() {
   // --- 렌더 ---
   return (
     <TooltipProvider delay={200}>
-      <div className="relative min-h-screen overflow-x-hidden bg-background">
+      <div className="relative min-h-full overflow-x-hidden bg-background">
         {/* 페이지 상단 full-bleed 배너 → 고정메세지 즈음 투명화 */}
         <div
           aria-hidden
@@ -105,7 +105,13 @@ export function CalendarDashboard() {
           <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />
         </div>
 
-        <main className="relative z-10 mx-auto flex min-w-0 max-w-7xl flex-col gap-4 p-3 sm:p-4 md:p-6">
+        <main
+          className={
+            authReady && !user
+              ? "relative z-10 mx-auto flex min-w-0 max-w-7xl flex-col gap-2 p-3 sm:p-4"
+              : "relative z-10 mx-auto flex min-w-0 max-w-7xl flex-col gap-4 p-3 sm:p-4 md:p-6"
+          }
+        >
           <HeaderBanner
             user={user}
             authReady={authReady}
