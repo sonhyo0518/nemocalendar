@@ -9,13 +9,14 @@ import {
   Sun,
   UserRound,
 } from "lucide-react"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { useColorMode } from "@/hooks/use-color-mode"
 import { useGoogleLogin } from "@react-oauth/google"
+import { useGoogleSignIn } from "@/hooks/use-google-sign-in"
 import { BannerSettingsDialog } from "@/components/dashboard/banner-settings-dialog"
 import { ThemeSettingsDialog } from "@/components/dashboard/theme-settings-dialog"
 import type { DashboardUser } from "@/lib/dashboard-data"
-import { authFetch, authJson } from "@/lib/api"
+import { authFetch } from "@/lib/api"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -62,46 +63,15 @@ export function HeaderBanner({
   const [bannerOpen, setBannerOpen] = useState(false)
   const { mode, setMode } = useColorMode()
 
-  const handleGoogleLogin = useGoogleLogin({
-    flow: "auth-code",
-    scope: "openid email profile",
-    onSuccess: async (codeResponse) => {
-      try {
-        const data = await authJson<{
-          user: DashboardUser
-          error?: string
-        }>("/api/user/google-login", {
-          auth: false,
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: codeResponse.code }),
-          credentials: "include",
-        })
-        
-        // JWT는 httpOnly 쿠키로 설정됨
-        try {
-          localStorage.setItem(
-            "user",
-            JSON.stringify({
-              name: data.user.name,
-              email: data.user.email,
-              profile_img_url: data.user.profile_img_url ?? null,
-              banner_img_url: data.user.banner_img_url ?? null,
-              theme_color: data.user.theme_color ?? null,
-              location: data.user.location ?? null,
-              calendarConnected: Boolean(data.user.calendarConnected),
-            }),
-          )
-        } catch {
-          // private mode — 세션은 쿠키로 유지될 수 있음
-        }
-        onSignIn?.(data.user)
-      } catch (error) {
-        console.error("백엔드 통신 에러:", error)
-        alert("서버 연결 실패")
-      }
+  const onSignedIn = useCallback(
+    (userData: DashboardUser) => {
+      onSignIn?.(userData)
     },
-    onError: (error) => console.error("구글 Auth 에러:", error),
+    [onSignIn],
+  )
+  
+  const { startLogin, loginStarting, loginError } = useGoogleSignIn({
+    onSignedIn,
   })
 
   const handleConnectCalendar = useGoogleLogin({
@@ -275,7 +245,11 @@ export function HeaderBanner({
         ) : null}
       </header>
       {!user && authReady ? (
-        <GuestLanding onStart={handleGoogleLogin} />
+        <GuestLanding
+          onStart={startLogin}
+          isStarting={loginStarting}
+          errorMessage={loginError}
+        />
       ) : null}
       {user ? (
         <>

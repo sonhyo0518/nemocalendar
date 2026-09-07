@@ -11,12 +11,7 @@ import type {
   TodoCategory,
   TodoStatus,
 } from "@/lib/dashboard-data"
-import { ApiError, authJson } from "@/lib/api"
-
-function notifyApiError(err: unknown, fallback: string) {
-  if (err instanceof ApiError && err.status === 401) return
-  alert(err instanceof ApiError ? err.message : fallback)
-}
+import { authJson, notifyApiError } from "@/lib/api"
 
 type UseDashboardWidgetsOptions = {
   userEmail?: string

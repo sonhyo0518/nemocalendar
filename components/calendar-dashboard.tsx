@@ -3,7 +3,7 @@
 import { HeaderBanner } from "@/components/dashboard/header-banner"
 import { AnniversaryWidget } from "@/components/dashboard/anniversary-widget"
 import { CalendarCategoryFilter } from "@/components/dashboard/calendar-category-filter"
-import { FolderPanel } from "@/components/dashboard/folder-panel"
+import { DashboardChrome } from "@/components/dashboard/dashboard-chrome"
 import { MainCalendar } from "@/components/dashboard/main-calendar"
 import { MiniCalendar } from "@/components/dashboard/mini-calendar"
 import { PinBoard } from "@/components/dashboard/pin-board"
@@ -123,14 +123,15 @@ export function CalendarDashboard() {
             onCalendarDisconnected={handleCalendarDisconnect}
           />
           {authReady && !user ? null : (
-            <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
-            <FolderPanel
-              value={mainPanel}
-              onValueChange={setMainPanel}
-              className="order-2 lg:order-none"
-            >
-            {mainPanel === "calendar" ? (
-                !authReady || (user && eventsLoading && filteredEvents.length === 0) ? (
+          <DashboardChrome
+            mainPanel={mainPanel}
+            onMainPanelChange={setMainPanel}
+            folderPanelClassName="order-2 lg:order-none"
+            asideClassName="order-1 lg:sticky lg:top-4 lg:order-none"
+            main={
+              mainPanel === "calendar" ? (
+                !authReady ||
+                (user && eventsLoading && filteredEvents.length === 0) ? (
                   <div>
                     <Skeleton className="h-8 w-40" />
                     <Skeleton className="mt-4 h-72 bg-muted/40" />
@@ -177,53 +178,52 @@ export function CalendarDashboard() {
                   onRemove={removeBookmark}
                   flush
                 />
-              )}
-            </FolderPanel>
-
-            {/* 모바일: 핀·위젯을 캘린더 위에 / lg: 탭 높이만큼 내려 정렬 + 스크롤 시 고정 */}
-            <aside className="order-1 flex w-full flex-col gap-4 self-start lg:sticky lg:top-4 lg:order-none lg:pt-10">
-            <PinBoard
-              pins={pins}
-              onAdd={addPin}
-              onUpdate={updatePin}
-              onRemove={removePin}
-            />
-              <div className="hidden">
-                <div className="hidden lg:block">
-                  <MiniCalendar
-                    selectedDate={selectedDate}
-                    events={filteredEvents}
-                    onSelectDate={handleSelectDate}
+              )
+            }
+            aside={
+              <>
+                <PinBoard
+                  pins={pins}
+                  onAdd={addPin}
+                  onUpdate={updatePin}
+                  onRemove={removePin}
+                />
+                <div className="hidden">
+                  <div className="hidden lg:block">
+                    <MiniCalendar
+                      selectedDate={selectedDate}
+                      events={filteredEvents}
+                      onSelectDate={handleSelectDate}
+                    />
+                  </div>
+                </div>
+                <div className={mainPanel === "calendar" ? undefined : "hidden"}>
+                  <CalendarCategoryFilter
+                    calendars={calendars}
+                    visibleIds={visibleCalendarIds}
+                    onToggle={toggleCalendarVisibility}
+                    onShowAll={showAllCalendars}
+                    onHideAll={hideAllCalendars}
+                    onColorChange={changeCalendarColor}
                   />
                 </div>
-              </div>
-              <div className={mainPanel === "calendar" ? undefined : "hidden"}>
-                <CalendarCategoryFilter
-                  calendars={calendars}
-                  visibleIds={visibleCalendarIds}
-                  onToggle={toggleCalendarVisibility}
-                  onShowAll={showAllCalendars}
-                  onHideAll={hideAllCalendars}
-                  onColorChange={changeCalendarColor}
+                <WeatherWidget
+                  isLoggedIn={Boolean(user)}
+                  location={user?.location ?? "서울"}
+                  onLocationChange={handleLocationChange}
+                  onUnauthorized={handleSignOut}
                 />
-              </div>
-              
-              <WeatherWidget
-                isLoggedIn={Boolean(user)}
-                location={user?.location ?? "서울"}
-                onLocationChange={handleLocationChange}
-                onUnauthorized={handleSignOut}
-              />
-              <AnniversaryWidget
-                items={anniversaries}
-                onAdd={addAnniversary}
-                onRemove={removeAnniversary}
-                onUpdate={updateAnniversary}
-              />
-              <PomodoroTimer />
-            </aside>
-          </div>
-          )}
+                <AnniversaryWidget
+                  items={anniversaries}
+                  onAdd={addAnniversary}
+                  onRemove={removeAnniversary}
+                  onUpdate={updateAnniversary}
+                />
+                <PomodoroTimer />
+              </>
+            }
+          />
+        )}
         </main>
       </div>
     </TooltipProvider>

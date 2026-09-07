@@ -22,6 +22,11 @@ export class ApiError extends Error {
   }
 }
 
+export function notifyApiError(err: unknown, fallback: string) {
+  if (err instanceof ApiError && err.status === 401) return
+  alert(err instanceof ApiError ? err.message : fallback)
+}
+
 export function clearAuthSession() {
   try {
     localStorage.removeItem("accessToken")

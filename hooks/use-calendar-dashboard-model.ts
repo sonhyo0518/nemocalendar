@@ -4,16 +4,11 @@ import * as React from "react"
 import { useCallback, useState } from "react"
 
 import { DEFAULT_BANNER_COLOR } from "@/lib/dashboard-data"
-import { ApiError } from "@/lib/api"
-import type { FolderPanelId } from "@/components/dashboard/folder-panel"
+import { notifyApiError } from "@/lib/api"
+import type { FolderPanelId } from "@/lib/dashboard-panel"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCalendarEvents } from "@/hooks/use-calendar-events"
 import { useDashboardWidgets } from "@/hooks/use-dashboard-widgets"
-
-function notifyApiError(err: unknown, fallback: string) {
-  if (err instanceof ApiError && err.status === 401) return
-  alert(err instanceof ApiError ? err.message : fallback)
-}
 
 export function useCalendarDashboardModel() {
   const calendarApiRef = React.useRef<{

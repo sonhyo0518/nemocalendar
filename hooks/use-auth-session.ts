@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { DashboardUser } from "@/lib/dashboard-data"
 import { persistUser, readStoredUser } from "@/lib/dashboard-cache"
-import { ApiError, API_BASE, authJson, clearAuthSession } from "@/lib/api"
-
-function notifyApiError(err: unknown, fallback: string) {
-  if (err instanceof ApiError && err.status === 401) return
-  alert(err instanceof ApiError ? err.message : fallback)
-}
+import {
+  API_BASE,
+  ApiError,
+  authJson,
+  clearAuthSession,
+  notifyApiError,
+} from "@/lib/api"
 
 type UseAuthSessionOptions = {
   onSignedOut?: (email?: string) => void
@@ -20,7 +21,10 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
   const signedOutRef = useRef(false)
 
   const [user, setUser] = useState<DashboardUser | null>(() => readStoredUser())
-  const [authReady, setAuthReady] = useState(false)
+  // 저장된 세션이 없으면 /me 불필요 → 처음부터 ready
+  const [authReady, setAuthReady] = useState(
+    () => !Boolean(readStoredUser()?.email),
+  )
   const [calendarConnected, setCalendarConnected] = useState(() =>
     Boolean(readStoredUser()?.calendarConnected),
   )
@@ -85,6 +89,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     onSignedOut?.(email)
     setUser(null)
     setCalendarConnected(false)
+    setAuthReady(true)
     document.documentElement.style.removeProperty("--banner-img")
     document.documentElement.style.removeProperty("--banner-theme")
   }, [user?.email, onSignedOut])
@@ -125,12 +130,11 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
   }, [])
   
   useEffect(() => {
-    if (!user?.email) {
-      setAuthReady(true)
-      return
-    }
+    if (!user?.email) return
     let cancelled = false
-    setAuthReady(false)
+    queueMicrotask(() => {
+      if (!cancelled) setAuthReady(false)
+    })
     authJson<{ user: DashboardUser & { calendarConnected?: boolean } }>(
       "/api/user/me",
       { onUnauthorized: handleSignOut },
@@ -184,11 +188,12 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
         }
         notifyApiError(err, "사용자 정보를 불러오지 못했습니다.")
       })
-
       .finally(() => {
         if (!cancelled) setAuthReady(true)
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [user?.email, handleSignOut])
 
   return {

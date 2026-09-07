@@ -21,12 +21,7 @@ import {
   writeVisibleCalendarIds,
 } from "@/lib/dashboard-cache"
 import { getSourceCalendarId } from "@/lib/calendar-event-id"
-import { ApiError, authFetch, authJson } from "@/lib/api"
-
-function notifyApiError(err: unknown, fallback: string) {
-  if (err instanceof ApiError && err.status === 401) return
-  alert(err instanceof ApiError ? err.message : fallback)
-}
+import { authFetch, authJson, notifyApiError } from "@/lib/api"
 
 type UseCalendarEventsOptions = {
   userEmail?: string
@@ -175,7 +170,7 @@ export function useCalendarEvents({
         throw err
       }
     },
-    [userEmail, onUnauthorized, invalidateEventsReload],
+    [userEmail, calendarConnected, onUnauthorized, invalidateEventsReload],
   )
 
   const updateEvent = useCallback(

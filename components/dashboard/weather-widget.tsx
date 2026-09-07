@@ -86,31 +86,38 @@ export function WeatherWidget({
   React.useEffect(() => {
     let cancelled = false
   
-    void Promise.resolve().then(() => {
-      if (!cancelled) setStatus("loading")
-    })
-  
     const city = isLoggedIn ? location : "서울"
     const storageKey = `weather-cache:${city}`
     const CLIENT_TTL_MS = 1000 * 60 * 60 // 1시간
   
+    let cached: WeatherData | null = null
     try {
       const raw = sessionStorage.getItem(storageKey)
       if (raw) {
         const parsed = JSON.parse(raw) as { at: number; data: WeatherData }
         if (Date.now() - parsed.at < CLIENT_TTL_MS) {
-          if (!cancelled) {
-            setData(parsed.data)
-            setStatus("ok")
-          }
-          return () => {
-            cancelled = true
-          }
+          cached = parsed.data
         }
       }
     } catch {
       // ignore
     }
+  
+    if (cached) {
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setData(cached)
+          setStatus("ok")
+        }
+      })
+      return () => {
+        cancelled = true
+      }
+    }
+  
+    queueMicrotask(() => {
+      if (!cancelled) setStatus("loading")
+    })
   
     const load = isLoggedIn
       ? authFetch(`/api/weather?city=${encodeURIComponent(city)}`, {

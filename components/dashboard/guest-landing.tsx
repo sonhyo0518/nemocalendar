@@ -1,9 +1,23 @@
 "use client"
 
-import { GuestDashboardMockup } from "@/components/dashboard/guest-dashboard-mockup"
+import dynamic from "next/dynamic"
+const GuestDashboardMockup = dynamic(
+  () =>
+    import("@/components/dashboard/guest-dashboard-mockup").then(
+      (m) => m.GuestDashboardMockup,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[min(72vh,594px)] w-full animate-pulse rounded-xl bg-muted/30" />
+    ),
+  },
+)
 
 type GuestLandingProps = {
   onStart: () => void
+  isStarting?: boolean
+  errorMessage?: string | null
 }
 
 function GoogleGlyph() {
@@ -29,7 +43,11 @@ function GoogleGlyph() {
   )
 }
 
-export function GuestLanding({ onStart }: GuestLandingProps) {
+export function GuestLanding({
+  onStart,
+  isStarting = false,
+  errorMessage,
+}: GuestLandingProps) {
   return (
     <section className="flex w-full flex-col gap-4 py-2 sm:py-3">
       <div className="flex w-full max-w-xl flex-col items-start gap-3">
@@ -44,17 +62,25 @@ export function GuestLanding({ onStart }: GuestLandingProps) {
         </div>
 
         {/* Google Identity branding: light/dark 스펙 + 표준 컬러 G */}
-        <button
-          type="button"
-          onClick={onStart}
-          className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-md border border-[#DADCE0] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DADCE0]/50 dark:border-[#3C4043] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
-        >
-          {/* G는 항상 흰 배경 위에 */}
-          <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-white">
-            <GoogleGlyph />
-          </span>
-          Google 계정으로 로그인
-        </button>
+        <div className="flex flex-col items-start gap-2">
+          <button
+            type="button"
+            onClick={onStart}
+            disabled={isStarting}
+            aria-busy={isStarting}
+            className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-md border border-[#DADCE0] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DADCE0]/50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3C4043] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
+          >
+            <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-white">
+              <GoogleGlyph />
+            </span>
+            {isStarting ? "로그인 중…" : "Google 계정으로 로그인"}
+          </button>
+          {errorMessage ? (
+            <p role="alert" className="text-sm text-destructive">
+              {errorMessage}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <GuestDashboardMockup />

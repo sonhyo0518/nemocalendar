@@ -85,17 +85,26 @@ function savePomodoroState(state: PomodoroPersisted) {
   } catch {}
 }
 
-export function PomodoroTimer() {
-  const [initial] = React.useState(() => loadPomodoroState())
-
+export function PomodoroTimer({
+  interactive = true,
+}: {
+  interactive?: boolean
+}) {
+  const [initial] = React.useState(() =>
+    interactive ? loadPomodoroState() : DEFAULT_STATE,
+  )
   const [mode, setMode] = React.useState<Mode>(initial.mode)
   const [remaining, setRemaining] = React.useState(initial.remaining)
-  const [running, setRunning] = React.useState(initial.running)
+  const [running, setRunning] = React.useState(
+    interactive ? initial.running : false,
+  )
   const [completed, setCompleted] = React.useState(initial.completed)
-
-const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.running)
+  const skipCompletionOnMount = React.useRef(
+    interactive && initial.remaining === 0 && !initial.running,
+  )
 
   React.useEffect(() => {
+    if (!interactive) return
     savePomodoroState({
       mode,
       remaining,
@@ -103,12 +112,12 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
       completed,
       endsAt: running ? Date.now() + remaining * 1000 : null,
     })
-    // running 중 remaining 1초마다 바뀌므로 deps에서 제외
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, running, completed])
+  }, [interactive, mode, running, completed])
   
+
   React.useEffect(() => {
-    if (running) return
+    if (!interactive || running) return
     savePomodoroState({
       mode,
       remaining,
@@ -116,10 +125,10 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
       completed,
       endsAt: null,
     })
-  }, [remaining, running, mode, completed])
+  }, [interactive, remaining, running, mode, completed])
 
   React.useEffect(() => {
-    if (!running) return
+    if (!interactive || !running) return
     const id = setInterval(() => {
       setRemaining((r) => {
         if (r > 1) return r - 1
@@ -145,7 +154,7 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
       })
     }, 1000)
     return () => clearInterval(id)
-  }, [running])
+  }, [interactive, running])
 
   function switchMode(next: Mode) {
     setMode(next)
@@ -184,9 +193,10 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
       <div className="mb-4 flex justify-center gap-1.5">
         <button
           type="button"
-          onClick={() => switchMode("focus")}
+          disabled={!interactive}
+          onClick={() => interactive && switchMode("focus")}
           className={cn(
-            "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
             mode === "focus"
               ? "bg-theme text-theme-foreground"
               : "bg-secondary text-muted-foreground hover:text-foreground",
@@ -196,9 +206,10 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
         </button>
         <button
           type="button"
-          onClick={() => switchMode("break")}
+          disabled={!interactive}
+          onClick={() => interactive && switchMode("break")}
           className={cn(
-            "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
             mode === "break"
               ? "bg-[var(--event-green)]/20 text-[var(--event-green)] ring-1 ring-[var(--event-green)]/40"
               : "bg-secondary text-muted-foreground hover:text-foreground",
@@ -242,7 +253,11 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
       </div>
 
       <div className="mt-4 flex justify-center gap-2">
-        <Button onClick={() => setRunning((r) => !r)} className="min-w-24">
+        <Button
+          disabled={!interactive}
+          onClick={() => interactive && setRunning((r) => !r)}
+          className="min-w-24"
+        >
           {running ? (
             <>
               <Pause data-icon="inline-start" />
@@ -255,7 +270,13 @@ const skipCompletionOnMount = React.useRef(initial.remaining === 0 && !initial.r
             </>
           )}
         </Button>
-        <Button variant="outline" size="icon" onClick={reset} aria-label="리셋">
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={!interactive}
+          onClick={() => interactive && reset()}
+          aria-label="리셋"
+        >
           <RotateCcw />
         </Button>
       </div>

@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import type { FolderPanelId } from "@/lib/dashboard-panel"
 
-export type FolderPanelId = "calendar" | "todo" | "bookmarks"
+export type { FolderPanelId }
 
 const TABS: { id: FolderPanelId; label: string }[] = [
   { id: "calendar", label: "캘린더" },
