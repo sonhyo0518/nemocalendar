@@ -31,7 +31,7 @@ function GoogleGlyph() {
 
 export function GuestLanding({ onStart }: GuestLandingProps) {
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-col gap-4 py-2 sm:py-3">
+    <section className="flex w-full flex-col gap-4 py-2 sm:py-3">
       <div className="flex w-full max-w-xl flex-col items-start gap-3">
         <div className="space-y-2">
           <h2 className="text-xl font-semibold tracking-tight text-foreground text-balance sm:text-2xl">

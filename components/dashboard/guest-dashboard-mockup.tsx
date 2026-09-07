@@ -64,7 +64,7 @@ export function GuestDashboardMockup() {
             />
           </FolderPanel>
 
-          <aside className="flex flex-col gap-4">
+          <aside className="flex flex-col gap-4 lg:pt-10">
             <PinBoard
               pins={GUEST_DEMO_PINS}
               onAdd={noop}
