@@ -6,11 +6,6 @@ import { Check, ChevronDown, Pin as PinIcon, Pencil, Plus, X } from "lucide-reac
 import type { Pin } from "@/lib/dashboard-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
 interface PinBoardProps {
@@ -21,18 +16,32 @@ interface PinBoardProps {
 }
 
 export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
-  const [open, setOpen] = React.useState(false)
+  const [composing, setComposing] = React.useState(false)
   const [draft, setDraft] = React.useState("")
   const [editingId, setEditingId] = React.useState<string | null>(null)
   const [editDraft, setEditDraft] = React.useState("")
   const [collapsed, setCollapsed] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement | null>(null)
+
+  function openComposer() {
+    setCollapsed(false)
+    setComposing(true)
+    queueMicrotask(() => {
+      inputRef.current?.focus({ preventScroll: true })
+    })
+  }
+
+  function closeComposer() {
+    setComposing(false)
+    setDraft("")
+  }
 
   function submit() {
     const text = draft.trim()
     if (!text) return
     onAdd(text)
     setDraft("")
-    setOpen(false)
+    setComposing(false)
   }
 
   function commitEdit(id: string) {
@@ -41,82 +50,57 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
     setEditingId(null)
   }
 
+  function cancelEdit() {
+    setEditingId(null)
+    setEditDraft("")
+  }
+
   return (
     <section className="overflow-hidden rounded-widget border border-card-border bg-card">
-      
-      <div
-        role="button"
-        tabIndex={0}
-        aria-expanded={!collapsed}
-        aria-label={collapsed ? "고정 메세지 펼치기" : "고정 메세지 접기"}
-        className="flex cursor-pointer items-center gap-2 px-4 py-3"
-        onClick={() => setCollapsed((v) => !v)}
-        onKeyDown={(e) => {
-          if (e.key !== "Enter" && e.key !== " ") return
-          e.preventDefault()
-          setCollapsed((v) => !v)
-        }}
-      >
-        <span className="grid size-5 shrink-0 place-items-center text-muted-foreground">
-          <ChevronDown
-            className={cn(
-              "size-3.5 transition-transform duration-200",
-              collapsed && "-rotate-90",
-            )}
-          />
-        </span>
-        <span className="flex size-[22px] shrink-0 items-center justify-center rounded-[7px] bg-theme/20 text-theme">
-          <PinIcon className="size-3" />
-        </span>
-        <h2 className="text-[13.5px] font-bold tracking-tight text-foreground">
-          고정 메세지
-        </h2>
-        <span className="text-xs font-semibold text-muted-foreground">
-          {pins.length}
-        </span>
-        <div
-          className="ml-auto"
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
+      <div className="flex items-center gap-2 px-4 py-3">
+        <button
+          type="button"
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? "고정 메세지 펼치기" : "고정 메세지 접기"}
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
+          onClick={() => setCollapsed((v) => !v)}
         >
-          <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger
-            render={
-              <button
-                type="button"
-                title="추가"
-                aria-label="핀 추가"
-                className="grid size-[22px] place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-              />
-            }
-          >
-            <Plus className="size-3.5" />
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-72">
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-foreground">새 핀 추가</p>
-              <Input
-                autoFocus
-                value={draft}
-                placeholder="기억할 내용을 입력하세요"
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.nativeEvent.isComposing) submit()
-                }}
-              />
-              <div className="flex justify-end gap-2">
-                <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
-                  취소
-                </Button>
-                <Button size="sm" onClick={submit} disabled={!draft.trim()}>
-                  추가하기
-                </Button>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+          <span className="grid size-5 shrink-0 place-items-center text-muted-foreground">
+            <ChevronDown
+              className={cn(
+                "size-3.5 transition-transform duration-200",
+                collapsed && "-rotate-90",
+              )}
+            />
+          </span>
+          <span className="flex size-[22px] shrink-0 items-center justify-center rounded-[7px] bg-theme/20 text-theme">
+            <PinIcon className="size-3" />
+          </span>
+          <h2 className="text-[13.5px] font-bold tracking-tight text-foreground">
+            고정 메세지
+          </h2>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {pins.length}
+          </span>
+        </button>
+        <button
+          type="button"
+          title="추가"
+          aria-label="핀 추가"
+          aria-pressed={composing}
+          className={cn(
+            "grid size-[22px] shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary",
+            composing && "bg-primary/10 text-primary",
+          )}
+          onClick={() => {
+            if (composing) closeComposer()
+            else openComposer()
+          }}
+        >
+          <Plus className="size-3.5" />
+        </button>
       </div>
-      </div>
+
       <div
         className={cn(
           "grid transition-[grid-template-rows] duration-200 ease-out",
@@ -124,11 +108,54 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
         )}
       >
         <div className="min-h-0 overflow-hidden">
-          {pins.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-              아직 핀이 없어요. 제목 옆 + 버튼으로 추가하세요.
+          {composing && (
+            <div className="flex items-center gap-1.5 border-t border-border px-4 py-2">
+              <span className="size-1.5 shrink-0 rounded-full bg-theme/80" />
+              <Input
+                ref={inputRef}
+                value={draft}
+                placeholder="기억할 내용을 입력하세요"
+                className="h-7 min-w-0 flex-1"
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                    e.preventDefault()
+                    submit()
+                  }
+                  if (e.key === "Escape") closeComposer()
+                }}
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 shrink-0 px-2"
+                onClick={closeComposer}
+              >
+                취소
+              </Button>
+              <Button
+                size="sm"
+                className="h-7 shrink-0 px-2"
+                onClick={submit}
+                disabled={!draft.trim()}
+              >
+                추가
+              </Button>
+            </div>
+          )}
+
+          {pins.length === 0 && !composing ? (
+            <p className="border-t border-border px-4 py-6 text-center text-sm text-muted-foreground">
+              아직 핀이 없어요.{" "}
+              <button
+                type="button"
+                className="font-medium text-foreground underline-offset-2 hover:underline"
+                onClick={openComposer}
+              >
+                핀 추가
+              </button>
             </p>
-          ) : (
+          ) : pins.length > 0 ? (
             <ul>
               {pins.map((pin) => (
                 <li
@@ -138,7 +165,19 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                   <span className="absolute top-[22%] bottom-[22%] left-0 w-[3px] rounded-r bg-theme opacity-0 transition-opacity group-hover:opacity-100" />
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
                   {editingId === pin.id ? (
-                    <div className="flex min-w-0 flex-1 items-start gap-1">
+                    <div
+                      className="flex min-w-0 flex-1 items-start gap-1"
+                      onBlur={(e) => {
+                        if (
+                          e.currentTarget.contains(
+                            e.relatedTarget as Node | null,
+                          )
+                        ) {
+                          return
+                        }
+                        cancelEdit()
+                      }}
+                    >
                       <textarea
                         autoFocus
                         value={editDraft}
@@ -148,6 +187,7 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                           if (!el) return
                           el.style.height = "auto"
                           el.style.height = `${el.scrollHeight}px`
+                          el.focus({ preventScroll: true })
                         }}
                         onChange={(e) => {
                           setEditDraft(e.target.value)
@@ -156,7 +196,6 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                           el.style.height = `${el.scrollHeight}px`
                         }}
                         onKeyDown={(e) => {
-                          // Enter = 줄바꿈, Ctrl/Cmd+Enter = 저장
                           if (
                             e.key === "Enter" &&
                             (e.metaKey || e.ctrlKey) &&
@@ -165,7 +204,7 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                             e.preventDefault()
                             commitEdit(pin.id)
                           }
-                          if (e.key === "Escape") setEditingId(null)
+                          if (e.key === "Escape") cancelEdit()
                         }}
                       />
                       <Button
@@ -211,7 +250,7 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                 </li>
               ))}
             </ul>
-          )}
+          ) : null}
         </div>
       </div>
     </section>
