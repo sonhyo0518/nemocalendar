@@ -36,7 +36,7 @@ export function GuestDashboardMockup() {
       aria-hidden
       className="relative w-full overflow-hidden rounded-xl border border-border/50 bg-background/40"
       // scale 후에도 레이아웃 높이가 맞게: 대략 콘텐츠 높이 * SCALE
-      style={{ height: `min(62vh, ${880 * SCALE}px)` }}
+      style={{ height: `min(72vh, ${1080 * SCALE}px)` }}
     >
       <div
         className="origin-top-left pointer-events-none"

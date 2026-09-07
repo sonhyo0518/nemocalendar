@@ -47,7 +47,7 @@ export function GuestLanding({ onStart }: GuestLandingProps) {
         <button
           type="button"
           onClick={onStart}
-          className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-md border border-[#747775] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#747775]/40 dark:border-[#8E918F] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
+          className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-md border border-[#DADCE0] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DADCE0]/50 dark:border-[#3C4043] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
         >
           {/* G는 항상 흰 배경 위에 */}
           <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-white">
