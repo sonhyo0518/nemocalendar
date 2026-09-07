@@ -18,16 +18,15 @@ export function GuestDashboardMockup() {
     return day >= 1 && day <= daysInMonth ? day : null
   })
 
-  // 스크린샷에 가까운 빨간/분홍 일정 바
+  // 데모용 가짜 일정 (개인 정보 없음)
   const events: Record<number, string[]> = {
-    1: ["발표 자료"],
-    2: ["발표회 리허설"],
-    7: ["멘토링"],
-    8: ["취업교육"],
-    14: ["추석"],
-    15: ["추석"],
-    16: ["추석"],
-    24: ["기업탐방"],
+    3: ["팀 미팅"],
+    8: ["운동"],
+    12: ["스터디"],
+    15: ["휴가"],
+    16: ["휴가"],
+    22: ["프로젝트 마감"],
+    28: ["병원"],
   }
 
   return (
@@ -125,32 +124,35 @@ export function GuestDashboardMockup() {
         <div className="flex flex-row gap-1.5 overflow-x-auto sm:flex-col sm:overflow-visible">
           <Widget title="고정 메시지">
             <p className="line-clamp-2 text-[7px] leading-snug text-muted-foreground">
-              개인 프로젝트용 캘린더입니다.
+              오늘 할 일 · 중요한 일정만 모아두기
             </p>
           </Widget>
 
           <Widget title="캘린더">
             <RowDot color="var(--event-rose)" label="대한민국의 휴일" />
             <RowDot color="var(--event-blue)" label="내 캘린더" />
-            <RowDot color="var(--event-violet)" label="랩 프로젝트" />
+            <RowDot color="var(--event-violet)" label="업무" />
           </Widget>
 
           <Widget title="날씨" className="hidden sm:block">
-            <div className="text-[8px] text-foreground/80">대구</div>
-            <div className="text-[7px] text-muted-foreground">날씨를 찾을 수 없어요</div>
+            <div className="flex items-baseline justify-between gap-1">
+              <span className="text-[8px] text-foreground/80">서울</span>
+              <span className="text-[9px] font-semibold text-foreground">22°</span>
+            </div>
+            <div className="text-[7px] text-muted-foreground">맑음 · 체감 21°</div>
           </Widget>
 
           <Widget title="D-Day">
             <div className="flex items-baseline justify-between gap-1">
-              <span className="truncate text-[7px] text-foreground/80">발표회</span>
+              <span className="truncate text-[7px] text-foreground/80">여행</span>
               <span className="shrink-0 text-[8px] font-semibold text-[var(--event-rose)]">
-                D+5
+                D-14
               </span>
             </div>
             <div className="flex items-baseline justify-between gap-1">
-              <span className="truncate text-[7px] text-foreground/80">기업탐방</span>
+              <span className="truncate text-[7px] text-foreground/80">생일</span>
               <span className="shrink-0 text-[8px] font-semibold text-[var(--event-blue)]">
-                D-7
+                D-30
               </span>
             </div>
           </Widget>
