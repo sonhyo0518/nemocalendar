@@ -28,8 +28,10 @@ function subscribe(onStoreChange: () => void) {
 }
 
 function getSnapshot(): ColorMode {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (raw === "light" || raw === "dark" || raw === "system") return raw
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw === "light" || raw === "dark" || raw === "system") return raw
+  } catch {}
   return "system"
 }
 
@@ -46,7 +48,9 @@ export function useColorMode() {
   }, [mode])
 
   const setMode = useCallback((next: ColorMode) => {
-    localStorage.setItem(STORAGE_KEY, next)
+    try {
+      localStorage.setItem(STORAGE_KEY, next)
+    } catch {}
     applyColorMode(next)
     bump((n) => n + 1)
   }, [])

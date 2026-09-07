@@ -348,7 +348,7 @@ export function BookmarkBoard({
           {visible.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
               {filter === "all"
-                ? "링크를 추가하거나, 카드을 폴더로 끌어다 넣으세요."
+                ? "링크를 추가하거나, 카드를 폴더로 끌어다 넣으세요."
                 : "이 폴더에 링크가 없어요."}
             </p>
           ) : (
@@ -651,7 +651,8 @@ function BookmarkCard({
           <button
             type="button"
             title="열기"
-            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary"
+            aria-label="북마크 열기"
+            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={() =>
               window.open(item.url, "_blank", "noopener,noreferrer")
             }
@@ -661,7 +662,8 @@ function BookmarkCard({
           <button
             type="button"
             title="수정"
-            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary"
+            aria-label="북마크 수정"
+            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={onEdit}
           >
             <Pencil className="size-2.5" />
@@ -669,7 +671,8 @@ function BookmarkCard({
           <button
             type="button"
             title="삭제"
-            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            aria-label="북마크 삭제"
+            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={onRemove}
           >
             <X className="size-2.5" />

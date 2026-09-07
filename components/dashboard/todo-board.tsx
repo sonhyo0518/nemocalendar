@@ -131,7 +131,17 @@ export function TodoBoard({
     setEditingId(null)
     setOpen(false)
   }
-
+  
+  function commitCategory() {
+    if (!catName.trim()) return
+    const payload = { name: catName.trim(), color: catColor }
+    if (editingCategoryId) onUpdateCategory(editingCategoryId, payload)
+    else onAddCategory(payload)
+    setCatName("")
+    setEditingCategoryId(null)
+    setCatOpen(false)
+  }
+  
   return (
     <section
       className={cn(
@@ -538,6 +548,11 @@ export function TodoBoard({
                 value={catName}
                 placeholder="예: 업무"
                 onChange={(e) => setCatName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter" || e.nativeEvent.isComposing) return
+                  e.preventDefault()
+                  commitCategory()
+                }}
               />
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -545,9 +560,11 @@ export function TodoBoard({
                 <button
                   key={color}
                   type="button"
+                  aria-label={`카테고리 색상 ${color}`}
+                  aria-pressed={catColor === color}
                   onClick={() => setCatColor(color)}
                   className={cn(
-                    "size-7 rounded-full border",
+                    "size-7 rounded-full border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                     catColor === color ? "border-foreground" : "border-transparent",
                   )}
                   style={{ backgroundColor: color }}
@@ -559,14 +576,7 @@ export function TodoBoard({
             <DialogClose render={<Button variant="ghost">취소</Button>} />
             <Button
               disabled={!catName.trim()}
-              onClick={() => {
-                const payload = { name: catName.trim(), color: catColor }
-                if (editingCategoryId) onUpdateCategory(editingCategoryId, payload)
-                else onAddCategory(payload)
-                setCatName("")
-                setEditingCategoryId(null)
-                setCatOpen(false)
-              }}
+              onClick={commitCategory}
             >
               {editingCategoryId ? "저장" : "추가"}
             </Button>

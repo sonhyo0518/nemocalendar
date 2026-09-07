@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 import { API_BASE, authFetch } from "@/lib/api"
 
 type Condition = "sunny" | "partly" | "cloudy" | "rain"
@@ -289,7 +290,7 @@ export function WeatherWidget({
                   </Button>
                 ))}
               </div>
-              <Button size="sm" onClick={save}>
+              <Button size="sm" onClick={save} disabled={!draft.trim()}>
                 저장
               </Button>
             </div>
@@ -300,7 +301,19 @@ export function WeatherWidget({
 
       <div className="flex items-center justify-between">
         {status === "loading" && (
-          <p className="text-sm text-muted-foreground">불러오는 중…</p>
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-10 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-7 w-16" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="ml-auto h-3 w-14" />
+              <Skeleton className="ml-auto h-3 w-14" />
+            </div>
+          </div>
         )}
         {status === "error" && (
           <p className="text-sm text-muted-foreground">

@@ -17,10 +17,10 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://nemocalendar.vercel.app'),
   title: 'Nemo Calendar',
   description:
     '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드. 일정 관리, 핀 보드, 기념일과 D-Day를 한 곳에서.',
-  generator: 'v0.app',
   icons: {
     icon: [
       {
@@ -37,6 +37,30 @@ export const metadata: Metadata = {
       },
     ],
     apple: '/apple-icon.png',
+  },
+  openGraph: {
+    title: 'Nemo Calendar',
+    description:
+      '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드. 일정 관리, 핀 보드, 기념일과 D-Day를 한 곳에서.',
+    url: 'https://nemocalendar.vercel.app',
+    siteName: 'Nemo Calendar',
+    locale: 'ko_KR',
+    type: 'website',
+    images: [
+      {
+        url: '/apple-icon.png',
+        width: 180,
+        height: 180,
+        alt: 'Nemo Calendar',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary', // 정사각 아이콘용 (large_image 아님)
+    title: 'Nemo Calendar',
+    description:
+      '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드.',
+    images: ['/apple-icon.png'],
   },
 }
 

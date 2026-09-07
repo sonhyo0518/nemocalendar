@@ -135,18 +135,26 @@ import {
   }
   
   export function persistUser(user: DashboardUser) {
-    localStorage.setItem("user", JSON.stringify(user))
-    if (typeof document === "undefined") return
-    if (user.banner_img_url) {
-      document.documentElement.style.setProperty(
-        "--banner-img",
-        `url(${JSON.stringify(user.banner_img_url)})`,
-      )
-    } else {
-      document.documentElement.style.removeProperty("--banner-img")
+    try {
+      localStorage.setItem("user", JSON.stringify(user))
+    } catch {
+      // private mode / quota
     }
-    const theme = user.theme_color ?? DEFAULT_BANNER_COLOR
-    document.documentElement.style.setProperty("--banner-theme", theme)
+    if (typeof document === "undefined") return
+    try {
+      if (user.banner_img_url) {
+        document.documentElement.style.setProperty(
+          "--banner-img",
+          `url(${JSON.stringify(user.banner_img_url)})`,
+        )
+      } else {
+        document.documentElement.style.removeProperty("--banner-img")
+      }
+      const theme = user.theme_color ?? DEFAULT_BANNER_COLOR
+      document.documentElement.style.setProperty("--banner-theme", theme)
+    } catch {
+      // ignore DOM/style failures
+    }
   }
   
   export function readStoredUser(): DashboardUser | null {

@@ -107,7 +107,7 @@ const DOT: Record<Urgency, string> = {
   soon: "text-[var(--event-rose)] bg-[var(--event-rose)]",
   mid: "text-[var(--event-amber)] bg-[var(--event-amber)]",
   far: "text-[var(--event-green)] bg-[var(--event-green)]",
-  past: "text-muted-foreground/50 bg-muted-foreground/50",
+  past: "text-muted-foreground bg-muted-foreground/40",
   milestone: "text-[var(--event-rose)] bg-[var(--event-rose)]",
 }
 
@@ -255,9 +255,18 @@ export function AnniversaryWidget({
                       <Input
                         id="anniv-title"
                         value={title}
-                        className="h-8"
-                        placeholder="예: 프로젝트 출시"
                         onChange={(e) => setTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            !e.nativeEvent.isComposing &&
+                            title.trim() &&
+                            date
+                          ) {
+                            e.preventDefault()
+                            submit()
+                          }
+                        }}
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">

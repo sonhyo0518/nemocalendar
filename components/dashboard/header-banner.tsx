@@ -32,6 +32,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { GuestLanding } from "@/components/dashboard/guest-landing"
 
 interface HeaderBannerProps {
   user: DashboardUser | null
@@ -101,18 +102,22 @@ export function HeaderBanner({
         })
         
         // JWT는 httpOnly 쿠키로 설정됨
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            name: data.user.name,
-            email: data.user.email,
-            profile_img_url: data.user.profile_img_url ?? null,
-            banner_img_url: data.user.banner_img_url ?? null,
-            theme_color: data.user.theme_color ?? null,
-            location: data.user.location ?? null,
-            calendarConnected: Boolean(data.user.calendarConnected),
-          }),
-        )
+        try {
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              name: data.user.name,
+              email: data.user.email,
+              profile_img_url: data.user.profile_img_url ?? null,
+              banner_img_url: data.user.banner_img_url ?? null,
+              theme_color: data.user.theme_color ?? null,
+              location: data.user.location ?? null,
+              calendarConnected: Boolean(data.user.calendarConnected),
+            }),
+          )
+        } catch {
+          // private mode — 세션은 쿠키로 유지될 수 있음
+        }
         onSignIn?.(data.user)
       } catch (error) {
         console.error("백엔드 통신 에러:", error)
@@ -196,7 +201,8 @@ export function HeaderBanner({
                 render={
                   <button
                     type="button"
-                    className="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-card/80 p-0 leading-none shadow-sm backdrop-blur transition-colors hover:bg-card"
+                    className="inline-flex size-8 max-sm:size-11 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-border bg-card/80 p-0 leading-none shadow-sm backdrop-blur transition-colors hover:bg-card"
+                    aria-label="계정 메뉴"
                   />
                 }
               >
@@ -294,6 +300,9 @@ export function HeaderBanner({
           </Button>
         )}
       </header>
+      {!user && authReady ? (
+        <GuestLanding onStart={handleGoogleLogin} />
+      ) : null}
       {user ? (
         <>
           <ThemeSettingsDialog

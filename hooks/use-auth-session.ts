@@ -137,7 +137,11 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     )
       .then((data) => {
         if (cancelled || signedOutRef.current || !data?.user) return
-        if (!localStorage.getItem("user")) return
+        try {
+          if (!localStorage.getItem("user")) return
+        } catch {
+          return
+        }
         if (data.user.calendarConnected != null) {
           setCalendarConnected(Boolean(data.user.calendarConnected))
         }

@@ -23,14 +23,22 @@ export class ApiError extends Error {
 }
 
 export function clearAuthSession() {
-  localStorage.removeItem("accessToken")
-  localStorage.removeItem("refreshToken")
-  localStorage.removeItem("user")
+  try {
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("user")
+  } catch {
+    // private mode / storage blocked
+  }
 }
 
 export function hasStoredSession(): boolean {
   if (typeof window === "undefined") return false
-  return Boolean(localStorage.getItem("user"))
+  try {
+    return Boolean(localStorage.getItem("user"))
+  } catch {
+    return false
+  }
 }
 
 let refreshInFlight: Promise<void> | null = null

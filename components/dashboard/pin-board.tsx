@@ -108,7 +108,7 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                 <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
                   취소
                 </Button>
-                <Button size="sm" onClick={submit}>
+                <Button size="sm" onClick={submit} disabled={!draft.trim()}>
                   추가하기
                 </Button>
               </div>
@@ -188,7 +188,8 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                       <button
                         type="button"
                         title="수정"
-                        className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                        aria-label="핀 수정"
+                        className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                         onClick={() => {
                           setEditingId(pin.id)
                           setEditDraft(pin.text)
@@ -199,7 +200,8 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                       <button
                         type="button"
                         title="고정 해제"
-                        className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        aria-label="핀 고정 해제"
+                        className="grid size-5 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                         onClick={() => onRemove(pin.id)}
                       >
                         <X className="size-2.5" />

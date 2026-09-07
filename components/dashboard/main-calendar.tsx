@@ -303,7 +303,7 @@ export function MainCalendar({
           ) : (
             <>
               {weekOfMonthLabel}
-              <span className="ml-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              <span className="ml-1.5 text-sm font-medium text-muted-foreground">
                 ({weekRangeLabel})
               </span>
             </>

@@ -13,6 +13,7 @@ import { WeatherWidget } from "@/components/dashboard/weather-widget"
 import { BookmarkBoard } from "@/components/dashboard/bookmark-board"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useCalendarDashboardModel } from "@/hooks/use-calendar-dashboard-model"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function CalendarDashboard() {
   const {
@@ -74,7 +75,7 @@ export function CalendarDashboard() {
   // --- 렌더 ---
   return (
     <TooltipProvider delay={200}>
-      <div className="relative min-h-screen bg-background">
+      <div className="relative min-h-screen overflow-x-hidden bg-background">
         {/* 페이지 상단 full-bleed 배너 → 고정메세지 즈음 투명화 */}
         <div
           aria-hidden
@@ -104,7 +105,7 @@ export function CalendarDashboard() {
           <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />
         </div>
 
-        <main className="relative z-10 mx-auto flex max-w-7xl flex-col gap-4 p-3 sm:p-4 md:p-6">
+        <main className="relative z-10 mx-auto flex min-w-0 max-w-7xl flex-col gap-4 p-3 sm:p-4 md:p-6">
           <HeaderBanner
             user={user}
             authReady={authReady}
@@ -115,8 +116,8 @@ export function CalendarDashboard() {
             onBannerChange={applyBanner}
             onCalendarDisconnected={handleCalendarDisconnect}
           />
-
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+          {authReady && !user ? null : (
+            <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
             <FolderPanel
               value={mainPanel}
               onValueChange={setMainPanel}
@@ -125,8 +126,8 @@ export function CalendarDashboard() {
             {mainPanel === "calendar" ? (
                 !authReady || (user && eventsLoading && filteredEvents.length === 0) ? (
                   <div>
-                    <div className="h-8 w-40 animate-pulse rounded bg-muted/60" />
-                    <div className="mt-4 h-72 animate-pulse rounded bg-muted/40" />
+                    <Skeleton className="h-8 w-40" />
+                    <Skeleton className="mt-4 h-72 bg-muted/40" />
                   </div>
                 ) : (
                   <MainCalendar
@@ -216,6 +217,7 @@ export function CalendarDashboard() {
               <PomodoroTimer />
             </aside>
           </div>
+          )}
         </main>
       </div>
     </TooltipProvider>
