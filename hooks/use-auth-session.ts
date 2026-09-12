@@ -94,6 +94,25 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     document.documentElement.style.removeProperty("--banner-theme")
   }, [user?.email, onSignedOut])
 
+  const deleteAccount = useCallback(async () => {
+    signedOutRef.current = true
+    const email = user?.email
+    try {
+      await authJson("/api/user/account", { method: "DELETE" })
+    } catch (err) {
+      signedOutRef.current = false
+      notifyApiError(err, "계정 삭제에 실패했습니다.")
+      throw err
+    }
+    clearAuthSession()
+    onSignedOut?.(email)
+    setUser(null)
+    setCalendarConnected(false)
+    setAuthReady(true)
+    document.documentElement.style.removeProperty("--banner-img")
+    document.documentElement.style.removeProperty("--banner-theme")
+  }, [user?.email, onSignedOut])
+
   const markCalendarConnected = useCallback(() => {
     setCalendarConnected(true)
     setUser((prev) => {
@@ -203,6 +222,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     setCalendarConnected,
     handleSignIn,
     handleSignOut,
+    deleteAccount,
     applyBanner,
     handleLocationChange,
     markCalendarConnected,

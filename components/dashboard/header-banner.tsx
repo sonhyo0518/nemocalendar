@@ -7,6 +7,7 @@ import {
   Palette,
   Settings,
   Sun,
+  Trash2,
   UserRound,
 } from "lucide-react"
 import { useCallback, useState } from "react"
@@ -14,11 +15,13 @@ import { useColorMode } from "@/hooks/use-color-mode"
 import { useGoogleLogin } from "@react-oauth/google"
 import { useGoogleSignIn } from "@/hooks/use-google-sign-in"
 import { BannerSettingsDialog } from "@/components/dashboard/banner-settings-dialog"
+import { DeleteAccountDialog } from "@/components/dashboard/delete-account-dialog"
 import { ThemeSettingsDialog } from "@/components/dashboard/theme-settings-dialog"
 import type { DashboardUser } from "@/lib/dashboard-data"
 import { authFetch } from "@/lib/api"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +46,7 @@ interface HeaderBannerProps {
   onCalendarConnected?: () => void
   onCalendarDisconnected?: () => void | Promise<void>
   onSignOut: () => void
+  onDeleteAccount?: () => Promise<void>
   onBannerChange?: (patch: {
     banner_img_url?: string | null
     theme_color?: string | null
@@ -57,10 +61,12 @@ export function HeaderBanner({
   onCalendarConnected,
   onCalendarDisconnected,
   onSignOut,
+  onDeleteAccount,
   onBannerChange,
 }: HeaderBannerProps) {
   const [themeOpen, setThemeOpen] = useState(false)
   const [bannerOpen, setBannerOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
   const { mode, setMode } = useColorMode()
 
   const onSignedIn = useCallback(
@@ -93,20 +99,22 @@ export function HeaderBanner({
 
         if (!response.ok) {
           if (data.code === "NO_REFRESH_TOKEN") {
-            alert(
+            toast.error(
               "캘린더 권한 토큰을 받지 못했습니다. Google 계정에서 앱 액세스를 삭제한 뒤 다시 연결해주세요.",
             )
           } else {
-            alert(`캘린더 연결 실패: ${data.error || "오류가 발생했습니다."}`)
+            toast.error(
+              `캘린더 연결 실패: ${data.error || "오류가 발생했습니다."}`,
+            )
           }
           return
         }
 
-        alert("Google 캘린더가 연결되었습니다.")
+        toast.success("Google 캘린더가 연결되었습니다.")
         onCalendarConnected?.()
       } catch (error) {
         console.error("캘린더 연결 에러:", error)
-        alert("캘린더 연결 실패")
+        toast.error("캘린더 연결 실패")
       }
     },
     onError: (error) => console.error("캘린더 Auth 에러:", error),
@@ -235,6 +243,15 @@ export function HeaderBanner({
                 ) : null}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+                {onDeleteAccount ? (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    <Trash2 />
+                    계정 삭제
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem variant="destructive" onClick={onSignOut}>
                   <LogOut />
                   로그아웃
@@ -274,6 +291,13 @@ export function HeaderBanner({
               onSignOut?.()
             }}
           />
+          {onDeleteAccount ? (
+            <DeleteAccountDialog
+              open={deleteOpen}
+              onOpenChange={setDeleteOpen}
+              onConfirm={onDeleteAccount}
+            />
+          ) : null}
         </>
       ) : null}
     </>

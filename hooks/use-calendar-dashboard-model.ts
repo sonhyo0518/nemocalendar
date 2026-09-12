@@ -33,6 +33,7 @@ export function useCalendarDashboardModel() {
     setCalendarConnected,
     handleSignIn,
     handleSignOut,
+    deleteAccount,
     applyBanner,
     handleLocationChange,
     markCalendarConnected,
@@ -72,6 +73,10 @@ export function useCalendarDashboardModel() {
     }
   }
 
+  const handleDeleteAccount = async () => {
+    await deleteAccount()
+  }
+
   return {
     DEFAULT_BANNER_COLOR,
     user,
@@ -92,6 +97,7 @@ export function useCalendarDashboardModel() {
     anniversaries: widgets.anniversaries,
     handleSignIn,
     handleSignOut,
+    handleDeleteAccount,
     applyBanner,
     setCalendarConnected,
     handleCalendarConnected,

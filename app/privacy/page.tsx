@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           개인정보처리방침
         </h1>
         <p className="mt-2 text-xs text-muted-foreground">
-          시행일: 2026년 8월 30일
+          시행일: 2026년 8월 30일 · 개정일: 2026년 9월 13일
         </p>
       </header>
 
@@ -102,9 +102,20 @@ export default function PrivacyPage() {
         <section>
           <h2>7. 이용자의 권리</h2>
           <p>
-            이용자는 Google 계정 연동 해제, 캘린더 연결 해제, 데이터 삭제
-            등을 요청할 수 있습니다. Google 계정의 앱 접근 권한은 Google
-            계정 설정에서 직접 철회할 수 있습니다.
+            이용자는 서비스 내 계정 메뉴의 「계정 삭제」로 회원 정보와
+            서비스에 저장된 이용 데이터(할 일, 핀, 북마크, 기념일, 배너·테마·위치
+            등)를 삭제할 수 있습니다. Google Calendar에 저장된 원본 일정은
+            삭제되지 않습니다. 캘린더 연결 해제와 Google 계정의 앱 접근 권한
+            철회는{" "}
+            <a
+              href="https://myaccount.google.com/permissions"
+              className="text-foreground underline underline-offset-2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google 계정 설정
+            </a>
+            에서도 직접 할 수 있습니다.
           </p>
         </section>
 

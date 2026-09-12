@@ -42,6 +42,7 @@ export function CalendarDashboard() {
     anniversaries,
     handleSignIn,
     handleSignOut,
+    handleDeleteAccount,
     applyBanner,
     handleCalendarConnected,
     handleCalendarDisconnect,
@@ -119,6 +120,7 @@ export function CalendarDashboard() {
             onSignIn={handleSignIn}
             onCalendarConnected={handleCalendarConnected}
             onSignOut={handleSignOut}
+            onDeleteAccount={handleDeleteAccount}
             onBannerChange={applyBanner}
             onCalendarDisconnected={handleCalendarDisconnect}
           />
