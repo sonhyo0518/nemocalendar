@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.2.0",
+    date: "2026-09-13",
+    summary:
+      "계정 삭제, 사용자용 릴리즈 노트, WeatherAPI 연동을 반영한 버전입니다.",
+    sections: {
+      added: [
+        "사이트 푸터와 /changelog 페이지에서 사용자용 릴리즈 노트 제공",
+        "계정 메뉴에서 계정 삭제(탈퇴): 서비스 데이터·배너·캘린더 연동 토큰 제거",
+      ],
+      changed: [
+        "날씨 upstream을 Open-Meteo에서 WeatherAPI.com(WEATHER_API_KEY)으로 교체",
+      ],
+    },
+  },
+  {
     version: "0.1.0",
     date: "2026-09-10",
     summary:

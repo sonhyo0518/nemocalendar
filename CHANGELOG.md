@@ -12,12 +12,7 @@
 
 ### Added
 
-- 사이트 푸터와 `/changelog` 페이지에서 사용자용 릴리즈 노트 제공
-- 계정 메뉴에서 계정 삭제(탈퇴): 서비스 데이터·배너·캘린더 연동 토큰 제거
-
 ### Changed
-
-- 날씨 upstream을 Open-Meteo에서 WeatherAPI.com(`WEATHER_API_KEY`)으로 교체
 
 ### Deprecated
 
@@ -34,6 +29,17 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+
+## [0.2.0] - 2026-09-13
+
+### Added
+
+- 사이트 푸터와 `/changelog` 페이지에서 사용자용 릴리즈 노트 제공
+- 계정 메뉴에서 계정 삭제(탈퇴): 서비스 데이터·배너·캘린더 연동 토큰 제거
+
+### Changed
+
+- 날씨 upstream을 Open-Meteo에서 WeatherAPI.com(`WEATHER_API_KEY`)으로 교체
 
 ## [0.1.0] - 2026-09-10
 
