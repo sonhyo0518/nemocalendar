@@ -429,54 +429,60 @@ export function BookmarkBoard({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="bookmark-url">URL</Label>
-              <Input
-                id="bookmark-url"
-                autoFocus
-                value={url}
-                placeholder="https://example.com"
-                onChange={(e) => setUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.nativeEvent.isComposing) submit()
-                }}
-              />
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault()
+              submit()
+            }}
+          >
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="bookmark-url">URL</Label>
+                <Input
+                  id="bookmark-url"
+                  autoFocus
+                  value={url}
+                  placeholder="https://example.com"
+                  onChange={(e) => setUrl(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="bookmark-title">제목 (선택)</Label>
+                <Input
+                  id="bookmark-title"
+                  value={title}
+                  placeholder="비우면 OG/도메인으로 저장"
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="bookmark-description">설명 (선택)</Label>
+                <Input
+                  id="bookmark-description"
+                  value={description}
+                  placeholder="짧은 메모"
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="bookmark-title">제목 (선택)</Label>
-              <Input
-                id="bookmark-title"
-                value={title}
-                placeholder="비우면 OG/도메인으로 저장"
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="bookmark-description">설명 (선택)</Label>
-              <Input
-                id="bookmark-description"
-                value={description}
-                placeholder="짧은 메모"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-          </div>
 
-          <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setOpen(false)
-                resetForm()
-              }}
-            >
-              취소
-            </Button>
-            <Button onClick={submit} disabled={!url.trim()}>
-              {editingId ? "저장" : "추가"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setOpen(false)
+                  resetForm()
+                }}
+              >
+                취소
+              </Button>
+              <Button type="submit" disabled={!url.trim()}>
+                {editingId ? "저장" : "추가"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </section>
