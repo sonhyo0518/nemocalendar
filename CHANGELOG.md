@@ -1,0 +1,49 @@
+# Changelog
+
+이 프로젝트의 모든 주목할 만한 변경 사항을 기록합니다.
+
+형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르고,
+버전은 [Semantic Versioning](https://semver.org/lang/ko/)과 [VERSIONING.md](./VERSIONING.md) 규칙을 따릅니다.
+
+> **Canonical 위치:** 이 파일은 `nemocalendar-frontend` 레포 루트에 둡니다.
+> 로컬 워크스페이스(`nemoCalendar2/`)의 루트 `CHANGELOG.md`는 여기로 가는 포인터입니다.
+
+## [Unreleased]
+
+### Added
+
+- 사이트 푸터와 `/changelog` 페이지에서 사용자용 릴리즈 노트 제공
+- 계정 메뉴에서 계정 삭제(탈퇴): 서비스 데이터·배너·캘린더 연동 토큰 제거
+
+### Changed
+
+- 날씨 upstream을 Open-Meteo에서 WeatherAPI.com(`WEATHER_API_KEY`)으로 교체
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+<!--
+릴리즈 시:
+1. Unreleased 항목을 새 버전 섹션으로 옮긴다.
+2. 날짜는 YYYY-MM-DD (UTC+9 기준 배포일 권장).
+3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
+4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
+-->
+
+## [0.1.0] - 2026-09-10
+
+초기 버전 관리·릴리즈 노트 체계를 도입한 기준점입니다.
+이 시점의 제품 기능 요약은 [README.md](./README.md)를 참고하세요.
+
+### Added
+
+- Google OAuth 로그인 및 Google Calendar 연동
+- 칸반형 투두, 핀 메모, 북마크·폴더, 기념일/D-Day
+- 헤더 배너·테마 색상 (Cloudflare R2)
+- 날씨 위젯, 뽀모도로 타이머
+- Keep a Changelog 형식의 `CHANGELOG.md` 및 태그 규칙 (`VERSIONING.md`)

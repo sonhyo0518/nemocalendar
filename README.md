@@ -95,3 +95,13 @@ npm run dev
 | GET | `/api/weather/suggest` | 지역 검색 |
 
 자세한 API는 [backend/README.md](../backend/README.md)를 참고하세요.
+
+## 버전·릴리즈
+
+앱 Changelog·SemVer·태그 규칙의 **원본**은 이 레포에 있습니다.
+
+- [CHANGELOG.md](./CHANGELOG.md)
+- [VERSIONING.md](./VERSIONING.md)
+- 사용자용 페이지: [`/changelog`](./app/changelog/page.tsx) (`content/changelog.ts`)
+
+Backend는 [../backend/RELEASE.md](../backend/RELEASE.md)에서 이 문서를 가리킵니다.

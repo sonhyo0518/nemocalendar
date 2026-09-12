@@ -14,7 +14,7 @@ export type ChangelogEntry = {
   sections: ChangelogSection
 }
 
-/** Newest first. Keep in sync with root CHANGELOG.md (released versions only). */
+/** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
     version: "0.1.0",
