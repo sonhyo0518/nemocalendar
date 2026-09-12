@@ -82,7 +82,7 @@ export default function PrivacyPage() {
           <h2>5. 제3자 제공 및 처리 위탁</h2>
           <ul>
             <li>Google LLC: OAuth 로그인 및 Google Calendar API</li>
-            <li>Open-Meteo: 날씨 정보 조회(위치명 기준, 별도 계정 불필요)</li>
+            <li>WeatherAPI.com: 날씨 정보 조회(사용자가 설정한 지역명 기준)</li>
             <li>Vercel, Render, TiDB Cloud, Cloudflare: 호스팅·DB·스토리지</li>
           </ul>
           <p>

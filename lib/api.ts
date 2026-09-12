@@ -118,7 +118,7 @@ export async function authFetch(
     throw err
   }
 
-  // weather 502는 upstream 한도/실패 — 재시도하면 Open-Meteo만 더 소모
+  // weather 502는 upstream 한도/실패 — 재시도하면 WeatherAPI 쿼터만 더 소모
   const isWeather = path.startsWith("/api/weather")
   if (
     !_wakeRetried &&
