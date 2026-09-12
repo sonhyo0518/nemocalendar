@@ -61,6 +61,8 @@ interface BookmarkBoardProps {
   ) => void
   onRemoveFolder: (id: string) => void
   flush?: boolean
+  readOnly?: boolean
+  onRequireLogin?: () => void
 }
 
 const DND_TYPE = "application/x-nemo-bookmark-id"
@@ -101,6 +103,8 @@ export function BookmarkBoard({
   onUpdateFolder,
   onRemoveFolder,
   flush = false,
+  readOnly = false,
+  onRequireLogin,
 }: BookmarkBoardProps) {
   const [filter, setFilter] = React.useState<FolderFilter>("all")
   const [dropTarget, setDropTarget] = React.useState<FolderFilter | null>(null)
@@ -158,16 +162,35 @@ export function BookmarkBoard({
   }
 
   function openCreate() {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     resetForm()
     setOpen(true)
   }
-
+  
   function openEdit(item: Bookmark) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     setEditingId(item.id)
     setUrl(item.url)
     setTitle(item.title)
     setDescription(item.description ?? "")
     setOpen(true)
+  }
+  
+  function addFolder() {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
+    const name = folderDraft.trim()
+    if (!name) return
+    onAddFolder(name)
+    setFolderDraft("")
   }
 
   function submit() {
@@ -195,14 +218,11 @@ export function BookmarkBoard({
     resetForm()
   }
 
-  function addFolder() {
-    const name = folderDraft.trim()
-    if (!name) return
-    onAddFolder(name)
-    setFolderDraft("")
-  }
-
   function startRenameFolder(folder: BookmarkFolder) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     setEditingFolderId(folder.id)
     setEditingFolderName(folder.name)
   }
@@ -219,6 +239,10 @@ export function BookmarkBoard({
   }
 
   function handleDrop(target: FolderFilter, e: React.DragEvent) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     e.preventDefault()
     setDropTarget(null)
     const id =
@@ -312,7 +336,11 @@ export function BookmarkBoard({
                 setEditingFolderName("")
               }}
               onDelete={() => {
-                if (window.confirm(`「${f.name}」 폴더를 삭제할까요?`)) {
+                if (window.confirm(`「${f.name}」 폴더를 삭제할까요?`)) { 
+                  if (readOnly) {
+                    onRequireLogin?.()
+                    return
+                  }
                   onRemoveFolder(f.id)
                   if (filter === f.id) setFilter("all")
                 }
@@ -366,7 +394,13 @@ export function BookmarkBoard({
                     onPreviewEnter={() => onCardEnter(item.id)}
                     onPreviewLeave={onCardLeave}
                     onEdit={() => openEdit(item)}
-                    onRemove={() => onRemove(item.id)}
+                    onRemove={() => {
+                      if (readOnly) {
+                        onRequireLogin?.()
+                        return
+                      }
+                      onRemove(item.id)
+                    }}
                   />
                 </li>
               ))}

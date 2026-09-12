@@ -69,6 +69,8 @@ interface TodoBoardProps {
   onUpdate: (id: string, task: Omit<BoardTask, "id">) => void
   onUpdateCategory: (id: string, input: { name: string; color: string }) => void
   flush?: boolean
+  readOnly?: boolean
+  onRequireLogin?: () => void
 }
 
 const STATUSES: TodoStatus[] = ["todo", "in-progress", "done"]
@@ -89,6 +91,8 @@ export function TodoBoard({
   onUpdate,
   onUpdateCategory,
   flush = false,
+  readOnly = false,
+  onRequireLogin,
 }: TodoBoardProps) {
   const [viewMode, setViewMode] = React.useState<TodoViewMode>("today")
   const [visibleCategoryIds, setVisibleCategoryIds] = React.useState<Set<string>>(
@@ -138,6 +142,10 @@ export function TodoBoard({
   const categoryById = new Map(categories.map((c) => [c.id, c]))
 
   function openComposer(prefillCategoryId?: string) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     setEditingId(null)
     setTitle("")
     setDue(viewMode === "today" ? new Date().toISOString().slice(0, 10) : "")
@@ -146,8 +154,12 @@ export function TodoBoard({
     setCategoryId(prefillCategoryId ?? categories[0]?.id ?? "")
     setOpen(true)
   }
-
+  
   function openEditor(task: BoardTask) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     setEditingId(task.id)
     setTitle(task.title)
     setCategoryId(task.categoryId)
@@ -156,7 +168,31 @@ export function TodoBoard({
     setStatus(task.status)
     setOpen(true)
   }
-
+  
+  function moveTask(id: string, status: TodoStatus) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
+    onMove(id, status)
+  }
+  
+  function removeTask(id: string) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
+    onRemove(id)
+  }
+  
+  function removeCategory(id: string) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
+    onRemoveCategory(id)
+  }
+  
   function submit() {
     if (!title.trim() || !categoryId) return
     const payload = {
@@ -344,6 +380,10 @@ export function TodoBoard({
                       aria-label="카테고리 수정"
                       className="text-muted-foreground hover:text-foreground"
                       onClick={() => {
+                        if (readOnly) {
+                          onRequireLogin?.()
+                          return
+                        }
                         setEditingCategoryId(c.id)
                         setCatName(c.name)
                         setCatColor(c.color)
@@ -357,7 +397,7 @@ export function TodoBoard({
                         type="button"
                         aria-label="카테고리 삭제"
                         className="text-muted-foreground hover:text-destructive"
-                        onClick={() => onRemoveCategory(c.id)}
+                        onClick={() => removeCategory(c.id)}
                       >
                         <X className="size-3" />
                       </button>
@@ -369,6 +409,10 @@ export function TodoBoard({
                 type="button"
                 className="mt-2 w-full rounded-md border border-dashed border-border py-1.5 text-xs text-muted-foreground hover:bg-muted"
                 onClick={() => {
+                  if (readOnly) {
+                    onRequireLogin?.()
+                    return
+                  }
                   setEditingCategoryId(null)
                   setCatName("")
                   setCatColor(COLOR_PRESETS[0])
@@ -386,8 +430,8 @@ export function TodoBoard({
         <TodayView
           tasks={todayTasks}
           categoryById={categoryById}
-          onMove={onMove}
-          onRemove={onRemove}
+          onMove={moveTask}
+          onRemove={removeTask}
           onEdit={openEditor}
           onAdd={() => openComposer()}
         />
@@ -501,8 +545,8 @@ export function TodoBoard({
                               task={task}
                               category={cat}
                               showCategory={false}
-                              onMove={onMove}
-                              onRemove={onRemove}
+                              onMove={moveTask}
+                              onRemove={removeTask}
                               onEdit={openEditor}
                             />
                           ))}
@@ -537,8 +581,8 @@ export function TodoBoard({
                                     task={task}
                                     category={cat}
                                     showCategory={false}
-                                    onMove={onMove}
-                                    onRemove={onRemove}
+                                    onMove={moveTask}
+                                    onRemove={removeTask}
                                     onEdit={openEditor}
                                   />
                                 ))}

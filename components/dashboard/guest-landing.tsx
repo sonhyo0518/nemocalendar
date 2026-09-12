@@ -56,18 +56,19 @@ export function GuestLanding({
             캘린더·할 일·북마크를 한 화면에서
           </h2>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Google 계정으로 로그인하면 일정, 투두, 핀, 기념일, 뽀모도로를
-            한곳에서 관리할 수 있습니다.
+            탭을 바꿔 화면만 둘러볼 수 있어요. 추가·수정은 Google 로그인 후
+            이용할 수 있습니다.
           </p>
         </div>
 
         {/* Google Identity branding: light/dark 스펙 + 표준 컬러 G */}
         <div className="flex flex-col items-start gap-2">
-          <button
-            type="button"
-            onClick={onStart}
-            disabled={isStarting}
-            aria-busy={isStarting}
+        <button
+          id="guest-login"
+          type="button"
+          onClick={onStart}
+          disabled={isStarting}
+          aria-busy={isStarting}
             className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-md border border-[#DADCE0] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DADCE0]/50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3C4043] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
           >
             <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-white">
@@ -83,7 +84,15 @@ export function GuestLanding({
         </div>
       </div>
 
-      <GuestDashboardMockup />
+      <GuestDashboardMockup
+        onRequireLogin={() => {
+          document.getElementById("guest-login")?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          })
+          document.getElementById("guest-login")?.focus()
+        }}
+      />
     </section>
   )
 }

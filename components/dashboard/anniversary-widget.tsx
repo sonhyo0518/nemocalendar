@@ -29,6 +29,8 @@ interface AnniversaryWidgetProps {
   onAdd: (item: Omit<Anniversary, "id">) => void
   onRemove: (id: string) => void
   onUpdate: (id: string, patch: Pick<Anniversary, "title" | "date" | "color">) => void
+  readOnly?: boolean
+  onRequireLogin?: () => void
 }
 
 import { ColorPalette } from "@/components/ui/color-palette"
@@ -123,6 +125,8 @@ export function AnniversaryWidget({
   onAdd,
   onRemove,
   onUpdate,
+  readOnly = false,
+  onRequireLogin,
 }: AnniversaryWidgetProps) {
   const [tab, setTab] = React.useState("dday")
   const [open, setOpen] = React.useState(false)
@@ -191,6 +195,10 @@ export function AnniversaryWidget({
   }
 
   function startEdit(i: Anniversary) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     setEditingId(i.id)
     setEditTitle(i.title)
     setEditDate(i.date)
@@ -231,11 +239,26 @@ export function AnniversaryWidget({
             variant="ghost"
             aria-label="기념일 관리"
             className={cn(tab !== "anniversary" && "hidden")}
-            onClick={() => setManageOpen(true)}
+            onClick={() => {
+              if (readOnly) {
+                onRequireLogin?.()
+                return
+              }
+              setManageOpen(true)
+            }}
           >
             <List />
           </Button>
-              <Popover open={open} onOpenChange={setOpen}>
+              <Popover
+                open={open}
+                onOpenChange={(next) => {
+                  if (readOnly) {
+                    onRequireLogin?.()
+                    return
+                  }
+                  setOpen(next)
+                }}
+              >
                 <PopoverTrigger
                   render={
                     <Button size="icon-xs" variant="ghost" aria-label="기념일 추가" />
@@ -433,7 +456,13 @@ export function AnniversaryWidget({
                                 <button
                                   type="button"
                                   aria-label="삭제"
-                                  onClick={() => onRemove(i.id)}
+                                  onClick={() => {
+                                    if (readOnly) {
+                                      onRequireLogin?.()
+                                      return
+                                    }
+                                    onRemove(i.id)
+                                  }}
                                   className="rounded-md p-1 text-muted-foreground hover:bg-background"
                                 >
                                   <X className="size-3.5" />
@@ -505,7 +534,13 @@ export function AnniversaryWidget({
                   urgency={u}
                   showLine={idx < ddays.length - 1}
                   onEdit={() => startEdit(i)}
-                  onRemove={() => onRemove(i.id)}
+                  onRemove={() => {
+                    if (readOnly) {
+                      onRequireLogin?.()
+                      return
+                    }
+                    onRemove(i.id)
+                  }}
                 />
               )
             })}

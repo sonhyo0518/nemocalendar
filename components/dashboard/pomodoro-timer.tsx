@@ -87,8 +87,10 @@ function savePomodoroState(state: PomodoroPersisted) {
 
 export function PomodoroTimer({
   interactive = true,
+  onRequireLogin,
 }: {
   interactive?: boolean
+  onRequireLogin?: () => void
 }) {
   const [initial] = React.useState(() =>
     interactive ? loadPomodoroState() : DEFAULT_STATE,
@@ -184,6 +186,9 @@ export function PomodoroTimer({
         <div className="flex items-center gap-2">
           <Timer className="size-4 text-theme" />
           <h3 className="text-sm font-semibold text-foreground">뽀모도로</h3>
+          {!interactive ? (
+            <span className="text-[10px] text-muted-foreground">로그인 후</span>
+          ) : null}
         </div>
         <span className="text-xs text-muted-foreground">
           완료 {completed}회
@@ -193,10 +198,17 @@ export function PomodoroTimer({
       <div className="mb-4 flex justify-center gap-1.5">
         <button
           type="button"
-          disabled={!interactive}
-          onClick={() => interactive && switchMode("focus")}
+          disabled={false}
+          onClick={() => {
+            if (!interactive) {
+              onRequireLogin?.()
+              return
+            }
+            switchMode("focus")
+          }}
           className={cn(
-            "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+            "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            !interactive && "cursor-pointer opacity-60",
             mode === "focus"
               ? "bg-theme text-theme-foreground"
               : "bg-secondary text-muted-foreground hover:text-foreground",
@@ -206,10 +218,17 @@ export function PomodoroTimer({
         </button>
         <button
           type="button"
-          disabled={!interactive}
-          onClick={() => interactive && switchMode("break")}
+          disabled={false}
+          onClick={() => {
+            if (!interactive) {
+              onRequireLogin?.()
+              return
+            }
+            switchMode("break")
+          }}
           className={cn(
-            "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+            "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+            !interactive && "cursor-pointer opacity-60",
             mode === "break"
               ? "bg-[var(--event-green)]/20 text-[var(--event-green)] ring-1 ring-[var(--event-green)]/40"
               : "bg-secondary text-muted-foreground hover:text-foreground",
@@ -254,9 +273,15 @@ export function PomodoroTimer({
 
       <div className="mt-4 flex justify-center gap-2">
         <Button
-          disabled={!interactive}
-          onClick={() => interactive && setRunning((r) => !r)}
-          className="min-w-24"
+          disabled={false}
+          className={cn("min-w-24", !interactive && "opacity-60")}
+          onClick={() => {
+            if (!interactive) {
+              onRequireLogin?.()
+              return
+            }
+            setRunning((r) => !r)
+          }}
         >
           {running ? (
             <>
@@ -273,8 +298,15 @@ export function PomodoroTimer({
         <Button
           variant="outline"
           size="icon"
-          disabled={!interactive}
-          onClick={() => interactive && reset()}
+          disabled={false}
+          className={cn(!interactive && "opacity-60")}
+          onClick={() => {
+            if (!interactive) {
+              onRequireLogin?.()
+              return
+            }
+            reset()
+          }}
           aria-label="리셋"
         >
           <RotateCcw />

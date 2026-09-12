@@ -20,6 +20,8 @@ interface CalendarCategoryFilterProps {
   onShowAll: () => void
   onHideAll: () => void
   onColorChange: (calendarId: string, color: string) => void
+  readOnly?: boolean
+  onRequireLogin?: () => void
 }
 
 function CalendarColorPicker({
@@ -98,6 +100,8 @@ export function CalendarCategoryFilter({
   onShowAll,
   onHideAll,
   onColorChange,
+  readOnly = false,
+  onRequireLogin,
 }: CalendarCategoryFilterProps) {
   const selectableCalendars = calendars.filter((c) => !isHolidayCalendarOption(c))
   const selectableVisibleCount = selectableCalendars.filter((c) =>
@@ -149,7 +153,13 @@ export function CalendarCategoryFilter({
     >
       <button
         type="button"
-        onClick={onShowAll}
+        onClick={() => {
+          if (readOnly) {
+            onRequireLogin?.()
+            return
+          }
+          onShowAll()
+        }}
         className={cn(
           "px-2.5 py-0.5 text-[10px] font-medium leading-5 transition-colors",
           "text-foreground hover:bg-muted/40",
@@ -163,7 +173,13 @@ export function CalendarCategoryFilter({
 
       <button
         type="button"
-        onClick={onHideAll}
+        onClick={() => {
+          if (readOnly) {
+            onRequireLogin?.()
+            return
+          }
+          onHideAll()
+        }}
         className={cn(
           "px-2.5 py-0.5 text-[10px] font-medium leading-5 transition-colors",
           "text-foreground hover:bg-muted/40",
@@ -205,16 +221,28 @@ export function CalendarCategoryFilter({
                         "--cal-fg": onColor(c.backgroundColor),
                       } as React.CSSProperties
                     }
-                      onCheckedChange={() => onToggle(c.id)}
-                    />
-                  )}
-                  {!holiday && (
-                    <CalendarColorPicker
-                      color={c.backgroundColor}
-                      label={c.summary}
-                      onChange={(color) => onColorChange(c.id, color)}
-                    />
-                  )}
+                    onCheckedChange={() => {
+                      if (readOnly) {
+                        onRequireLogin?.()
+                        return
+                      }
+                      onToggle(c.id)
+                    }}
+                  />
+                )}
+                {!holiday && (
+                  <CalendarColorPicker
+                    color={c.backgroundColor}
+                    label={c.summary}
+                    onChange={(color) => {
+                      if (readOnly) {
+                        onRequireLogin?.()
+                        return
+                      }
+                      onColorChange(c.id, color)
+                    }}
+                  />
+                )}
                   <span
                     className={cn(
                       "min-w-0 text-foreground",

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { onColor } from "@/lib/contrast"
+import { toast } from "sonner"
 import {
   CATEGORY_META,
   MONTHS_KO,
@@ -68,6 +69,7 @@ interface MainCalendarProps {
   themeColor?: string | null
   calendarConnected?: boolean
   isLoggedIn?: boolean
+  onRequireLogin?: () => void
   flush?: boolean
 }
 
@@ -85,6 +87,7 @@ export function MainCalendar({
   flush = false,
   calendarConnected = false,
   isLoggedIn = false,
+  onRequireLogin,
 }: MainCalendarProps) {
   const accent = themeColor ?? "var(--theme)"
   const [mode, setMode] = React.useState<ViewMode>("month")
@@ -190,9 +193,19 @@ export function MainCalendar({
   }
   
   const canAddEvents = isLoggedIn && calendarConnected
-
   function showCalendarConnectGuide() {
-    alert("Google 캘린더를 연결해야 일정을 추가할 수 있어요.\n상단의 '캘린더 연결' 버튼을 눌러 주세요.")
+    if (!isLoggedIn) {
+      onRequireLogin?.()
+      if (!onRequireLogin) {
+        toast.message(
+          "미리보기에서는 이용되지 않는 기능입니다. Google 로그인 후 이용할 수 있습니다.",
+        )
+      }
+      return
+    }
+    toast.message(
+      "Google 캘린더를 연결해야 일정을 추가할 수 있어요.\n상단의 '캘린더 연결' 버튼을 눌러 주세요.",
+    )
   }
 
   function openAdd(dateKey: string) {
@@ -221,6 +234,10 @@ export function MainCalendar({
   
   function openEdit(event: CalendarEvent) {
     if (isKoreanHolidayEvent(event)) return
+    if (!isLoggedIn) {
+      showCalendarConnectGuide()
+      return
+    }
     setEditingEvent(event)
     setFormDate(event.date)
     setFormEndDate(event.endDate ?? event.date)

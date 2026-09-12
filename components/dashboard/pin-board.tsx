@@ -18,6 +18,8 @@ interface PinBoardProps {
   onAdd: (text: string) => void
   onUpdate: (id: string, text: string) => void
   onRemove: (id: string) => void
+  readOnly?: boolean
+  onRequireLogin?: () => void
 }
 
 const TEXT_CLASS =
@@ -64,7 +66,15 @@ function PinActionButton({
   )
 }
 
-export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
+
+export function PinBoard({
+  pins,
+  onAdd,
+  onUpdate,
+  onRemove,
+  readOnly = false,
+  onRequireLogin,
+}: PinBoardProps) {
   const [composing, setComposing] = React.useState(false)
   const [draft, setDraft] = React.useState("")
   const [editingId, setEditingId] = React.useState<string | null>(null)
@@ -88,6 +98,10 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
   }
 
   function openComposer() {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     cancelEdit()
     setCollapsed(false)
     setComposing(true)
@@ -114,6 +128,10 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
   }
 
   function startEdit(pin: Pin) {
+    if (readOnly) {
+      onRequireLogin?.()
+      return
+    }
     closeComposer()
     setEditingId(pin.id)
     setEditDraft(pin.text)
@@ -329,7 +347,13 @@ export function PinBoard({ pins, onAdd, onUpdate, onRemove }: PinBoardProps) {
                       <PinActionButton
                         label="핀 고정 해제"
                         danger
-                        onClick={() => onRemove(pin.id)}
+                        onClick={() => {
+                          if (readOnly) {
+                            onRequireLogin?.()
+                            return
+                          }
+                          onRemove(pin.id)
+                        }}
                       >
                         <Trash2 className="size-2.5" />
                       </PinActionButton>
