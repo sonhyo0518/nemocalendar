@@ -29,6 +29,9 @@ export const CHANGELOG: ChangelogEntry[] = [
       changed: [
         "날씨 upstream을 Open-Meteo에서 WeatherAPI.com(WEATHER_API_KEY)으로 교체",
       ],
+      fixed: [
+        "호스팅(Render 공유 IP)에서 Open-Meteo 한도로 날씨 조회가 실패하던 문제",
+      ],
     },
   },
   {

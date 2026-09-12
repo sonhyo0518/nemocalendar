@@ -37,7 +37,7 @@ export const metadata: Metadata = {
         type: 'image/svg+xml',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/icon.png',
   },
   openGraph: {
     title: 'Nemo Calendar',
@@ -49,9 +49,9 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/apple-icon.png',
-        width: 180,
-        height: 180,
+        url: '/icon.png',
+        width: 64,
+        height: 64,
         alt: 'Nemo Calendar',
       },
     ],
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: 'Nemo Calendar',
     description:
       '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드.',
-    images: ['/apple-icon.png'],
+    images: ['/icon.png'],
   },
 }
 

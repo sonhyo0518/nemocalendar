@@ -8,7 +8,6 @@ import {
   Settings,
   Sun,
   Trash2,
-  UserRound,
 } from "lucide-react"
 import { useCallback, useState } from "react"
 import { useColorMode } from "@/hooks/use-color-mode"
@@ -190,10 +189,6 @@ export function HeaderBanner({
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <UserRound />
-                    프로필
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeOpen(true)}>
                     <Palette />
                     테마색 변경

@@ -41,6 +41,10 @@
 
 - 날씨 upstream을 Open-Meteo에서 WeatherAPI.com(`WEATHER_API_KEY`)으로 교체
 
+### Fixed
+
+- 호스팅(Render 공유 IP)에서 Open-Meteo 한도로 날씨 조회가 실패하던 문제
+
 ## [0.1.0] - 2026-09-10
 
 초기 버전 관리·릴리즈 노트 체계를 도입한 기준점입니다.
