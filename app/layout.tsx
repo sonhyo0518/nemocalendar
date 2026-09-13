@@ -63,6 +63,11 @@ export const metadata: Metadata = {
       '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드.',
     images: ['/icon.png'],
   },
+  verification: {
+    other: {
+      'google-site-verification': '36UyXQHo8t7sFv0CCxlJ6RDd3iZlgHlkFeNagEnVK2Y',
+    },
+  },
 }
 
 export const viewport: Viewport = {
