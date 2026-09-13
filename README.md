@@ -41,7 +41,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 cd ../backend
 npm install
 npx prisma generate
-npx prisma db push
+npm run db:migrate
 npm run dev
 ```
 
