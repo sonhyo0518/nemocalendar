@@ -65,8 +65,47 @@ git push origin HEAD
 git push origin "vX.Y.Z"
 ```
 
-API 레포에서도 동일 `X.Y.Z`로 `package.json`을 맞춘 뒤 같은 형식의 annotated tag를 답니다.
-(듀얼 원격 전체 절차는 P0-4에서 `VERSIONING.md`에 이어서 명시합니다.)
+### 태그 생성 (api 레포)
+
+```bash
+# frontend와 같은 X.Y.Z로 package.json·lock만 맞춘 뒤
+git add package.json package-lock.json
+git commit -m "chore(release): vX.Y.Z"
+git tag -a "vX.Y.Z" -m "Release vX.Y.Z"
+git push origin HEAD
+git push origin "vX.Y.Z"
+```
+
+CHANGELOG·`changelog.ts`는 api 레포에 두지 않습니다. canonical은 frontend입니다.
+
+## 듀얼 레포 릴리즈 절차
+
+앱 버전은 `nemocalendar-frontend`와 `nemocalendar-api`가 **항상 동일**한 `X.Y.Z`입니다.
+태그는 각 레포에 **같은 이름**의 annotated tag `vX.Y.Z`를 답니다. (커밋 해시는 레포마다 다름 — 정상)
+
+### 권장 순서
+
+1. **frontend**에서 릴리즈 내용 확정
+   - `CHANGELOG.md`: `[Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`
+   - `package.json` / `package-lock.json` 루트 `"version"`
+   - `content/changelog.ts` (사용자용 `/changelog`, Unreleased 제외)
+   - `chore(release): vX.Y.Z` 커밋 → annotated tag → `git push origin HEAD` 및 `git push origin "vX.Y.Z"`
+2. **api**에서 버전만 맞춤
+   - `package.json` / `package-lock.json` 루트 `"version"`을 **같은** `X.Y.Z`
+   - `chore(release): vX.Y.Z` 커밋 → 동일 형식 annotated tag → push
+3. **배포 확인**
+   - Vercel(frontend) · Render(api)가 해당 커밋/태그와 대응하는지 확인
+
+### 동기화 확인
+
+```bash
+# 각 레포에서
+node -p "require('./package.json').version"
+git show "vX.Y.Z" --no-patch
+git ls-remote --tags origin "vX.Y.Z"
+```
+
+두 레포의 `package.json` version 문자열과 태그 이름·메시지(`Release vX.Y.Z`)가 같으면 동기화된 것입니다.
 
 ### 태그 확인·삭제 (실수 시, 아직 push 전)
 
@@ -82,12 +121,14 @@ git tag -d "vX.Y.Z"
 
 1. `CHANGELOG.md`의 `[Unreleased]`를 정리하고 빈 섹션 헤더는 삭제한다.
 2. Breaking이 있으면 해당 항목 앞에 **Breaking**을 붙이고 MAJOR로 bump한다.
-3. frontend·backend의 `package.json` version을 맞춘다.
-4. `content/changelog.ts`를 `CHANGELOG.md` 릴리즈 섹션과 맞춘다 (Vercel `/changelog`).
+3. **frontend 먼저** version·CHANGELOG·`changelog.ts`·tag를 맞춘다.
+4. **api**에서 동일 `X.Y.Z`로 `package.json`(및 lock)과 annotated tag를 맞춘다.
 5. 날짜는 **배포일** 기준 `YYYY-MM-DD` (로컬은 UTC+9).
 6. 각 레포에서 `chore(release): vX.Y.Z` 커밋 후 `vX.Y.Z` annotated tag를 단다.
 7. Vercel(프론트)·Render(API) 배포가 해당 커밋/태그와 대응하는지 확인한다.
 8. (선택) GitHub Release를 만들고 CHANGELOG 해당 섹션을 본문에 붙인다.
+
+상세 순서는 위 **듀얼 레포 릴리즈 절차**를 따른다.
 
 ## CHANGELOG 카테고리
 
