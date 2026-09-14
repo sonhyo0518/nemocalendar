@@ -29,6 +29,22 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+## [0.2.2] - 2026-09-15
+
+### Changed
+
+- `/me`·로그인에서 캘린더 연결 여부를 Google 실시간 조회 없이 판단
+- 캘린더 미연결 시 일정 생성·수정·삭제도 `403` + `NEEDS_CALENDAR_CONSENT`로 통일
+- 대시보드 위젯 초기 로딩을 단일 bootstrap으로 통합
+
+### Fixed
+
+- 투두 수정 시 잘못된 priority·빈 제목 검증
+- 잘못된 리소스 id가 500 대신 400으로 응답
+
+### Security
+
+- 프로덕션에서 Origin/Referer 없는 쿠키 기반 변이 요청 CSRF 차단
 
 ## [0.2.1] - 2026-09-14
 

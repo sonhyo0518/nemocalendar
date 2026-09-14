@@ -17,6 +17,25 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.2.2",
+    date: "2026-09-15",
+    summary:
+      "캘린더 연결 여부 판단 개선과 위젯 초기 로딩 통합, 버그 수정입니다.",
+    sections: {
+      changed: [
+        "`/me`·로그인에서 캘린더 연결 여부를 Google 실시간 조회 없이 판단",
+        "캘린더 미연결 시 일정 생성·수정·삭제도 `403` + `NEEDS_CALENDAR_CONSENT`로 통일",
+      ],
+      fixed: [
+        "투두 수정 시 잘못된 priority·빈 제목 검증",
+        "잘못된 리소스 id가 500 대신 400으로 응답",
+      ],
+      security: [
+        "프로덕션에서 Origin/Referer 없는 쿠키 기반 변이 요청 CSRF 차단",
+      ],
+    },
+  },
+  {
     version: "0.2.1",
     date: "2026-09-14",
     summary:
