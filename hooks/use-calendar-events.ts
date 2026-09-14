@@ -21,13 +21,24 @@ import {
   writeVisibleCalendarIds,
 } from "@/lib/dashboard-cache"
 import { getSourceCalendarId } from "@/lib/calendar-event-id"
-import { authFetch, authJson, notifyApiError } from "@/lib/api"
+import { ApiError, authFetch, authJson, notifyApiError } from "@/lib/api"
 
 type UseCalendarEventsOptions = {
   userEmail?: string
   calendarConnected: boolean
   setCalendarConnected: (connected: boolean) => void
   onUnauthorized: () => void
+}
+
+function isNeedsCalendarConsent(err: unknown): boolean {
+  if (!(err instanceof ApiError) || err.status !== 403) return false
+  const data = err.data
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "code" in data &&
+    (data as { code?: unknown }).code === "NEEDS_CALENDAR_CONSENT"
+  )
 }
 
 export function useCalendarEvents({
@@ -166,11 +177,22 @@ export function useCalendarEvents({
         })
         invalidateEventsReload()
       } catch (err) {
+        if (isNeedsCalendarConsent(err)) {
+          setCalendarConnected(false)
+          alert("Google 캘린더를 다시 연결해 주세요.")
+          return
+        }
         notifyApiError(err, "일정 추가에 실패했습니다.")
         throw err
       }
     },
-    [userEmail, calendarConnected, onUnauthorized, invalidateEventsReload],
+    [
+      userEmail,
+      calendarConnected,
+      onUnauthorized,
+      invalidateEventsReload,
+      setCalendarConnected,
+    ],
   )
 
   const updateEvent = useCallback(
@@ -204,11 +226,21 @@ export function useCalendarEvents({
         })
         invalidateEventsReload()
       } catch (err) {
+        if (isNeedsCalendarConsent(err)) {
+          setCalendarConnected(false)
+          alert("Google 캘린더를 다시 연결해 주세요.")
+          return
+        }
         notifyApiError(err, "일정 수정에 실패했습니다.")
         throw err
       }
     },
-    [userEmail, onUnauthorized, invalidateEventsReload],
+    [
+      userEmail,
+      onUnauthorized,
+      invalidateEventsReload,
+      setCalendarConnected,
+    ],
   )
 
   const deleteEvent = useCallback(
@@ -232,11 +264,21 @@ export function useCalendarEvents({
         })
         invalidateEventsReload()
       } catch (err) {
+        if (isNeedsCalendarConsent(err)) {
+          setCalendarConnected(false)
+          alert("Google 캘린더를 다시 연결해 주세요.")
+          return
+        }
         notifyApiError(err, "일정 삭제에 실패했습니다.")
         throw err
       }
     },
-    [userEmail, onUnauthorized, invalidateEventsReload],
+    [
+      userEmail,
+      onUnauthorized,
+      invalidateEventsReload,
+      setCalendarConnected,
+    ],
   )
 
   const handleSelectDate = useCallback((date: Date) => {

@@ -425,100 +425,46 @@ export function useDashboardWidgets({
   useEffect(() => {
     if (!userEmail) return
     let cancelled = false
-    authJson<{ pins?: Pin[] }>("/api/pins", { onUnauthorized })
-      .then((data) => {
-        if (!cancelled) setPins(data?.pins ?? [])
-      })
-      .catch((err) => {
-        if (cancelled) return
-        notifyApiError(err, "핀을 불러오지 못했습니다.")
-        setPins([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [userEmail, onUnauthorized])
-
-  useEffect(() => {
-    if (!userEmail) return
-    let cancelled = false
-    authJson<{ bookmarks?: Bookmark[] }>("/api/bookmarks", { onUnauthorized })
-      .then((data) => {
-        if (!cancelled) setBookmarks(data?.bookmarks ?? [])
-      })
-      .catch((err) => {
-        if (cancelled) return
-        notifyApiError(err, "북마크를 불러오지 못했습니다.")
-        setBookmarks([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [userEmail, onUnauthorized])
-
-  useEffect(() => {
-    if (!userEmail) return
-    let cancelled = false
-    authJson<{ folders?: BookmarkFolder[] }>("/api/bookmark-folders", {
-      onUnauthorized,
-    })
-      .then((data) => {
-        if (!cancelled) setBookmarkFolders(data?.folders ?? [])
-      })
-      .catch((err) => {
-        if (cancelled) return
-        notifyApiError(err, "북마크 폴더를 불러오지 못했습니다.")
-        setBookmarkFolders([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [userEmail, onUnauthorized])
-
-  useEffect(() => {
-    if (!userEmail) return
-    let cancelled = false
-    authJson<{ anniversaries?: Anniversary[] }>("/api/anniversaries", {
-      onUnauthorized,
-    })
-      .then((data) => {
-        if (!cancelled) setAnniversaries(data?.anniversaries ?? [])
-      })
-      .catch((err) => {
-        if (cancelled) return
-        notifyApiError(err, "기념일을 불러오지 못했습니다.")
-        setAnniversaries([])
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [userEmail, onUnauthorized])
-
-  useEffect(() => {
-    if (!userEmail) return
-    let cancelled = false
+  
     Promise.all([
+      authJson<{ pins?: Pin[] }>("/api/pins", { onUnauthorized }),
+      authJson<{ bookmarks?: Bookmark[] }>("/api/bookmarks", { onUnauthorized }),
+      authJson<{ folders?: BookmarkFolder[] }>("/api/bookmark-folders", {
+        onUnauthorized,
+      }),
+      authJson<{ anniversaries?: Anniversary[] }>("/api/anniversaries", {
+        onUnauthorized,
+      }),
       authJson<{ categories?: TodoCategory[] }>("/api/todo-categories", {
         onUnauthorized,
       }),
       authJson<{ todos?: BoardTask[] }>("/api/todos", { onUnauthorized }),
     ])
-      .then(([catData, todoData]) => {
+      .then(([pinData, bookmarkData, folderData, annData, catData, todoData]) => {
         if (cancelled) return
+        setPins(pinData?.pins ?? [])
+        setBookmarks(bookmarkData?.bookmarks ?? [])
+        setBookmarkFolders(folderData?.folders ?? [])
+        setAnniversaries(annData?.anniversaries ?? [])
         setTodoCategories(catData?.categories ?? [])
         setBoardTasks(todoData?.todos ?? [])
       })
       .catch((err) => {
         if (cancelled) return
-        notifyApiError(err, "할 일을 불러오지 못했습니다.")
+        notifyApiError(err, "대시보드 데이터를 불러오지 못했습니다.")
+        setPins([])
+        setBookmarks([])
+        setBookmarkFolders([])
+        setAnniversaries([])
         setTodoCategories([])
         setBoardTasks([])
       })
+  
     return () => {
       cancelled = true
     }
   }, [userEmail, onUnauthorized])
-
+  
   return {
     pins,
     bookmarks,
