@@ -101,6 +101,10 @@ export function HeaderBanner({
             toast.error(
               "캘린더 권한 토큰을 받지 못했습니다. Google 계정에서 앱 액세스를 삭제한 뒤 다시 연결해주세요.",
             )
+          } else if (data.code === "GOOGLE_ACCOUNT_MISMATCH") {
+            toast.error(
+              "로그인한 Google 계정과 다른 계정으로는 캘린더를 연결할 수 없습니다.",
+            )
           } else {
             toast.error(
               `캘린더 연결 실패: ${data.error || "오류가 발생했습니다."}`,

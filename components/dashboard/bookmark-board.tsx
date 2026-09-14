@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react"
 
+import { isSafeHttpUrl } from "@/lib/url"
 import type { Bookmark, BookmarkFolder } from "@/lib/dashboard-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -76,7 +77,7 @@ function normalizeUrl(raw: string) {
 }
 
 function faviconFor(url: string, faviconUrl?: string | null) {
-  if (faviconUrl) return faviconUrl
+  if (faviconUrl && isSafeHttpUrl(faviconUrl)) return faviconUrl
   try {
     const host = new URL(url).hostname
     return `https://www.google.com/s2/favicons?domain=${host}&sz=32`
@@ -643,6 +644,11 @@ function BookmarkCard({
 }) {
   const icon = faviconFor(item.url, item.faviconUrl)
 
+  function openBookmark(url: string) {
+    if (!isSafeHttpUrl(url)) return
+    window.open(url, "_blank", "noopener,noreferrer")
+  }
+  
   return (
     <div
       className="group relative"
@@ -675,9 +681,7 @@ function BookmarkCard({
           <button
             type="button"
             className="min-w-0 flex-1 text-left"
-            onClick={() =>
-              window.open(item.url, "_blank", "noopener,noreferrer")
-            }
+            onClick={() => openBookmark(item.url)}
           >
             <p className="truncate text-xs font-semibold text-foreground">
               {item.title}
@@ -693,9 +697,7 @@ function BookmarkCard({
             title="열기"
             aria-label="북마크 열기"
             className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-            onClick={() =>
-              window.open(item.url, "_blank", "noopener,noreferrer")
-            }
+            onClick={() => openBookmark(item.url)}
           >
             <ExternalLink className="size-2.5" />
           </button>
@@ -728,7 +730,7 @@ function BookmarkCard({
           onMouseLeave={onPreviewLeave}
         >
           <div className="aspect-video bg-muted">
-            {item.previewImageUrl ? (
+            {item.previewImageUrl && isSafeHttpUrl(item.previewImageUrl) ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={item.previewImageUrl}

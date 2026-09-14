@@ -148,8 +148,10 @@ export async function authFetch(
   }
 
   if (res.status === 401) {
-    clearAuthSession()
-    onUnauthorized?.()
+    if (auth) {
+      clearAuthSession()
+      onUnauthorized?.()
+    }
     throw new ApiError("Unauthorized", 401)
   }
 

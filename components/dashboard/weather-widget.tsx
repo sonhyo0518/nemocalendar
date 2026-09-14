@@ -161,8 +161,8 @@ export function WeatherWidget({
     const q = draft.trim()
     if (q.length < 1) return
   
+    let cancelled = false
     const t = window.setTimeout(() => {
-      let cancelled = false
       setSuggestLoading(true)
       authFetch(`/api/weather/suggest?q=${encodeURIComponent(q)}`, {
         onUnauthorized,
@@ -180,13 +180,12 @@ export function WeatherWidget({
         .finally(() => {
           if (!cancelled) setSuggestLoading(false)
         })
-  
-      return () => {
-        cancelled = true
-      }
     }, 300)
   
-    return () => window.clearTimeout(t)
+    return () => {
+      cancelled = true
+      window.clearTimeout(t)
+    }
   }, [draft, open, onUnauthorized, isLoggedIn])
 
   const Icon = data ? ICONS[data.condition] : Cloud
