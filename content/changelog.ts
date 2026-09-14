@@ -17,6 +17,23 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.2.1",
+    date: "2026-09-14",
+    summary:
+      "캘린더 연결·북마크 URL 보안 강화와 세션·날씨 검색 버그 수정입니다.",
+    sections: {
+      security: [
+        "Google 캘린더 연결 시 로그인 계정과 동일한 Google 계정인지 검증",
+        "북마크 OG 응답 크기 상한 및 favicon/preview URL http(s) 검증",
+      ],
+      fixed: [
+        "비인증 API 401으로 로컬 세션이 지워지던 문제",
+        "날씨 지역 검색 자동완성 레이스",
+        "북마크 열기·미리보기에서 안전하지 않은 URL 차단",
+      ],
+    },
+  },
+  {
     version: "0.2.0",
     date: "2026-09-13",
     summary:
