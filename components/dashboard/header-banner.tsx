@@ -148,16 +148,22 @@ export function HeaderBanner({
         ) : user ? (
           <div className="flex items-center gap-2">
             {!calendarConnected && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (calendarConnected) return
-                  handleConnectCalendar()
-                }}
-                className="bg-card/80 backdrop-blur"
-              >
-                캘린더 연결
-              </Button>
+              <div className="flex max-w-[14rem] flex-col items-end gap-0.5 sm:max-w-none">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (calendarConnected) return
+                    handleConnectCalendar()
+                  }}
+                  className="bg-card/80 backdrop-blur"
+                  title="일정 조회·추가·수정·삭제를 위해 Google Calendar 권한이 필요합니다"
+                >
+                  캘린더 연결
+                </Button>
+                <p className="hidden text-right text-[10px] leading-snug text-muted-foreground sm:block">
+                  일정 읽기·쓰기를 위해 Google Calendar 권한을 요청합니다
+                </p>
+              </div>
             )}
 
             <DropdownMenu>

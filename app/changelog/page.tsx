@@ -88,6 +88,14 @@ export default function ChangelogPage() {
           </section>
         ))}
       </div>
-    </article>
+    <p className="mt-10 border-t border-border pt-4">
+      <Link
+        href="/"
+        className="text-xs text-muted-foreground hover:text-foreground"
+      >
+        ← Nemo Calendar
+      </Link>
+    </p>
+  </article>
   )
 }

@@ -49,7 +49,7 @@ export function GuestLanding({
   errorMessage,
 }: GuestLandingProps) {
   return (
-    <section className="flex w-full flex-col gap-4 py-2 sm:py-3">
+    <section className="flex w-full flex-col gap-6 py-2 sm:py-3">
       <div className="flex w-full max-w-xl flex-col items-start gap-3">
         <div className="space-y-2">
           <h2 className="text-xl font-semibold tracking-tight text-foreground text-balance sm:text-2xl">
@@ -93,6 +93,54 @@ export function GuestLanding({
           document.getElementById("guest-login")?.focus()
         }}
       />
+
+      <div className="w-full space-y-3">
+        <h3 className="text-sm font-medium tracking-tight text-foreground">
+          제공 기능
+        </h3>
+        <ul className="divide-y divide-border/60 border-y border-border/60">
+          <li className="py-3">
+            <p className="text-sm font-medium text-foreground">일정 관리</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Google Calendar와 연동해 일정을 조회·추가·수정·삭제합니다.
+            </p>
+          </li>
+          <li className="py-3">
+            <p className="text-sm font-medium text-foreground">Google 로그인</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Google 계정으로 로그인합니다. 캘린더 권한은 「캘린더 연결」을
+              선택할 때만 별도로 요청합니다.
+            </p>
+          </li>
+          <li className="py-3">
+            <p className="text-sm font-medium text-foreground">
+              할 일 · 고정 메세지 · 북마크
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              칸반 투두, 고정 메모, 링크 폴더를 한 화면에서 관리합니다.
+            </p>
+          </li>
+          <li className="py-3">
+            <p className="text-sm font-medium text-foreground">
+              기념일 · 날씨 · 뽀모도로
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              D-Day/기념일, 지역 날씨, 집중 타이머를 함께 둡니다.
+            </p>
+          </li>
+        </ul>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Google 사용자 데이터(캘린더 등)는 위 기능을 제공하는 데만
+          사용합니다. 자세한 내용은{" "}
+          <a
+            href="/privacy"
+            className="text-foreground underline underline-offset-2"
+          >
+            개인정보처리방침
+          </a>
+          을 참고하세요.
+        </p>
+      </div>
     </section>
   )
 }

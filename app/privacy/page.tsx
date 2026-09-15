@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           개인정보처리방침
         </h1>
         <p className="mt-2 text-xs text-muted-foreground">
-          시행일: 2026년 8월 30일 · 개정일: 2026년 9월 13일
+          시행일: 2026년 8월 30일 · 개정일: 2026년 9월 15일
         </p>
       </header>
 
@@ -38,13 +38,19 @@ export default function PrivacyPage() {
           <h2>2. 수집하는 정보</h2>
           <ul>
             <li>
-              Google 로그인 시: Google 계정 식별자, 이메일, 이름, 프로필
-              사진 URL
+              Google 로그인 시(요청 범위:{" "}
+              <code className="text-foreground">openid email profile</code>
+              ): Google 계정 식별자, 이메일, 이름, 프로필 사진 URL
             </li>
             <li>
-              Google Calendar 연동 시: 캘린더 일정 조회·생성·수정·삭제에
-              필요한 Google Calendar 데이터 및 OAuth refresh token(암호화
-              저장)
+              Google Calendar 연결 시(요청 범위:{" "}
+              <code className="text-foreground">
+                https://www.googleapis.com/auth/calendar
+              </code>
+              ): 캘린더 목록·일정 조회·생성·수정·삭제에 필요한 Google
+              Calendar 데이터 및 OAuth refresh token(서버에서 암호화 저장).
+              이 권한은 로그인과 별도로, 사용자가 「캘린더 연결」을 선택할
+              때만 요청합니다.
             </li>
             <li>
               서비스 이용 시: 할 일, 핀 메모, 북마크, 기념일, 위치(날씨),
@@ -60,8 +66,15 @@ export default function PrivacyPage() {
         <section>
           <h2>3. 정보의 이용 목적</h2>
           <ul>
-            <li>회원 식별 및 로그인·세션 유지</li>
-            <li>Google Calendar 연동 및 일정 관리 기능 제공</li>
+            <li>
+              회원 식별 및 로그인·세션 유지(이름·이메일·프로필은 화면 표시
+              및 계정 식별에만 사용)
+            </li>
+            <li>
+              Google Calendar API로 일정을 읽고 쓰는 일정 관리 기능 제공.
+              캘린더 데이터는 대시보드에 표시·동기화하는 데만 사용하며,
+              광고·판매·무관한 제3자 제공에 사용하지 않습니다.
+            </li>
             <li>투두, 북마크, 기념일 등 대시보드 기능 제공</li>
             <li>날씨 위젯 제공(사용자가 설정한 지역 기준)</li>
             <li>서비스 안정성·보안 유지</li>
@@ -151,6 +164,15 @@ export default function PrivacyPage() {
           </p>
         </section>
       </div>
+
+      <p className="mt-10 border-t border-border pt-4">
+        <Link
+          href="/"
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          ← Nemo Calendar
+        </Link>
+      </p>
     </article>
   )
 }
