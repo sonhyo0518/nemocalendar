@@ -24,26 +24,27 @@ export function DeleteAccountDialog({ open, onOpenChange, onConfirm }: Props) {
   const [understood, setUnderstood] = React.useState(false)
   const [busy, setBusy] = React.useState(false)
 
-  React.useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (next: boolean) => {
+    if (!next) {
       setUnderstood(false)
       setBusy(false)
     }
-  }, [open])
+    onOpenChange(next)
+  }
 
   const handleConfirm = async () => {
     if (!understood || busy) return
     setBusy(true)
     try {
       await onConfirm()
-      onOpenChange(false)
+      handleOpenChange(false)
     } catch {
       setBusy(false)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>계정 삭제</DialogTitle>
@@ -83,7 +84,7 @@ export function DeleteAccountDialog({ open, onOpenChange, onConfirm }: Props) {
             type="button"
             variant="ghost"
             disabled={busy}
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleOpenChange(false)}
           >
             취소
           </Button>
