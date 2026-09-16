@@ -13,7 +13,6 @@
 ### Added
 
 ### Changed
-- 게스트 랜딩·개인정보처리방침에 앱 기능과 Google 데이터 이용 목적 안내를 보강하고, 개인정보처리방침·릴리즈 노트 하단에 메인 링크를 추가
 
 ### Deprecated
 
@@ -30,6 +29,21 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+## [0.2.3] - 2026-09-16
+
+### Changed
+
+- 게스트 랜딩·개인정보처리방침에 앱 기능과 Google 데이터 이용 목적 안내를 보강하고, 개인정보처리방침·릴리즈 노트 하단에 메인 링크를 추가
+
+### Fixed
+
+- 계정 삭제 다이얼로그에서 effect 내 setState로 인한 lint/렌더 이슈
+- 기본 할 일 카테고리 seed와 sequence 동시 생성 레이스
+
+### Security
+
+- 북마크 OG fetch 시 DNS rebinding 완화 (해석 IP로 연결 고정)
+
 ## [0.2.2] - 2026-09-15
 
 ### Changed

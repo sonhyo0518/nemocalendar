@@ -17,6 +17,24 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.2.3",
+    date: "2026-09-16",
+    summary:
+      "게스트 안내 보강, 카테고리·정렬 동시성 수정, 북마크 OG 보안 강화입니다.",
+    sections: {
+      changed: [
+        "게스트 랜딩·개인정보처리방침에 앱 기능과 Google 데이터 이용 목적 안내를 보강",
+      ],
+      fixed: [
+        "계정 삭제 다이얼로그 lint/렌더 이슈",
+        "기본 할 일 카테고리 seed와 sequence 동시 생성 레이스",
+      ],
+      security: [
+        "북마크 OG fetch 시 DNS rebinding 완화",
+      ],
+    },
+  },
+  {
     version: "0.2.2",
     date: "2026-09-15",
     summary:
