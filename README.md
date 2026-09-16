@@ -14,9 +14,9 @@ Google 계정으로 로그인하고, Google Calendar·투두·핀보드·북마�
 
 | 항목 | 요구사항 |
 | --- | --- |
-| Node.js | 20.9 이상 (Next.js 16) |
+| Node.js | 20.9 이상 (Next.js 16, 권장 22 또는 24 LTS) |
 | npm / pnpm | 패키지 설치용 |
-| 백엔드 API | Next.js rewrite (`/api/*` → `localhost:5000`) |
+| 백엔드 API | 로컬: Next.js rewrite (`/api/*` → `localhost:5000`) |
 | Google OAuth 클라이언트 | JS origin에 `http://localhost:3000` 등록 |
 
 > 이 폴더는 Python 프로젝트가 아닙니다. `requirements.txt`는 Node.js 버전 안내용입니다.
@@ -30,6 +30,8 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 ```
 
 로컬 개발에서는 `NEXT_PUBLIC_API_URL`을 **설정하지 않습니다**. `next.config.mjs`의 rewrite가 `/api/*` 요청을 백엔드(`localhost:5000`)로 프록시합니다.
+
+프로덕션(Vercel)에서는 `NEXT_PUBLIC_API_URL`이 **필수**입니다 (예: `https://nemocalendar-api.onrender.com`). rewrite는 production에서 비활성화되며, 브라우저가 API 호스트를 직접 호출합니다. 변경 후 Redeploy해야 반영됩니다.
 
 백엔드 환경 변수는 [`../backend/.env.example`](../backend/.env.example)을 참고하세요.
 
@@ -55,6 +57,14 @@ npm run dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000) 을 엽니다.
 
+## 페이지
+
+| Path | 설명 |
+| --- | --- |
+| `/` | 대시보드 (게스트 랜딩 / 로그인 후 위젯) |
+| `/changelog` | 사용자용 릴리즈 노트 (`content/changelog.ts`) |
+| `/privacy` | 개인정보 처리 안내 |
+
 ## 스크립트
 
 - `npm run dev` — 개발 서버
@@ -69,10 +79,11 @@ npm run dev
 4. API 호출은 `credentials: "include"` (`lib/api.ts`의 `authFetch` / `authJson`).
 5. 401 응답 시 `POST /api/user/refresh`로 쿠키 갱신 후 재시도합니다.
 6. 로그아웃 → `POST /api/user/logout` (쿠키 삭제).
+7. 계정 탈퇴 → `DELETE /api/user/account`.
 
 ## 프론트가 호출하는 API
 
-인증 API는 쿠키 기반입니다. 아래 경로는 모두 same-origin(`/api/...`)으로 호출합니다.
+인증 API는 쿠키 기반입니다. 로컬에서는 same-origin(`/api/...`), 프로덕션에서는 `NEXT_PUBLIC_API_URL` + `/api/...`로 호출합니다.
 
 | Method | Path | 설명 |
 | --- | --- | --- |
@@ -82,7 +93,10 @@ npm run dev
 | GET | `/api/user/me` | 현재 사용자 |
 | POST | `/api/user/connect-calendar` | Google Calendar 권한 연결 |
 | POST | `/api/user/disconnect-calendar` | Google Calendar 연결 해제 |
+| DELETE | `/api/user/account` | 계정 탈퇴·데이터 삭제 |
 | PATCH | `/api/user/location` | 날씨 위치 저장 |
+| PATCH | `/api/user/theme-color` | 배너 테마 색상 |
+| POST/DELETE | `/api/user/banner` | 배너 이미지 업로드·삭제 |
 | GET/POST/PATCH/DELETE | `/api/calendar/events` | 일정 CRUD |
 | GET | `/api/calendar/calendars` | 캘린더 목록 |
 | GET/POST/PATCH/DELETE | `/api/pins` | 핀보드 |
@@ -93,12 +107,13 @@ npm run dev
 | GET/POST/PATCH/DELETE | `/api/anniversaries` | 기념일 |
 | GET | `/api/weather` | 날씨 조회 |
 | GET | `/api/weather/suggest` | 지역 검색 |
+| GET | `/api/weather/guest` | 비로그인용 서울 날씨 |
 
 자세한 API는 [backend/README.md](../backend/README.md)를 참고하세요.
 
 ## 버전·릴리즈
 
-앱 Changelog·SemVer·태그 규칙의 **원본**은 이 레포에 있습니다.
+앱 Changelog·SemVer·태그 규칙의 **원본**은 이 레포에 있습니다. 현재 앱 버전: **0.2.3**.
 
 - [CHANGELOG.md](./CHANGELOG.md)
 - [VERSIONING.md](./VERSIONING.md)
