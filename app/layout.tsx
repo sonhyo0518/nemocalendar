@@ -23,7 +23,13 @@ export const metadata: Metadata = {
   description:
     '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드. 일정 관리, 핀 보드, 기념일과 D-Day를 한 곳에서.',
   icons: {
+    // media 없는 기본 아이콘을 먼저 두어 크롤러·파비콘 서비스가 안정적으로 집게 함
     icon: [
+      {
+        url: '/icon.png',
+        type: 'image/png',
+        sizes: '32x32',
+      },
       {
         url: '/icon-light-32x32.png',
         media: '(prefers-color-scheme: light)',
@@ -47,21 +53,14 @@ export const metadata: Metadata = {
     siteName: 'Nemo Calendar',
     locale: 'ko_KR',
     type: 'website',
-    images: [
-      {
-        url: '/icon.png',
-        width: 64,
-        height: 64,
-        alt: 'Nemo Calendar',
-      },
-    ],
+    // og:image는 app/opengraph-image.tsx (1200×630)가 자동 주입
   },
   twitter: {
-    card: 'summary', // 정사각 아이콘용 (large_image 아님)
+    card: 'summary_large_image',
     title: 'Nemo Calendar',
     description:
       '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드.',
-    images: ['/icon.png'],
+    // twitter:image는 app/twitter-image.tsx가 자동 주입
   },
   verification: {
     other: {
