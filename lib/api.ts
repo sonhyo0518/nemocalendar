@@ -79,6 +79,12 @@ export async function refreshAccessToken(): Promise<void> {
   }
 }
 
+/** wake/COLD-start retry — 중복 쓰기를 피하려고 안전 메서드만 */
+function isIdempotentMethod(method?: string): boolean {
+  const m = (method ?? "GET").toUpperCase()
+  return m === "GET" || m === "HEAD" || m === "OPTIONS"
+}
+
 type AuthFetchOptions = RequestInit & {
   auth?: boolean
   onUnauthorized?: () => void
@@ -100,6 +106,7 @@ export async function authFetch(
   } = options
 
   const finalHeaders = new Headers(headers)
+  const canWakeRetry = !_wakeRetried && isIdempotentMethod(rest.method)
 
   let res: Response
   try {
@@ -110,8 +117,8 @@ export async function authFetch(
       credentials: "include",
     })
   } catch (err) {
-    // Render 콜드스타트·일시 네트워크 오류
-    if (!_wakeRetried) {
+    // Render 콜드스타트·일시 네트워크 오류 (GET 등만)
+    if (canWakeRetry) {
       await new Promise((r) => setTimeout(r, 2500))
       return authFetch(path, { ...options, _wakeRetried: true })
     }
@@ -121,7 +128,7 @@ export async function authFetch(
   // weather 502는 upstream 한도/실패 — 재시도하면 WeatherAPI 쿼터만 더 소모
   const isWeather = path.startsWith("/api/weather")
   if (
-    !_wakeRetried &&
+    canWakeRetry &&
     (res.status === 503 ||
       res.status === 504 ||
       (!isWeather && res.status === 502))
