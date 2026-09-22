@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.2.4",
+    date: "2026-09-22",
+    summary:
+      "쓰기 API 재시도 제한, 캘린더 휴일 숨김 수정, 북마크 OG IPv4-mapped SSRF 보강입니다.",
+    sections: {
+      fixed: [
+        "authFetch wake 재시도를 GET 등 안전 메서드만 허용해 쓰기 중복 생성 방지",
+        "캘린더 「숨김」 시 대한민국 휴일이 함께 숨겨지던 문제",
+      ],
+      security: [
+        "북마크 OG에 IPv4-mapped 주소 차단 및 favicon·preview 저장 전 재검증",
+      ],
+    },
+  },
+  {
     version: "0.2.3",
     date: "2026-09-16",
     summary:

@@ -29,6 +29,19 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+
+## [0.2.4] - 2026-09-22
+
+### Fixed
+
+- `authFetch`의 네트워크·502/503/504 wake 재시도를 GET·HEAD·OPTIONS만 허용해 POST/PATCH/DELETE 중복 생성 방지
+- 캘린더 「숨김」 시 대한민국 휴일 캘린더·일정이 함께 사라지던 문제
+
+### Security
+
+- 북마크 OG URL 안전 검사에 IPv4-mapped 주소(`::ffff:…`, Node hex 정규화 포함) 처리 추가
+- 북마크 favicon·preview 이미지 저장 전 `assertSafeHttpUrl` 재검증
+
 ## [0.2.3] - 2026-09-16
 
 ### Changed
