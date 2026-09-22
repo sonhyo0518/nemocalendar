@@ -7,6 +7,7 @@ import {
   type GoogleCalendarOption,
   monthGridRange,
   isHolidayCalendarOption,
+  isKoreanHolidayEvent,
 } from "@/lib/dashboard-data"
 import {
   applyColorOverrides,
@@ -97,7 +98,10 @@ export function useCalendarEvents({
   const filteredEvents = useMemo(() => {
     if (calendars.length === 0) return events
     return events.filter(
-      (event) => !event.calendarId || visibleCalendarIds.has(event.calendarId),
+      (event) =>
+        isKoreanHolidayEvent(event) ||
+        !event.calendarId ||
+        visibleCalendarIds.has(event.calendarId),
     )
   }, [events, visibleCalendarIds, calendars.length])
 
@@ -142,9 +146,12 @@ export function useCalendarEvents({
   }, [calendars, userEmail])
 
   const hideAllCalendars = useCallback(() => {
-    writeVisibleCalendarIds(userEmail, [])
-    setVisibleCalendarIds(new Set())
-  }, [userEmail])
+    const holidayIds = calendars
+      .filter(isHolidayCalendarOption)
+      .map((calendar) => calendar.id)
+    writeVisibleCalendarIds(userEmail, holidayIds)
+    setVisibleCalendarIds(new Set(holidayIds))
+  }, [calendars, userEmail])
 
   const addEvent = useCallback(
     async (event: Omit<CalendarEvent, "id">) => {
