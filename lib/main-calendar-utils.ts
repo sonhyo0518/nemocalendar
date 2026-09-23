@@ -8,13 +8,12 @@ import {
     type CalendarEvent,
 } from "@/lib/dashboard-data"
 import { cn } from "@/lib/utils"
-
 export const scheduleFieldLabelClass =
-"mb-[5px] gap-1.5 text-[10px] font-extrabold tracking-[0.04em] text-[var(--schedule-accent)] uppercase"
+  "mb-1 gap-1.5 text-xs font-extrabold tracking-wide text-[var(--schedule-accent)] uppercase"
 
 export const scheduleInputClass =
-"h-auto rounded-none border-0 border-b-[1.5px] border-[var(--schedule-border)] bg-transparent px-0.5 pt-[3px] pb-[7px] text-sm font-semibold text-[var(--schedule-fg)] shadow-none outline-none placeholder:font-medium placeholder:text-[var(--schedule-placeholder)] focus-visible:border-[var(--schedule-accent)] focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-dotted disabled:bg-transparent disabled:text-[var(--schedule-placeholder)] disabled:opacity-100 dark:bg-transparent md:text-sm"
-
+  "h-auto rounded-none border-0 border-b border-[var(--schedule-border)] bg-transparent px-0.5 pt-0.5 pb-1.5 text-sm font-semibold text-[var(--schedule-fg)] shadow-none outline-none placeholder:font-medium placeholder:text-[var(--schedule-placeholder)] focus-visible:border-[var(--schedule-accent)] focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-dotted disabled:bg-transparent disabled:text-[var(--schedule-placeholder)] disabled:opacity-100 dark:bg-transparent"
+  
 export const scheduleSelectClass = cn(
 scheduleInputClass,
 "appearance-none cursor-pointer pr-4",

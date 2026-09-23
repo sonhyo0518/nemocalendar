@@ -106,7 +106,7 @@ function MeridiemTimeField({
           </option>
         ))}
       </select>
-      <span className="pb-[7px] text-sm font-semibold text-[var(--schedule-muted)]">
+      <span className="pb-1.5 text-sm font-semibold text-[var(--schedule-muted)]">
         :
       </span>
       <select
@@ -203,13 +203,13 @@ export function EventFormDialog({
           ["--schedule-accent" as string]:
             `color-mix(in srgb, ${accent} 15%, var(--schedule-fg))`,
         }}
-        className="max-w-[380px] gap-0 rounded-[6px] bg-[var(--schedule-surface)] p-0 text-[var(--schedule-fg)] ring-0 sm:max-w-[380px]"
+        className="max-w-sm gap-0 rounded-xl bg-popover p-0 text-popover-foreground sm:max-w-sm"
       >
-        <DialogHeader className="relative gap-0 border-b-2 border-[var(--schedule-accent)] px-[22px] pt-[18px] pb-3">
-          <p className="mb-[3px] text-[10px] font-bold tracking-[0.12em] text-[var(--schedule-accent)] uppercase">
+        <DialogHeader className="relative gap-0 border-b-2 border-[var(--schedule-accent)] px-5 pt-4 pb-3">
+          <p className="mb-0.5 text-xs font-bold tracking-widest text-[var(--schedule-accent)] uppercase">
             {editingEvent ? "Edit Schedule" : "New Schedule"}
           </p>
-          <DialogTitle className="text-[19px] font-extrabold tracking-tight">
+          <DialogTitle className="text-lg font-extrabold tracking-tight">
             {editingEvent ? "일정 수정" : "일정 추가"}
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -222,18 +222,18 @@ export function EventFormDialog({
               <button
                 type="button"
                 title="닫기"
-                className="absolute top-[17px] right-[18px] grid size-[22px] place-items-center border-0 bg-transparent text-[var(--schedule-muted)] transition-[color,transform] duration-150 hover:rotate-90 hover:text-[var(--schedule-fg)]"
+                className="absolute top-4 right-4 grid size-5 place-items-center border-0 bg-transparent text-[var(--schedule-muted)] transition-[color,transform] duration-150 hover:rotate-90 hover:text-[var(--schedule-fg)]"  
               />
             }
           >
-            <X className="size-[15px]" strokeWidth={2.3} />
+            <X className="size-3.5" strokeWidth={2.3} />
             <span className="sr-only">닫기</span>
           </DialogClose>
         </DialogHeader>
 
-        <div className="px-[22px] pt-4 pb-[18px]">
+        <div className="px-5 pt-4 pb-4">
           {/* 제목 */}
-          <div className="mb-[13px]">
+          <div className="mb-3">
             <Label htmlFor="event-title" className={scheduleFieldLabelClass}>
               제목
             </Label>
@@ -322,7 +322,7 @@ export function EventFormDialog({
           </div>
 
           {/* 소요 시간 */}
-          <div className="mb-[13px]">
+          <div className="mb-3">
             <Label className={scheduleFieldLabelClass}>소요 시간</Label>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
               <div className="flex items-baseline gap-2">
@@ -341,7 +341,7 @@ export function EventFormDialog({
                     </option>
                   ))}
                 </select>
-                <span className="pb-[7px] text-xs font-bold text-[var(--schedule-muted)]">
+                <span className="pb-1.5 text-xs font-bold text-[var(--schedule-muted)]">
                   시간
                 </span>
                 <select
@@ -357,7 +357,7 @@ export function EventFormDialog({
                     </option>
                   ))}
                 </select>
-                <span className="pb-[7px] text-xs font-bold text-[var(--schedule-muted)]">
+                <span className="pb-1.5 text-xs font-bold text-[var(--schedule-muted)]">
                   분
                 </span>
               </div>
@@ -378,7 +378,7 @@ export function EventFormDialog({
                     onFormEndDateChange(formDate)
                   }}
                   className={cn(
-                    "rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors",
+                    "rounded-full border px-2.5 py-1 text-xs font-bold transition-colors",
                     !time
                       ? "border-[var(--schedule-accent)] bg-[color-mix(in_srgb,var(--schedule-accent)_18%,white)] text-[var(--schedule-accent)]"
                       : "border-[var(--schedule-border)] text-[var(--schedule-muted)] hover:border-[var(--schedule-accent)] hover:text-[var(--schedule-fg)]",
@@ -397,7 +397,7 @@ export function EventFormDialog({
                         setDuration(Math.floor(tag.minutes / 60), tag.minutes % 60)
                       }
                       className={cn(
-                        "rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors",
+                        "rounded-full border px-2.5 py-1 text-xs font-bold transition-colors",
                         selected
                           ? "border-[var(--schedule-accent)] bg-[color-mix(in_srgb,var(--schedule-accent)_18%,white)] text-[var(--schedule-accent)]"
                           : "border-[var(--schedule-border)] text-[var(--schedule-muted)] hover:border-[var(--schedule-accent)] hover:text-[var(--schedule-fg)]",
@@ -533,14 +533,14 @@ export function EventFormDialog({
             <Button
               onClick={onSubmit}
               disabled={!title.trim() || saving}
-              className="h-auto gap-1.5 rounded-full px-[17px] py-[9px] text-[13px] font-extrabold disabled:opacity-100 not-disabled:hover:-translate-y-px"
+              className="h-auto gap-1.5 rounded-full px-4 py-2 text-sm font-extrabold disabled:opacity-100 not-disabled:hover:-translate-y-px"
               style={{
                 backgroundColor: title.trim() ? accent : "var(--schedule-disabled)",
                 color: title.trim() ? onColor(accent) : undefined,
               }}
             >
               {editingEvent ? "저장" : "추가"}
-              <ArrowRight className="size-[15px]" strokeWidth={2.5} />
+              <ArrowRight className="size-3.5" strokeWidth={2.5} />
             </Button>
           </div>
         </div>

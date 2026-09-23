@@ -105,13 +105,13 @@
   --event-rose: oklch(0.62 0.2 15);
   --event-violet: oklch(0.55 0.18 300);
 
-  --schedule-fg: #16221a;
-  --schedule-muted: #7c8a7f;
-  --schedule-border: #dfe6e0;
-  --schedule-placeholder: #c2cac3;
-  --schedule-surface: #fffef9;
-  --schedule-calendar-fallback: #f0b429;
-  --schedule-disabled: #c7cfc9;
+  --schedule-fg: var(--foreground);
+  --schedule-muted: var(--muted-foreground);
+  --schedule-border: var(--border);
+  --schedule-placeholder: var(--muted-foreground);
+  --schedule-surface: var(--popover);
+  --schedule-calendar-fallback: var(--event-amber);
+  --schedule-disabled: var(--muted-foreground);
 }
 
 .dark {
