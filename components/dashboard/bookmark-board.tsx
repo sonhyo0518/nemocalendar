@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
@@ -121,6 +122,10 @@ export function BookmarkBoard({
   const [folderDraft, setFolderDraft] = React.useState("")
   const [editingFolderId, setEditingFolderId] = React.useState<string | null>(null)
   const [editingFolderName, setEditingFolderName] = React.useState("")
+  const [folderPendingDelete, setFolderPendingDelete] = React.useState<{
+    id: string
+    name: string
+  } | null>(null)
 
   const sortedFolders = React.useMemo(
     () => [...folders].sort((a, b) => a.sequence - b.sequence),
@@ -337,14 +342,11 @@ export function BookmarkBoard({
                 setEditingFolderName("")
               }}
               onDelete={() => {
-                if (window.confirm(`「${f.name}」 폴더를 삭제할까요?`)) { 
-                  if (readOnly) {
-                    onRequireLogin?.()
-                    return
-                  }
-                  onRemoveFolder(f.id)
-                  if (filter === f.id) setFilter("all")
+                if (readOnly) {
+                  onRequireLogin?.()
+                  return
                 }
+                setFolderPendingDelete({ id: f.id, name: f.name })
               }}
             />
           ))}
@@ -486,6 +488,22 @@ export function BookmarkBoard({
           </form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={folderPendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setFolderPendingDelete(null)
+        }}
+        title="폴더 삭제"
+        description={`「${folderPendingDelete?.name ?? ""}」 폴더를 삭제할까요?`}
+        confirmLabel="삭제"
+        danger
+        onConfirm={() => {
+          if (!folderPendingDelete) return
+          onRemoveFolder(folderPendingDelete.id)
+          if (filter === folderPendingDelete.id) setFilter("all")
+          setFolderPendingDelete(null)
+        }}
+      />
     </section>
   )
 }
@@ -584,7 +602,7 @@ function FolderRow({
                   type="button"
                   title="폴더 메뉴"
                   aria-label="폴더 메뉴"
-                  className="grid size-5 place-items-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100 hover:text-foreground"
+                  className="grid size-5 place-items-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
                 />
               }
             >
@@ -691,7 +709,7 @@ function BookmarkCard({
             </p>
           </button>
         </div>
-        <div className="mt-1 flex justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="mt-1 flex justify-end gap-0.5 opacity-0 transition-opacity max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
           <button
             type="button"
             title="열기"

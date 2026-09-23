@@ -458,47 +458,42 @@ export function TodoBoard({
                 className="overflow-hidden rounded-lg border border-border bg-card"
               >
                 <div
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={!collapsed}
-                  aria-label={
-                    collapsed ? `${cat.name} 펼치기` : `${cat.name} 접기`
-                  }
-                  className="flex cursor-pointer items-center gap-2 px-4 py-3"
+                  className="flex items-center gap-2 px-4 py-3"
                   style={{
                     backgroundColor: `color-mix(in srgb, ${cat.color} 25%, transparent)`,
                   }}
-                  onClick={() => toggleCollapsed(cat.id)}
-                  onKeyDown={(e) => {
-                    if (e.key !== "Enter" && e.key !== " ") return
-                    e.preventDefault()
-                    toggleCollapsed(cat.id)
-                  }}
                 >
-                  <span className="grid size-5 shrink-0 place-items-center text-muted-foreground">
-                    <ChevronDown
-                      className={cn(
-                        "size-3.5 transition-transform duration-200",
-                        collapsed && "-rotate-90",
-                      )}
-                    />
-                  </span>
-                  <h3 className="text-[13.5px] font-bold tracking-tight">
-                    {cat.name}
-                  </h3>
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    {active.length}
-                    {doneCount > 0 ? ` · ${doneCount}/${total}` : ""}
-                  </span>
+                  <button
+                    type="button"
+                    aria-expanded={!collapsed}
+                    aria-label={
+                      collapsed ? `${cat.name} 펼치기` : `${cat.name} 접기`
+                    }
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left"
+                    onClick={() => toggleCollapsed(cat.id)}
+                  >
+                    <span className="grid size-5 shrink-0 place-items-center text-muted-foreground">
+                      <ChevronDown
+                        className={cn(
+                          "size-3.5 transition-transform duration-200",
+                          collapsed && "-rotate-90",
+                        )}
+                      />
+                    </span>
+                    <h3 className="text-[13.5px] font-bold tracking-tight">
+                      {cat.name}
+                    </h3>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {active.length}
+                      {doneCount > 0 ? ` · ${doneCount}/${total}` : ""}
+                    </span>
+                  </button>
                   <button
                     type="button"
                     title="이 카테고리에 추가"
                     aria-label="추가"
                     className="ml-auto grid size-[22px] place-items-center rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openComposer(cat.id)
-                    }}
+                    onClick={() => openComposer(cat.id)}
                   >
                     <Plus className="size-3.5" />
                   </button>

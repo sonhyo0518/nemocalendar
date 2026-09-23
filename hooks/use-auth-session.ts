@@ -94,6 +94,19 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     document.documentElement.style.removeProperty("--banner-theme")
   }, [user?.email, onSignedOut])
 
+  const handleUnauthorized = useCallback(() => {
+    if (signedOutRef.current) return
+    signedOutRef.current = true
+    const email = user?.email
+    clearAuthSession()
+    onSignedOut?.(email)
+    setUser(null)
+    setCalendarConnected(false)
+    setAuthReady(true)
+    document.documentElement.style.removeProperty("--banner-img")
+    document.documentElement.style.removeProperty("--banner-theme")
+  }, [user?.email, onSignedOut])
+  
   const deleteAccount = useCallback(async () => {
     signedOutRef.current = true
     const email = user?.email
@@ -156,7 +169,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     })
     authJson<{ user: DashboardUser & { calendarConnected?: boolean } }>(
       "/api/user/me",
-      { onUnauthorized: handleSignOut },
+      { onUnauthorized: handleUnauthorized },
     )
       .then((data) => {
         if (cancelled || signedOutRef.current || !data?.user) return
@@ -200,9 +213,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
       .catch((err) => {
         if (cancelled) return
         if (err instanceof ApiError && err.status === 401) {
-          if (!signedOutRef.current) {
-            void handleSignOut()
-          }
+          handleUnauthorized()
           return
         }
         notifyApiError(err, "사용자 정보를 불러오지 못했습니다.")
@@ -213,7 +224,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     return () => {
       cancelled = true
     }
-  }, [user?.email, handleSignOut])
+  }, [user?.email, handleUnauthorized])
 
   return {
     user,
@@ -222,6 +233,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     setCalendarConnected,
     handleSignIn,
     handleSignOut,
+    handleUnauthorized,
     deleteAccount,
     applyBanner,
     handleLocationChange,

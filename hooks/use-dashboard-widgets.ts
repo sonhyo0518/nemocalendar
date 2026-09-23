@@ -424,24 +424,18 @@ export function useDashboardWidgets({
 
   useEffect(() => {
     if (!userEmail) return
-    let cancelled = false
-  
+    const ctrl = new AbortController()
+    const opts = { onUnauthorized, signal: ctrl.signal }
     Promise.all([
-      authJson<{ pins?: Pin[] }>("/api/pins", { onUnauthorized }),
-      authJson<{ bookmarks?: Bookmark[] }>("/api/bookmarks", { onUnauthorized }),
-      authJson<{ folders?: BookmarkFolder[] }>("/api/bookmark-folders", {
-        onUnauthorized,
-      }),
-      authJson<{ anniversaries?: Anniversary[] }>("/api/anniversaries", {
-        onUnauthorized,
-      }),
-      authJson<{ categories?: TodoCategory[] }>("/api/todo-categories", {
-        onUnauthorized,
-      }),
-      authJson<{ todos?: BoardTask[] }>("/api/todos", { onUnauthorized }),
+      authJson<{ pins?: Pin[] }>("/api/pins", opts),
+      authJson<{ bookmarks?: Bookmark[] }>("/api/bookmarks", opts),
+      authJson<{ folders?: BookmarkFolder[] }>("/api/bookmark-folders", opts),
+      authJson<{ anniversaries?: Anniversary[] }>("/api/anniversaries", opts),
+      authJson<{ categories?: TodoCategory[] }>("/api/todo-categories", opts),
+      authJson<{ todos?: BoardTask[] }>("/api/todos", opts),
     ])
       .then(([pinData, bookmarkData, folderData, annData, catData, todoData]) => {
-        if (cancelled) return
+        if (ctrl.signal.aborted) return
         setPins(pinData?.pins ?? [])
         setBookmarks(bookmarkData?.bookmarks ?? [])
         setBookmarkFolders(folderData?.folders ?? [])
@@ -450,7 +444,8 @@ export function useDashboardWidgets({
         setBoardTasks(todoData?.todos ?? [])
       })
       .catch((err) => {
-        if (cancelled) return
+        if (ctrl.signal.aborted) return
+        if (err instanceof Error && err.name === "AbortError") return
         notifyApiError(err, "대시보드 데이터를 불러오지 못했습니다.")
         setPins([])
         setBookmarks([])
@@ -461,7 +456,7 @@ export function useDashboardWidgets({
       })
   
     return () => {
-      cancelled = true
+      ctrl.abort()
     }
   }, [userEmail, onUnauthorized])
   

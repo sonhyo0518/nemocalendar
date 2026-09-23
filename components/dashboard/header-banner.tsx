@@ -15,6 +15,7 @@ import { useGoogleLogin } from "@react-oauth/google"
 import { useGoogleSignIn } from "@/hooks/use-google-sign-in"
 import { BannerSettingsDialog } from "@/components/dashboard/banner-settings-dialog"
 import { DeleteAccountDialog } from "@/components/dashboard/delete-account-dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ThemeSettingsDialog } from "@/components/dashboard/theme-settings-dialog"
 import type { DashboardUser } from "@/lib/dashboard-data"
 import { authFetch } from "@/lib/api"
@@ -66,6 +67,7 @@ export function HeaderBanner({
   const [themeOpen, setThemeOpen] = useState(false)
   const [bannerOpen, setBannerOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [disconnectOpen, setDisconnectOpen] = useState(false)
   const { mode, setMode } = useColorMode()
 
   const onSignedIn = useCallback(
@@ -241,11 +243,11 @@ export function HeaderBanner({
                     배너 변경
                   </DropdownMenuItem>
                   {calendarConnected && onCalendarDisconnected ? (
-                  <DropdownMenuItem onClick={() => onCalendarDisconnected()}>
-                    <CalendarDays />
-                    캘린더 연결 해제
-                  </DropdownMenuItem>
-                ) : null}
+                    <DropdownMenuItem onClick={() => setDisconnectOpen(true)}>
+                      <CalendarDays />
+                      캘린더 연결 해제
+                    </DropdownMenuItem>
+                  ) : null}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 {onDeleteAccount ? (
@@ -301,6 +303,17 @@ export function HeaderBanner({
               open={deleteOpen}
               onOpenChange={setDeleteOpen}
               onConfirm={onDeleteAccount}
+            />
+          ) : null}
+          {onCalendarDisconnected ? (
+            <ConfirmDialog
+              open={disconnectOpen}
+              onOpenChange={setDisconnectOpen}
+              title="캘린더 연결 해제"
+              description="Google 캘린더 연결을 해제할까요?"
+              confirmLabel="해제"
+              danger
+              onConfirm={() => onCalendarDisconnected()}
             />
           ) : null}
         </>

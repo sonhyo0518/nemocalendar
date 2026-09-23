@@ -33,6 +33,7 @@ export function useCalendarDashboardModel() {
     setCalendarConnected,
     handleSignIn,
     handleSignOut,
+    handleUnauthorized,
     deleteAccount,
     applyBanner,
     handleLocationChange,
@@ -44,12 +45,12 @@ export function useCalendarDashboardModel() {
     userEmail: user?.email,
     calendarConnected,
     setCalendarConnected,
-    onUnauthorized: handleSignOut,
+    onUnauthorized: handleUnauthorized,
   })
 
   const widgets = useDashboardWidgets({
     userEmail: user?.email,
-    onUnauthorized: handleSignOut,
+    onUnauthorized: handleUnauthorized,
   })
 
   React.useEffect(() => {
@@ -63,7 +64,6 @@ export function useCalendarDashboardModel() {
   }
   
   const handleCalendarDisconnect = async () => {
-    if (!window.confirm("Google 캘린더 연결을 해제할까요?")) return
     try {
       await disconnectCalendar(handleSignOut)
       calendar.resetCalendarState(user?.email)
@@ -85,6 +85,8 @@ export function useCalendarDashboardModel() {
     calendars: calendar.calendars,
     visibleCalendarIds: calendar.visibleCalendarIds,
     eventsLoading: calendar.eventsLoading,
+    eventsError: calendar.eventsError,
+    invalidateEventsReload: calendar.invalidateEventsReload,
     filteredEvents: calendar.filteredEvents,
     selectedDate: calendar.selectedDate,
     viewDate: calendar.viewDate,
@@ -97,6 +99,7 @@ export function useCalendarDashboardModel() {
     anniversaries: widgets.anniversaries,
     handleSignIn,
     handleSignOut,
+    handleUnauthorized,
     handleDeleteAccount,
     applyBanner,
     setCalendarConnected,

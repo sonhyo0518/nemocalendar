@@ -150,7 +150,11 @@ import {
       } else {
         document.documentElement.style.removeProperty("--banner-img")
       }
-      const theme = user.theme_color ?? DEFAULT_BANNER_COLOR
+      const raw = user.theme_color ?? DEFAULT_BANNER_COLOR
+      const theme =
+        typeof raw === "string" && /^#[0-9A-Fa-f]{6}$/.test(raw)
+          ? raw
+          : DEFAULT_BANNER_COLOR
       document.documentElement.style.setProperty("--banner-theme", theme)
     } catch {
       // ignore DOM/style failures

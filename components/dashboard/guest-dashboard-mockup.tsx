@@ -45,7 +45,7 @@ export function GuestDashboardMockup({
   const [selectedDate, setSelectedDate] = useState(demo.selected)
   
   const contentRef = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(1080) // 1080 * 0.55 ≈ 594
   
   useLayoutEffect(() => {
     const el = contentRef.current
@@ -88,8 +88,7 @@ export function GuestDashboardMockup({
           style={{
             width: `${100 / SCALE}%`,
             transform: `scale(${SCALE})`,
-            marginBottom:
-              contentHeight > 0 ? contentHeight * (SCALE - 1) : undefined,
+            marginBottom: contentHeight * (SCALE - 1),
           }}
         >
           <DashboardChrome

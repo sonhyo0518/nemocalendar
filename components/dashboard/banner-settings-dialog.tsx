@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Cropper, { type Area } from "react-easy-crop"
-
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -96,11 +96,11 @@ export function BannerSettingsDialog({
 
   const pickFile = (file: File) => {
     if (file.size > MAX_BYTES) {
-      alert("1MB 이하 이미지만 올릴 수 있습니다.")
+      toast.error("1MB 이하 이미지만 올릴 수 있습니다.")
       return
     }
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      alert("jpeg, png, webp만 가능합니다.")
+      toast.error("jpeg, png, webp만 가능합니다.")
       return
     }
     const reader = new FileReader()
@@ -128,14 +128,14 @@ export function BannerSettingsDialog({
   
       const data = await res.json()
       if (!res.ok) {
-        alert(data.error || "업로드 실패")
+        toast.error(data.error || "업로드 실패")
         return
       }
       onBannerChange({ banner_img_url: data.banner_img_url })
       setImageSrc(null)
     } catch (e) {
       console.error(e)
-      alert("크롭 결과를 1MB 이하로 만들 수 없습니다. 영역을 줄여 주세요.")
+      toast.error("크롭 결과를 1MB 이하로 만들 수 없습니다. 영역을 줄여 주세요.")
     } finally {
       setBusy(false)
     }
@@ -152,7 +152,7 @@ export function BannerSettingsDialog({
   
       const data = await res.json()
       if (!res.ok) {
-        alert(data.error || "삭제 실패")
+        toast.error(data.error || "삭제 실패")
         return
       }
       onBannerChange({ banner_img_url: null })

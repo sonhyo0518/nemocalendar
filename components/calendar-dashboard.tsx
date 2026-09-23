@@ -5,7 +5,6 @@ import { AnniversaryWidget } from "@/components/dashboard/anniversary-widget"
 import { CalendarCategoryFilter } from "@/components/dashboard/calendar-category-filter"
 import { DashboardChrome } from "@/components/dashboard/dashboard-chrome"
 import { MainCalendar } from "@/components/dashboard/main-calendar"
-import { MiniCalendar } from "@/components/dashboard/mini-calendar"
 import { PinBoard } from "@/components/dashboard/pin-board"
 import { PomodoroTimer } from "@/components/dashboard/pomodoro-timer"
 import { TodoBoard } from "@/components/dashboard/todo-board"
@@ -14,6 +13,7 @@ import { BookmarkBoard } from "@/components/dashboard/bookmark-board"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useCalendarDashboardModel } from "@/hooks/use-calendar-dashboard-model"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 
 export function CalendarDashboard() {
   const {
@@ -24,6 +24,8 @@ export function CalendarDashboard() {
     calendars,
     visibleCalendarIds,
     eventsLoading,
+    eventsError,
+    invalidateEventsReload,
     filteredEvents,
     selectedDate,
     viewDate,
@@ -42,6 +44,7 @@ export function CalendarDashboard() {
     anniversaries,
     handleSignIn,
     handleSignOut,
+    handleUnauthorized,
     handleDeleteAccount,
     applyBanner,
     handleCalendarConnected,
@@ -133,10 +136,24 @@ export function CalendarDashboard() {
             main={
               mainPanel === "calendar" ? (
                 !authReady ||
-                (user && eventsLoading && filteredEvents.length === 0) ? (
+                (user &&
+                  eventsLoading &&
+                  filteredEvents.length === 0 &&
+                  !eventsError) ? (
                   <div>
                     <Skeleton className="h-8 w-40" />
                     <Skeleton className="mt-4 h-72 bg-muted/40" />
+                  </div>
+                ) : eventsError && filteredEvents.length === 0 ? (
+                  <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
+                    <p>캘린더 일정을 불러오지 못했습니다.</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => invalidateEventsReload()}
+                    >
+                      다시 시도
+                    </Button>
                   </div>
                 ) : (
                   <MainCalendar
@@ -193,15 +210,6 @@ export function CalendarDashboard() {
                     onRemove={removePin}
                   />
                 </div>
-                <div className="hidden">
-                  <div className="hidden lg:block">
-                    <MiniCalendar
-                      selectedDate={selectedDate}
-                      events={filteredEvents}
-                      onSelectDate={handleSelectDate}
-                    />
-                  </div>
-                </div>
                 <div
                   className={
                     mainPanel === "calendar"
@@ -223,7 +231,7 @@ export function CalendarDashboard() {
                     isLoggedIn={Boolean(user)}
                     location={user?.location ?? "서울"}
                     onLocationChange={handleLocationChange}
-                    onUnauthorized={handleSignOut}
+                    onUnauthorized={handleUnauthorized}
                   />
                 </div>
                 <div className="order-30 lg:order-40">

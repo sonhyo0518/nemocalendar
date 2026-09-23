@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -75,7 +76,7 @@ export function ThemeSettingsDialog({
   const saveColor = async () => {
     const color = normalizeHex(hexDraft)
     if (!HEX_RE.test(color)) {
-      alert("색상은 #RRGGBB 형식으로 입력해 주세요. 예: #aeced0")
+      toast.error("색상은 #RRGGBB 형식으로 입력해 주세요. 예: #aeced0")
       return
     }
     setHex(color)
@@ -90,7 +91,7 @@ export function ThemeSettingsDialog({
       })
       const data = await res.json()
       if (!res.ok) {
-        alert(data.error || "색상 저장 실패")
+        toast.error(data.error || "색상 저장 실패")
         return
       }
       onThemeChange({ theme_color: data.theme_color })

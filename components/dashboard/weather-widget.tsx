@@ -58,6 +58,7 @@ export function WeatherWidget({
   const [location, setLocation] = React.useState("서울")
   const [open, setOpen] = React.useState(false)
   const [draft, setDraft] = React.useState("서울")
+  const [reloadToken, setReloadToken] = React.useState(0)
   const mounted = React.useSyncExternalStore(
     () => () => {},
     () => true,
@@ -84,8 +85,8 @@ export function WeatherWidget({
   }, [savedLocation, mounted, isLoggedIn])
 
   React.useEffect(() => {
-    let cancelled = false
-  
+    const ctrl = new AbortController()
+
     const city = isLoggedIn ? location : "서울"
     const storageKey = `weather-cache:${city}`
     const CLIENT_TTL_MS = 1000 * 60 * 60 // 1시간
@@ -105,25 +106,26 @@ export function WeatherWidget({
   
     if (cached) {
       queueMicrotask(() => {
-        if (!cancelled) {
+        if (!ctrl.signal.aborted) {
           setData(cached)
           setStatus("ok")
         }
       })
       return () => {
-        cancelled = true
+        ctrl.abort()
       }
     }
   
     queueMicrotask(() => {
-      if (!cancelled) setStatus("loading")
+      if (!ctrl.signal.aborted) setStatus("loading")
     })
   
     const load = isLoggedIn
-      ? authFetch(`/api/weather?city=${encodeURIComponent(city)}`, {
-          onUnauthorized,
-        })
-      : fetch(`${API_BASE}/api/weather/guest`)
+  ? authFetch(`/api/weather?city=${encodeURIComponent(city)}`, {
+      onUnauthorized,
+      signal: ctrl.signal,
+    })
+  : fetch(`${API_BASE}/api/weather/guest`, { signal: ctrl.signal })
   
     load
       .then((r) => {
@@ -131,7 +133,7 @@ export function WeatherWidget({
         return r.json() as Promise<WeatherData>
       })
       .then((json) => {
-        if (!cancelled) {
+        if (!ctrl.signal.aborted) {
           setData(json)
           setStatus("ok")
           try {
@@ -145,13 +147,13 @@ export function WeatherWidget({
         }
       })
       .catch(() => {
-        if (!cancelled) setStatus("error")
+        if (!ctrl.signal.aborted) setStatus("error")
       })
   
     return () => {
-      cancelled = true
+      ctrl.abort()
     }
-  }, [location, onUnauthorized, isLoggedIn])
+  }, [location, onUnauthorized, isLoggedIn, reloadToken])
   
   const activeSuggestions =
   open && draft.trim().length >= 1 ? suggestions : []
@@ -161,29 +163,30 @@ export function WeatherWidget({
     const q = draft.trim()
     if (q.length < 1) return
   
-    let cancelled = false
+    const ctrl = new AbortController()
     const t = window.setTimeout(() => {
       setSuggestLoading(true)
       authFetch(`/api/weather/suggest?q=${encodeURIComponent(q)}`, {
         onUnauthorized,
+        signal: ctrl.signal,
       })
         .then((r) => {
           if (!r.ok) throw new Error("suggest failed")
           return r.json() as Promise<{ suggestions: SuggestItem[] }>
         })
         .then((json) => {
-          if (!cancelled) setSuggestions(json.suggestions ?? [])
+          if (!ctrl.signal.aborted) setSuggestions(json.suggestions ?? [])
         })
         .catch(() => {
-          if (!cancelled) setSuggestions([])
+          if (!ctrl.signal.aborted) setSuggestions([])
         })
         .finally(() => {
-          if (!cancelled) setSuggestLoading(false)
+          if (!ctrl.signal.aborted) setSuggestLoading(false)
         })
     }, 300)
   
     return () => {
-      cancelled = true
+      ctrl.abort()
       window.clearTimeout(t)
     }
   }, [draft, open, onUnauthorized, isLoggedIn])
@@ -322,9 +325,18 @@ export function WeatherWidget({
           </div>
         )}
         {status === "error" && (
-          <p className="text-sm text-muted-foreground">
-            날씨를 찾을 수 없어요
-          </p>
+          <div className="flex w-full flex-col items-start gap-2">
+            <p className="text-sm text-muted-foreground">
+              날씨를 찾을 수 없어요
+            </p>
+            <Button
+              size="xs"
+              variant="outline"
+              onClick={() => setReloadToken((n) => n + 1)}
+            >
+              다시 시도
+            </Button>
+          </div>
         )}
         {status === "ok" && data && (
           <>

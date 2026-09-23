@@ -1,3 +1,5 @@
+
+import { toast } from "sonner"
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 if (
@@ -24,7 +26,7 @@ export class ApiError extends Error {
 
 export function notifyApiError(err: unknown, fallback: string) {
   if (err instanceof ApiError && err.status === 401) return
-  alert(err instanceof ApiError ? err.message : fallback)
+  toast.error(err instanceof ApiError ? err.message : fallback)
 }
 
 export function clearAuthSession() {

@@ -37,7 +37,7 @@ const ACTION_DANGER_CLASS =
   "hover:bg-destructive/10 hover:text-destructive"
 
 const ROW_CLASS =
-  "flex items-start gap-2.5 border-t border-border px-4 py-2"
+  "relative flex items-center gap-2.5 border-t border-border px-4 py-2 pr-14"
 
 function PinActionButton({
   label,
@@ -229,7 +229,7 @@ export function PinBoard({
         <div className="min-h-0 overflow-hidden">
           {composing && (
             <div
-              className={ROW_CLASS}
+              className={cn(ROW_CLASS, "items-start pr-4")}
               onBlur={(e) => handleComposerBlur(e, closeComposer)}
             >
               <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
@@ -286,8 +286,8 @@ export function PinBoard({
                     ROW_CLASS,
                   )}
                 >
-                  <span className="absolute top-[22%] bottom-[22%] left-0 w-[3px] rounded-r bg-theme opacity-0 transition-opacity group-hover:opacity-100" />
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-theme/80" />
+                  <span className="absolute top-[22%] bottom-[22%] left-0 w-[3px] rounded-r bg-theme opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 max-sm:opacity-100" />
+                  <span className="size-1.5 shrink-0 rounded-full bg-theme/80" />
                   {editingId === pin.id ? (
                     <div
                       className="flex min-w-0 flex-1 items-start gap-2.5"
@@ -337,7 +337,7 @@ export function PinBoard({
                     </p>
                   )}
                   {editingId !== pin.id && (
-                    <div className="mt-0.5 flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="absolute right-3 top-1/2 flex -translate-y-1/2 gap-0.5 opacity-0 transition-opacity max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                       <PinActionButton
                         label="핀 수정"
                         onClick={() => startEdit(pin)}

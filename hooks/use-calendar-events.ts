@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { toast } from "sonner"
 
 import {
   type CalendarEvent,
@@ -66,6 +67,7 @@ export function useCalendarEvents({
         readVisibleCalendarIds(readStoredUser()?.email)?.length,
     ),
   )
+  const knownCalendarIdsRef = useRef<Set<string>>(new Set())
 
   const loadedRangesRef = useRef(new Set<string>())
   const [eventsReloadToken, setEventsReloadToken] = useState(0)
@@ -81,16 +83,19 @@ export function useCalendarEvents({
       ? (readEventsCache(stored.email, { allowStale: true }) ?? [])
       : []
   })
+  const [eventsError, setEventsError] = useState(false)
   const [eventsLoading, setEventsLoading] = useState(false)
   const [viewDate, setViewDate] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(() => new Date())
 
   const resetCalendarState = useCallback((email?: string) => {
     setEvents([])
+    setEventsError(false)
     loadedRangesRef.current.clear()
     setCalendars([])
     setVisibleCalendarIds(new Set())
     visibilityInitialized.current = false
+    knownCalendarIdsRef.current = new Set()
     writeEventsCache(email, [])
     writeCalendarsCache(email, [])
   }, [])
@@ -156,7 +161,7 @@ export function useCalendarEvents({
   const addEvent = useCallback(
     async (event: Omit<CalendarEvent, "id">) => {
       if (!calendarConnected) {
-        alert("Google 캘린더를 연결해야 일정을 추가할 수 있어요.")
+        toast.error("Google 캘린더를 연결해야 일정을 추가할 수 있어요.")
         return
       }
       try {
@@ -178,15 +183,20 @@ export function useCalendarEvents({
           },
         )
         setEvents((prev) => {
-          const next = [...prev, data.event]
+          const cal = calendars.find((c) => c.id === data.event.calendarId)
+          const event = {
+            ...data.event,
+            calendarName: cal?.summary ?? data.event.calendarName,
+            calendarColor: cal?.backgroundColor ?? data.event.calendarColor,
+          }
+          const next = [...prev, event]
           writeEventsCache(userEmail, next)
           return next
         })
-        invalidateEventsReload()
       } catch (err) {
         if (isNeedsCalendarConsent(err)) {
           setCalendarConnected(false)
-          alert("Google 캘린더를 다시 연결해 주세요.")
+          toast.error("Google 캘린더를 다시 연결해 주세요.")
           return
         }
         notifyApiError(err, "일정 추가에 실패했습니다.")
@@ -195,9 +205,9 @@ export function useCalendarEvents({
     },
     [
       userEmail,
+      calendars,
       calendarConnected,
       onUnauthorized,
-      invalidateEventsReload,
       setCalendarConnected,
     ],
   )
@@ -227,15 +237,20 @@ export function useCalendarEvents({
           },
         )
         setEvents((prev) => {
-          const next = prev.map((e) => (e.id === event.id ? data.event : e))
+          const cal = calendars.find((c) => c.id === data.event.calendarId)
+          const nextEvent = {
+            ...data.event,
+            calendarName: cal?.summary ?? data.event.calendarName,
+            calendarColor: cal?.backgroundColor ?? data.event.calendarColor,
+          }
+          const next = prev.map((e) => (e.id === event.id ? nextEvent : e))
           writeEventsCache(userEmail, next)
           return next
         })
-        invalidateEventsReload()
       } catch (err) {
         if (isNeedsCalendarConsent(err)) {
           setCalendarConnected(false)
-          alert("Google 캘린더를 다시 연결해 주세요.")
+          toast.error("Google 캘린더를 다시 연결해 주세요.")
           return
         }
         notifyApiError(err, "일정 수정에 실패했습니다.")
@@ -244,8 +259,8 @@ export function useCalendarEvents({
     },
     [
       userEmail,
+      calendars,
       onUnauthorized,
-      invalidateEventsReload,
       setCalendarConnected,
     ],
   )
@@ -269,11 +284,10 @@ export function useCalendarEvents({
           writeEventsCache(userEmail, next)
           return next
         })
-        invalidateEventsReload()
       } catch (err) {
         if (isNeedsCalendarConsent(err)) {
           setCalendarConnected(false)
-          alert("Google 캘린더를 다시 연결해 주세요.")
+          toast.error("Google 캘린더를 다시 연결해 주세요.")
           return
         }
         notifyApiError(err, "일정 삭제에 실패했습니다.")
@@ -283,7 +297,6 @@ export function useCalendarEvents({
     [
       userEmail,
       onUnauthorized,
-      invalidateEventsReload,
       setCalendarConnected,
     ],
   )
@@ -295,28 +308,31 @@ export function useCalendarEvents({
 
   useEffect(() => {
     if (calendars.length === 0) return
-
+  
     setVisibleCalendarIds((prev) => {
+      const currentIds = calendars.map((calendar) => calendar.id)
+      const currentIdSet = new Set(currentIds)
+  
       if (!visibilityInitialized.current) {
         visibilityInitialized.current = true
+        knownCalendarIdsRef.current = currentIdSet
         const email = readStoredUser()?.email
         const saved = email ? readVisibleCalendarIds(email) : null
         if (saved?.length) {
-          const known = new Set(calendars.map((calendar) => calendar.id))
-          const kept = saved.filter((id) => known.has(id))
-          const added = calendars
-            .map((calendar) => calendar.id)
-            .filter((id) => !saved.includes(id))
+          const kept = saved.filter((id) => currentIdSet.has(id))
+          const added = currentIds.filter((id) => !saved.includes(id))
           return new Set([...kept, ...added])
         }
-        return new Set(calendars.map((calendar) => calendar.id))
+        return new Set(currentIds)
       }
-      const known = new Set(calendars.map((calendar) => calendar.id))
-      const kept = [...prev].filter((id) => known.has(id))
-      const added = calendars
-        .map((calendar) => calendar.id)
-        .filter((id) => !prev.has(id))
-      return new Set([...kept, ...added])
+  
+      const trulyAdded = currentIds.filter(
+        (id) => !knownCalendarIdsRef.current.has(id),
+      )
+      knownCalendarIdsRef.current = currentIdSet
+  
+      const kept = [...prev].filter((id) => currentIdSet.has(id))
+      return new Set([...kept, ...trulyAdded])
     })
   }, [calendars])
 
@@ -325,20 +341,26 @@ export function useCalendarEvents({
     const { from, to } = monthGridRange(viewDate)
     const rangeKey = `${from}:${to}`
     if (loadedRangesRef.current.has(rangeKey)) return
-    let cancelled = false
+    const ctrl = new AbortController()
     const hasCache = Boolean(readEventsCache(userEmail, { allowStale: true }))
+    void Promise.resolve().then(() => {
+      if (!ctrl.signal.aborted) setEventsError(false)
+    })
     if (!hasCache) {
       void Promise.resolve().then(() => {
-        if (!cancelled) setEventsLoading(true)
+        if (!ctrl.signal.aborted) setEventsLoading(true)
       })
     }
     const qs = new URLSearchParams({ from, to })
-    authFetch(`/api/calendar/events?${qs}`, { onUnauthorized })
+    authFetch(`/api/calendar/events?${qs}`, {
+      onUnauthorized,
+      signal: ctrl.signal,
+    })
       .then(async (res) => {
         if (res.status === 403) {
           const body = await res.json().catch(() => ({} as { code?: string }))
           if (body.code === "NEEDS_CALENDAR_CONSENT") {
-            if (!cancelled) setCalendarConnected(false)
+            if (!ctrl.signal.aborted) setCalendarConnected(false)
             return null
           }
         }
@@ -349,7 +371,8 @@ export function useCalendarEvents({
         }>
       })
       .then((data) => {
-        if (cancelled || !data) return
+        if (ctrl.signal.aborted || !data) return
+        setEventsError(false)
         const fresh = applyColorOverrides(
           (data.events ?? []) as CalendarEvent[],
           readColorOverrides(userEmail),
@@ -378,15 +401,17 @@ export function useCalendarEvents({
         }
       })
       .catch((err) => {
-        if (cancelled) return
+        if (ctrl.signal.aborted) return
+        if (err instanceof Error && err.name === "AbortError") return
+        setEventsError(true)
         notifyApiError(err, "캘린더 일정을 불러오지 못했습니다.")
         if (!hasCache) setEvents([])
       })
       .finally(() => {
-        if (!cancelled) setEventsLoading(false)
+        if (!ctrl.signal.aborted) setEventsLoading(false)
       })
     return () => {
-      cancelled = true
+      ctrl.abort()
     }
   }, [
     userEmail,
@@ -401,6 +426,7 @@ export function useCalendarEvents({
     calendars,
     visibleCalendarIds: resolvedVisibleCalendarIds,
     eventsLoading,
+    eventsError,
     filteredEvents,
     viewDate,
     setViewDate,

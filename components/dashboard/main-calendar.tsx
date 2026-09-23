@@ -41,6 +41,7 @@ import {
   spanBarGeometry,
 } from "@/lib/main-calendar-utils"
 import { EventFormDialog } from "@/components/dashboard/event-form-dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -103,6 +104,7 @@ export function MainCalendar({
   const [calendarId, setCalendarId] = React.useState("primary")
   const [category, setCategory] = React.useState<EventCategory>("etc")
   const [saving, setSaving] = React.useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false)
 
   const eventCalendars = React.useMemo(
     () => calendars.filter((c) => !isHolidayCalendarOption(c)),
@@ -291,9 +293,13 @@ export function MainCalendar({
   }
   
   // 일정 삭제
-  async function removeEvent() {
+  function removeEvent() {
     if (!editingEvent || isKoreanHolidayEvent(editingEvent)) return
-    if (!window.confirm(`「${editingEvent.title}」 일정을 삭제할까요?`)) return
+    setConfirmDeleteOpen(true)
+  }
+
+  async function confirmRemoveEvent() {
+    if (!editingEvent) return
     try {
       await onDeleteEvent(editingEvent)
       setDialogOpen(false)
@@ -438,22 +444,16 @@ export function MainCalendar({
                   return (
                     <div
                       key={key}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => openDay(key, day)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") openDay(key, day)
-                      }}
                       className={cn(
                         "group flex flex-col gap-0 rounded-lg border border-transparent p-1.5 text-left transition-colors hover:border-primary/40 hover:bg-secondary/50",
-                        mode === "month"
-                          ? "h-[108px] min-h-[108px] overflow-hidden"
-                          : "h-[220px] min-h-[220px] overflow-hidden",
+                        "overflow-hidden",
                         mode === "month" && !inMonth && "opacity-40",
                         isSelected && !isToday && "border-primary/50 bg-primary/5",
                       )}
-                      style={
-                        isToday
+                      style={{
+                        height: mode === "month" ? MONTH_CELL_H : WEEK_CELL_H,
+                        minHeight: mode === "month" ? MONTH_CELL_H : WEEK_CELL_H,
+                        ...(isToday
                           ? {
                               backgroundColor: `color-mix(in srgb, ${
                                 themeColor ?? "var(--primary)"
@@ -462,19 +462,26 @@ export function MainCalendar({
                                 themeColor ?? "var(--primary)"
                               } 50%, transparent)`,
                             }
-                          : undefined
-                      }
+                          : {}),
+                      }}
+                      onClick={() => openDay(key, day)}
                     >
                       <div className="relative flex h-8 min-w-0 items-center gap-0.5 pr-4">
-                      <span
-                        className={cn(
-                          "flex size-6 shrink-0 items-center justify-center text-xs font-medium text-foreground",
-                          (dow === 0 || isHoliday) && "text-[var(--event-rose)]",
-                          dow === 6 && !isHoliday && "text-[var(--event-blue)]",
-                        )}
-                      >
+                        <button
+                          type="button"
+                          aria-label={`${day.getFullYear()}년 ${day.getMonth() + 1}월 ${day.getDate()}일`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openDay(key, day)
+                          }}
+                          className={cn(
+                            "flex size-6 shrink-0 items-center justify-center rounded text-xs font-medium text-foreground",
+                            (dow === 0 || isHoliday) && "text-[var(--event-rose)]",
+                            dow === 6 && !isHoliday && "text-[var(--event-blue)]",
+                          )}
+                        >
                           {day.getDate()}
-                        </span>
+                        </button>
 
                         {holidayLabel && (
                           <span
@@ -501,7 +508,7 @@ export function MainCalendar({
                         className={cn(
                           "absolute top-0 right-0 rounded border border-border p-0.5 text-muted-foreground transition-opacity",
                           canAddEvents
-                            ? "opacity-0 hover:bg-muted group-hover:opacity-100"
+                            ? "opacity-0 hover:bg-muted max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
                             : "cursor-not-allowed opacity-30",
                         )}
                       >
@@ -718,6 +725,16 @@ export function MainCalendar({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="일정 삭제"
+        description={`「${editingEvent?.title ?? ""}」 일정을 삭제할까요?`}
+        confirmLabel="삭제"
+        danger
+        onConfirm={confirmRemoveEvent}
+      />
 
       <EventFormDialog
         open={dialogOpen}
