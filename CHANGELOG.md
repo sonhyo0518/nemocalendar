@@ -30,6 +30,24 @@
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
 
+## [0.3.0] - 2026-09-28
+
+### Changed
+
+- 일정 폼(EventForm) 스킨을 앱 테마·타입 스케일에 맞춤
+- API 에러·배너/테마 안내를 Sonner 토스트로 통일, 확인은 Dialog 사용
+- 캘린더 일정 저장 후 불필요한 월간 재fetch를 줄이고, 생성·수정 시 Google `calendarList.get` 생략
+- Google OAuth 검수 기준에 맞춰 개인정보처리방침을 보강
+- README·DEPLOYMENT의 투두 DnD·dotenv/Docker 안내를 실제 동작에 맞게 정리
+
+### Fixed
+
+- 숨긴 캘린더가 월 전환 시 다시 보이던 문제
+- 핀 행 호버 액션으로 세로 여백이 깨지던 문제
+- 호버 전용 액션을 포커스·좁은 화면에서도 쓸 수 있게 개선, Dialog 닫기 문구 한글화
+- 캘린더·날씨 불러오기 실패 시 빈 화면 대신 재시도 UI
+- 401 시 로그아웃 POST가 중복 호출되던 문제, fetch Abort로 레이스 완화
+
 ## [0.2.4] - 2026-09-22
 
 ### Fixed

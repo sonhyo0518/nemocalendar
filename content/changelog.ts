@@ -17,6 +17,27 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.0",
+    date: "2026-09-28",
+    summary:
+      "캘린더 숨김·에러 안내 개선, 접근성 보강, 일정 저장 속도·세션 안정화입니다.",
+    sections: {
+      changed: [
+        "일정 추가/수정 폼을 앱 테마에 맞춤",
+        "오류 안내를 토스트로 통일하고, 중요한 확인은 대화상자로 표시",
+        "일정 저장 후 불필요한 다시 불러오기를 줄여 반응이 빨라짐",
+        "개인정보처리방침을 Google 데이터 이용 기준에 맞게 갱신",
+      ],
+      fixed: [
+        "숨긴 캘린더가 달을 바꾸면 다시 보이던 문제",
+        "고정 메모 줄 간격이 어색하던 문제",
+        "버튼·탭을 키보드·모바일에서도 쓰기 쉽게 개선",
+        "일정·날씨를 못 불러왔을 때 다시 시도할 수 있게 함",
+        "로그인 만료 처리가 중복으로 돌아가던 문제",
+      ],
+    },
+  },
+  {
     version: "0.2.4",
     date: "2026-09-22",
     summary:
