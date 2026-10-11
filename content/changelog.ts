@@ -17,6 +17,28 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.1",
+    date: "2026-10-11",
+    summary:
+      "위젯 일부 실패 시에도 화면 유지, 확인 버튼 연타 방지, 키보드·보안·로딩 개선입니다.",
+    sections: {
+      fixed: [
+        "일부 위젯만 실패해도 나머지는 그대로 두고 다시 시도할 수 있음",
+        "삭제 등 확인 중 버튼을 두 번 누르기 어렵게 함",
+        "캘린더 날짜·탭을 키보드로 쓰기 쉽게 함",
+        "잠시 DB에 연결되지 않을 때 자동으로 한두 번 다시 시도",
+      ],
+      security: [
+        "로그인 쿠키만으로 API를 쓰도록 맞춤",
+        "잘못된 입력·ID를 더 엄격히 걸러 냄",
+      ],
+      changed: [
+        "홈이 뜨기 전 안내 화면을 보여 줌",
+        "배너·프로필 이미지 로딩을 최적화",
+      ],
+    },
+  },
+  {
     version: "0.3.0",
     date: "2026-09-28",
     summary:
