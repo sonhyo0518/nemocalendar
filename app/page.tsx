@@ -1,15 +1,5 @@
-"use client"
-
-import dynamic from "next/dynamic"
-
-const CalendarDashboard = dynamic(
-  () =>
-    import("@/components/calendar-dashboard").then(
-      (m) => m.CalendarDashboard,
-    ),
-  { ssr: false },
-)
+import { HomeDashboard } from "@/components/dashboard/home-dashboard"
 
 export default function Page() {
-  return <CalendarDashboard />
+  return <HomeDashboard />
 }
