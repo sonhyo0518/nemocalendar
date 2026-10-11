@@ -441,12 +441,19 @@ export function MainCalendar({
                   const dow = day.getDay()
                   const isHoliday = holidays.length > 0
 
+                  const dayLabel = `${day.getFullYear()}년 ${day.getMonth() + 1}월 ${day.getDate()}일`
+
                   return (
                     <div
                       key={key}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={dayLabel}
+                      aria-pressed={isSelected}
                       className={cn(
                         "group flex flex-col gap-0 rounded-lg border border-transparent p-1.5 text-left transition-colors hover:border-primary/40 hover:bg-secondary/50",
                         "overflow-hidden",
+                        "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
                         mode === "month" && !inMonth && "opacity-40",
                         isSelected && !isToday && "border-primary/50 bg-primary/5",
                       )}
@@ -465,15 +472,15 @@ export function MainCalendar({
                           : {}),
                       }}
                       onClick={() => openDay(key, day)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          openDay(key, day)
+                        }
+                      }}
                     >
                       <div className="relative flex h-8 min-w-0 items-center gap-0.5 pr-4">
-                        <button
-                          type="button"
-                          aria-label={`${day.getFullYear()}년 ${day.getMonth() + 1}월 ${day.getDate()}일`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            openDay(key, day)
-                          }}
+                        <span
                           className={cn(
                             "flex size-6 shrink-0 items-center justify-center rounded text-xs font-medium text-foreground",
                             (dow === 0 || isHoliday) && "text-[var(--event-rose)]",
@@ -481,7 +488,7 @@ export function MainCalendar({
                           )}
                         >
                           {day.getDate()}
-                        </button>
+                        </span>
 
                         {holidayLabel && (
                           <span

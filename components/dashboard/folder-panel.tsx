@@ -32,15 +32,19 @@ export function FolderPanel({
   ) {
     const last = TABS.length - 1
     let next = index
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = index === last ? 0 : index + 1
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = index === 0 ? last : index - 1
+    if (e.key === "ArrowRight" || e.key === "ArrowDown")
+      next = index === last ? 0 : index + 1
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+      next = index === 0 ? last : index - 1
     else if (e.key === "Home") next = 0
     else if (e.key === "End") next = last
     else return
     e.preventDefault()
-    onValueChange(TABS[next].id)
-    // 포커스 이동은 다음 렌더의 tabIndex=0 탭에 맡기거나
-    // requestAnimationFrame으로 해당 버튼을 focus
+    const nextId = TABS[next].id
+    onValueChange(nextId)
+    requestAnimationFrame(() => {
+      document.getElementById(`folder-tab-${nextId}`)?.focus()
+    })
   }
 
   return (
