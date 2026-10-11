@@ -35,12 +35,24 @@ export function useDashboardWidgets({
   userEmail,
   onUnauthorized,
 }: UseDashboardWidgetsOptions) {
+  type WidgetKey =
+    | "pins"
+    | "bookmarks"
+    | "bookmarkFolders"
+    | "anniversaries"
+    | "todoCategories"
+    | "todos"
+
   const [pins, setPins] = useState<Pin[]>([])
   const [anniversaries, setAnniversaries] = useState<Anniversary[]>([])
   const [todoCategories, setTodoCategories] = useState<TodoCategory[]>([])
   const [boardTasks, setBoardTasks] = useState<BoardTask[]>([])
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [bookmarkFolders, setBookmarkFolders] = useState<BookmarkFolder[]>([])
+  const [widgetErrors, setWidgetErrors] = useState<
+    Partial<Record<WidgetKey, boolean>>
+  >({})
+  const [reloadNonce, setReloadNonce] = useState(0)
 
   const resetWidgetsState = useCallback(() => {
     setTodoCategories([])
@@ -49,6 +61,11 @@ export function useDashboardWidgets({
     setPins([])
     setBookmarks([])
     setBookmarkFolders([])
+    setWidgetErrors({})
+  }, [])
+
+  const reloadWidgets = useCallback(() => {
+    setReloadNonce((n) => n + 1)
   }, [])
 
   const addPin = useCallback(
@@ -408,39 +425,101 @@ export function useDashboardWidgets({
     if (!userEmail) return
     const ctrl = new AbortController()
     const opts = { onUnauthorized, signal: ctrl.signal }
-    Promise.all([
-      authJson<{ pins?: Pin[] }>("/api/pins", opts),
-      authJson<{ bookmarks?: Bookmark[] }>("/api/bookmarks", opts),
-      authJson<{ folders?: BookmarkFolder[] }>("/api/bookmark-folders", opts),
-      authJson<{ anniversaries?: Anniversary[] }>("/api/anniversaries", opts),
-      authJson<{ categories?: TodoCategory[] }>("/api/todo-categories", opts),
-      authJson<{ todos?: BoardTask[] }>("/api/todos", opts),
-    ])
-      .then(([pinData, bookmarkData, folderData, annData, catData, todoData]) => {
-        if (ctrl.signal.aborted) return
-        setPins(pinData?.pins ?? [])
-        setBookmarks(bookmarkData?.bookmarks ?? [])
-        setBookmarkFolders(folderData?.folders ?? [])
-        setAnniversaries(annData?.anniversaries ?? [])
-        setTodoCategories(catData?.categories ?? [])
-        setBoardTasks(todoData?.todos ?? [])
-      })
-      .catch((err) => {
-        if (ctrl.signal.aborted) return
+  
+    const jobs: {
+      key: WidgetKey
+      run: () => Promise<unknown>
+      apply: (data: unknown) => void
+    }[] = [
+      {
+        key: "pins",
+        run: () => authJson<{ pins?: Pin[] }>("/api/pins", opts),
+        apply: (data) =>
+          setPins((data as { pins?: Pin[] })?.pins ?? []),
+      },
+      {
+        key: "bookmarks",
+        run: () => authJson<{ bookmarks?: Bookmark[] }>("/api/bookmarks", opts),
+        apply: (data) =>
+          setBookmarks((data as { bookmarks?: Bookmark[] })?.bookmarks ?? []),
+      },
+      {
+        key: "bookmarkFolders",
+        run: () =>
+          authJson<{ folders?: BookmarkFolder[] }>(
+            "/api/bookmark-folders",
+            opts,
+          ),
+        apply: (data) =>
+          setBookmarkFolders(
+            (data as { folders?: BookmarkFolder[] })?.folders ?? [],
+          ),
+      },
+      {
+        key: "anniversaries",
+        run: () =>
+          authJson<{ anniversaries?: Anniversary[] }>(
+            "/api/anniversaries",
+            opts,
+          ),
+        apply: (data) =>
+          setAnniversaries(
+            (data as { anniversaries?: Anniversary[] })?.anniversaries ?? [],
+          ),
+      },
+      {
+        key: "todoCategories",
+        run: () =>
+          authJson<{ categories?: TodoCategory[] }>(
+            "/api/todo-categories",
+            opts,
+          ),
+        apply: (data) =>
+          setTodoCategories(
+            (data as { categories?: TodoCategory[] })?.categories ?? [],
+          ),
+      },
+      {
+        key: "todos",
+        run: () => authJson<{ todos?: BoardTask[] }>("/api/todos", opts),
+        apply: (data) =>
+          setBoardTasks((data as { todos?: BoardTask[] })?.todos ?? []),
+      },
+    ]
+  
+    Promise.allSettled(jobs.map((j) => j.run())).then((results) => {
+      if (ctrl.signal.aborted) return
+  
+      let anyFail = false
+      const nextErrors: Partial<Record<WidgetKey, boolean>> = {}
+  
+      results.forEach((result, i) => {
+        const job = jobs[i]
+        if (result.status === "fulfilled") {
+          job.apply(result.value)
+          nextErrors[job.key] = false
+          return
+        }
+        const err = result.reason
         if (err instanceof Error && err.name === "AbortError") return
-        notifyApiError(err, "대시보드 데이터를 불러오지 못했습니다.")
-        setPins([])
-        setBookmarks([])
-        setBookmarkFolders([])
-        setAnniversaries([])
-        setTodoCategories([])
-        setBoardTasks([])
+        anyFail = true
+        nextErrors[job.key] = true
+        // 실패 키는 기존 state 유지 (전체 공란으로 만들지 않음)
       })
+  
+      setWidgetErrors((prev) => ({ ...prev, ...nextErrors }))
+      if (anyFail) {
+        notifyApiError(
+          undefined,
+          "일부 대시보드 데이터를 불러오지 못했습니다.",
+        )
+      }
+    })
   
     return () => {
       ctrl.abort()
     }
-  }, [userEmail, onUnauthorized])
+  }, [userEmail, onUnauthorized, reloadNonce])
   
   return {
     pins,
@@ -469,5 +548,7 @@ export function useDashboardWidgets({
     updateTodoCategory,
     removeTodoCategory,
     resetWidgetsState,
+    widgetErrors,
+    reloadWidgets,
   }
 }

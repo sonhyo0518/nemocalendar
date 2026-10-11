@@ -74,7 +74,25 @@ export function CalendarDashboard() {
     addAnniversary,
     removeAnniversary,
     updateAnniversary,
+    widgetErrors,
+    reloadWidgets,
   } = useCalendarDashboardModel()
+
+  const todoLoadError =
+    Boolean(widgetErrors.todoCategories) || Boolean(widgetErrors.todos)
+  const bookmarkLoadError =
+    Boolean(widgetErrors.bookmarks) || Boolean(widgetErrors.bookmarkFolders)
+  const pinsLoadError = Boolean(widgetErrors.pins)
+  const annivLoadError = Boolean(widgetErrors.anniversaries)
+
+  const widgetRetry = (
+    <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
+      <p>데이터를 불러오지 못했습니다.</p>
+      <Button size="sm" variant="outline" onClick={reloadWidgets}>
+        다시 시도
+      </Button>
+    </div>
+  )
 
   // --- 렌더 ---
   return (
@@ -128,127 +146,145 @@ export function CalendarDashboard() {
             onCalendarDisconnected={handleCalendarDisconnect}
           />
           {authReady && !user ? null : (
-          <DashboardChrome
-            mainPanel={mainPanel}
-            onMainPanelChange={setMainPanel}
-            folderPanelClassName="order-1 lg:order-none"
-            asideClassName="order-2 lg:sticky lg:top-4 lg:order-none"
-            main={
-              mainPanel === "calendar" ? (
-                !authReady ||
-                (user &&
-                  eventsLoading &&
-                  filteredEvents.length === 0 &&
-                  !eventsError) ? (
-                  <div>
-                    <Skeleton className="h-8 w-40" />
-                    <Skeleton className="mt-4 h-72 bg-muted/40" />
-                  </div>
-                ) : eventsError && filteredEvents.length === 0 ? (
-                  <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
-                    <p>캘린더 일정을 불러오지 못했습니다.</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => invalidateEventsReload()}
-                    >
-                      다시 시도
-                    </Button>
-                  </div>
+            <DashboardChrome
+              mainPanel={mainPanel}
+              onMainPanelChange={setMainPanel}
+              folderPanelClassName="order-1 lg:order-none"
+              asideClassName="order-2 lg:sticky lg:top-4 lg:order-none"
+              main={
+                mainPanel === "calendar" ? (
+                  !authReady ||
+                  (user &&
+                    eventsLoading &&
+                    filteredEvents.length === 0 &&
+                    !eventsError) ? (
+                    <div>
+                      <Skeleton className="h-8 w-40" />
+                      <Skeleton className="mt-4 h-72 bg-muted/40" />
+                    </div>
+                  ) : eventsError && filteredEvents.length === 0 ? (
+                    <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
+                      <p>캘린더 일정을 불러오지 못했습니다.</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => invalidateEventsReload()}
+                      >
+                        다시 시도
+                      </Button>
+                    </div>
+                  ) : (
+                    <MainCalendar
+                      events={filteredEvents}
+                      viewDate={viewDate}
+                      selectedDate={selectedDate}
+                      onViewDateChange={setViewDate}
+                      onSelectDate={setSelectedDate}
+                      onAddEvent={addEvent}
+                      onUpdateEvent={updateEvent}
+                      onDeleteEvent={deleteEvent}
+                      calendars={calendars}
+                      themeColor={user?.theme_color ?? DEFAULT_BANNER_COLOR}
+                      calendarConnected={calendarConnected}
+                      isLoggedIn={Boolean(user)}
+                      flush
+                    />
+                  )
+                ) : mainPanel === "todo" ? (
+                  todoLoadError &&
+                  boardTasks.length === 0 &&
+                  todoCategories.length === 0 ? (
+                    widgetRetry
+                  ) : (
+                    <TodoBoard
+                      tasks={boardTasks}
+                      categories={todoCategories}
+                      onAdd={addTask}
+                      onMove={moveTask}
+                      onRemove={removeTask}
+                      onAddCategory={addTodoCategory}
+                      onRemoveCategory={removeTodoCategory}
+                      onUpdate={updateTask}
+                      onUpdateCategory={updateTodoCategory}
+                      flush
+                    />
+                  )
+                ) : bookmarkLoadError &&
+                  bookmarks.length === 0 &&
+                  bookmarkFolders.length === 0 ? (
+                  widgetRetry
                 ) : (
-                  <MainCalendar
-                    events={filteredEvents}
-                    viewDate={viewDate}
-                    selectedDate={selectedDate}
-                    onViewDateChange={setViewDate}
-                    onSelectDate={setSelectedDate}
-                    onAddEvent={addEvent}
-                    onUpdateEvent={updateEvent}
-                    onDeleteEvent={deleteEvent}
-                    calendars={calendars}
-                    themeColor={user?.theme_color ?? DEFAULT_BANNER_COLOR}
-                    calendarConnected={calendarConnected}
-                    isLoggedIn={Boolean(user)}
+                  <BookmarkBoard
+                    items={bookmarks}
+                    folders={bookmarkFolders}
+                    onAddFolder={addBookmarkFolder}
+                    onUpdateFolder={updateBookmarkFolder}
+                    onRemoveFolder={removeBookmarkFolder}
+                    onAdd={addBookmark}
+                    onUpdate={updateBookmark}
+                    onRemove={removeBookmark}
                     flush
                   />
                 )
-              ) : mainPanel === "todo" ? (
-                <TodoBoard
-                  tasks={boardTasks}
-                  categories={todoCategories}
-                  onAdd={addTask}
-                  onMove={moveTask}
-                  onRemove={removeTask}
-                  onAddCategory={addTodoCategory}
-                  onRemoveCategory={removeTodoCategory}
-                  onUpdate={updateTask}
-                  onUpdateCategory={updateTodoCategory}
-                  flush
-                />
-              ) : (
-                <BookmarkBoard
-                  items={bookmarks}
-                  folders={bookmarkFolders}
-                  onAddFolder={addBookmarkFolder}
-                  onUpdateFolder={updateBookmarkFolder}
-                  onRemoveFolder={removeBookmarkFolder}
-                  onAdd={addBookmark}
-                  onUpdate={updateBookmark}
-                  onRemove={removeBookmark}
-                  flush
-                />
-              )
-            }
-            aside={
-              <>
-                {/* mobile: weather → pin → anniversary → filter → pomodoro */}
-                <div className="order-20 lg:order-10">
-                  <PinBoard
-                    pins={pins}
-                    onAdd={addPin}
-                    onUpdate={updatePin}
-                    onRemove={removePin}
-                  />
-                </div>
-                <div
-                  className={
-                    mainPanel === "calendar"
-                      ? "order-40 lg:order-20"
-                      : "hidden"
-                  }
-                >
-                  <CalendarCategoryFilter
-                    calendars={calendars}
-                    visibleIds={visibleCalendarIds}
-                    onToggle={toggleCalendarVisibility}
-                    onShowAll={showAllCalendars}
-                    onHideAll={hideAllCalendars}
-                    onColorChange={changeCalendarColor}
-                  />
-                </div>
-                <div className="order-10 lg:order-30">
-                  <WeatherWidget
-                    isLoggedIn={Boolean(user)}
-                    location={user?.location ?? "서울"}
-                    onLocationChange={handleLocationChange}
-                    onUnauthorized={handleUnauthorized}
-                  />
-                </div>
-                <div className="order-30 lg:order-40">
-                  <AnniversaryWidget
-                    items={anniversaries}
-                    onAdd={addAnniversary}
-                    onRemove={removeAnniversary}
-                    onUpdate={updateAnniversary}
-                  />
-                </div>
-                <div className="order-50 lg:order-50">
-                  <PomodoroTimer />
-                </div>
-              </>
-            }
-          />
-        )}
+              }
+              aside={
+                <>
+                  {/* mobile: weather → pin → anniversary → filter → pomodoro */}
+                  <div className="order-20 lg:order-10">
+                    {pinsLoadError && pins.length === 0 ? (
+                      widgetRetry
+                    ) : (
+                      <PinBoard
+                        pins={pins}
+                        onAdd={addPin}
+                        onUpdate={updatePin}
+                        onRemove={removePin}
+                      />
+                    )}
+                  </div>
+                  <div
+                    className={
+                      mainPanel === "calendar"
+                        ? "order-40 lg:order-20"
+                        : "hidden"
+                    }
+                  >
+                    <CalendarCategoryFilter
+                      calendars={calendars}
+                      visibleIds={visibleCalendarIds}
+                      onToggle={toggleCalendarVisibility}
+                      onShowAll={showAllCalendars}
+                      onHideAll={hideAllCalendars}
+                      onColorChange={changeCalendarColor}
+                    />
+                  </div>
+                  <div className="order-10 lg:order-30">
+                    <WeatherWidget
+                      isLoggedIn={Boolean(user)}
+                      location={user?.location ?? "서울"}
+                      onLocationChange={handleLocationChange}
+                      onUnauthorized={handleUnauthorized}
+                    />
+                  </div>
+                  <div className="order-30 lg:order-40">
+                    {annivLoadError && anniversaries.length === 0 ? (
+                      widgetRetry
+                    ) : (
+                      <AnniversaryWidget
+                        items={anniversaries}
+                        onAdd={addAnniversary}
+                        onRemove={removeAnniversary}
+                        onUpdate={updateAnniversary}
+                      />
+                    )}
+                  </div>
+                  <div className="order-50 lg:order-50">
+                    <PomodoroTimer />
+                  </div>
+                </>
+              }
+            />
+          )}
         </main>
       </div>
     </TooltipProvider>
