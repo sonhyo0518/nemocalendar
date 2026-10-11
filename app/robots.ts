@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://nemocalendar.vercel.app/sitemap.xml",
+    sitemap: "https://nemocalendar.com/sitemap.xml",
   }
 }

@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nemocalendar.vercel.app'),
+  metadataBase: new URL('https://nemocalendar.com'),
   title: 'Nemo Calendar',
   description:
     '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드. 일정 관리, 핀 보드, 기념일과 D-Day를 한 곳에서.',
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: 'Nemo Calendar',
     description:
       '구글 캘린더와 연동되는 캘린더·투두·뽀모도로 생산성 대시보드. 일정 관리, 핀 보드, 기념일과 D-Day를 한 곳에서.',
-    url: 'https://nemocalendar.vercel.app',
+    url: 'https://nemocalendar.com',
     siteName: 'Nemo Calendar',
     locale: 'ko_KR',
     type: 'website',

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-const BASE = "https://nemocalendar.vercel.app"
+const BASE = "https://nemocalendar.com"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
