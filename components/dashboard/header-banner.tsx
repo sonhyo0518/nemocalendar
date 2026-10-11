@@ -14,6 +14,7 @@ import dynamic from "next/dynamic"
 import { useColorMode } from "@/hooks/use-color-mode"
 import { useGoogleLogin } from "@react-oauth/google"
 import { useGoogleSignIn } from "@/hooks/use-google-sign-in"
+import Image from "next/image"
 
 const BannerSettingsDialog = dynamic(
   () =>
@@ -27,7 +28,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ThemeSettingsDialog } from "@/components/dashboard/theme-settings-dialog"
 import type { DashboardUser } from "@/lib/dashboard-data"
 import { authFetch } from "@/lib/api"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import {
@@ -187,11 +188,17 @@ export function HeaderBanner({
                 }
               >
                 <Avatar className="size-full after:border-0">
-                  <AvatarImage
-                    src={user.profile_img_url || "/images/avatar.png"}
-                    alt={user.name}
-                  />
-                  <AvatarFallback>{user.name.slice(0, 1)}</AvatarFallback>
+                  {user.profile_img_url || "/images/avatar.png" ? (
+                    <Image
+                      src={user.profile_img_url || "/images/avatar.png"}
+                      alt={user.name}
+                      width={32}
+                      height={32}
+                      className="aspect-square size-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <AvatarFallback>{user.name.slice(0, 1)}</AvatarFallback>
+                  )}
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

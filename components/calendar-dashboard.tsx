@@ -14,6 +14,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { useCalendarDashboardModel } from "@/hooks/use-calendar-dashboard-model"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export function CalendarDashboard() {
   const {
@@ -103,26 +104,23 @@ export function CalendarDashboard() {
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-[280px] sm:h-[340px] md:h-[400px]"
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={
-              user?.banner_img_url
-                ? {
-                    backgroundImage: "var(--banner-img, none)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }
-                : {
-                    background: `linear-gradient(to bottom, var(--banner-theme, ${DEFAULT_BANNER_COLOR}), var(--background))`,
-                  }
-            }
-          />
           {user?.banner_img_url ? (
-            <>
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent from-35% via-background/45 via-70% to-background" />
-              <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />
-            </>
-          ) : null}
+            <Image
+              src={user.banner_img_url}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(to bottom, var(--banner-theme, ${DEFAULT_BANNER_COLOR}), var(--background))`,
+              }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent from-35% via-background/45 via-70% to-background" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-transparent" />
         </div>
