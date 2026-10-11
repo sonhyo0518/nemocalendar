@@ -92,6 +92,7 @@ export function DeleteAccountDialog({ open, onOpenChange, onConfirm }: Props) {
             type="button"
             variant="destructive"
             disabled={!understood || busy}
+            aria-busy={busy || undefined}
             onClick={() => void handleConfirm()}
           >
             {busy ? "삭제 중…" : "계정 삭제"}
