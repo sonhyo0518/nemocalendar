@@ -10,10 +10,18 @@ import {
   Trash2,
 } from "lucide-react"
 import { useCallback, useState } from "react"
+import dynamic from "next/dynamic"
 import { useColorMode } from "@/hooks/use-color-mode"
 import { useGoogleLogin } from "@react-oauth/google"
 import { useGoogleSignIn } from "@/hooks/use-google-sign-in"
-import { BannerSettingsDialog } from "@/components/dashboard/banner-settings-dialog"
+
+const BannerSettingsDialog = dynamic(
+  () =>
+    import("@/components/dashboard/banner-settings-dialog").then(
+      (m) => m.BannerSettingsDialog,
+    ),
+  { ssr: false },
+)
 import { DeleteAccountDialog } from "@/components/dashboard/delete-account-dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { ThemeSettingsDialog } from "@/components/dashboard/theme-settings-dialog"
@@ -287,17 +295,19 @@ export function HeaderBanner({
               onSignOut?.()
             }}
           />
-          <BannerSettingsDialog
-            open={bannerOpen}
-            onOpenChange={setBannerOpen}
-            bannerImgUrl={user.banner_img_url}
-            themeColor={user.theme_color}
-            onBannerChange={(patch) => onBannerChange?.(patch)}
-            onUnauthorized={() => {
-              setBannerOpen(false)
-              onSignOut?.()
-            }}
-          />
+          {bannerOpen ? (
+            <BannerSettingsDialog
+              open={bannerOpen}
+              onOpenChange={setBannerOpen}
+              bannerImgUrl={user.banner_img_url}
+              themeColor={user.theme_color}
+              onBannerChange={(patch) => onBannerChange?.(patch)}
+              onUnauthorized={() => {
+                setBannerOpen(false)
+                onSignOut?.()
+              }}
+            />
+          ) : null}
           {onDeleteAccount ? (
             <DeleteAccountDialog
               open={deleteOpen}
