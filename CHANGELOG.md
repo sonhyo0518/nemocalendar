@@ -14,9 +14,6 @@
 
 ### Changed
 
-- 일정 추가/수정 폼에서 앱 전용 「일정 카테고리」를 제거하고, 「캘린더」 선택만 남김
-- 일정 표시 색을 Google 캘린더 색(`calendarColor`)만 사용
-
 ### Deprecated
 
 ### Removed
@@ -32,6 +29,13 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+
+## [0.3.3] - 2026-10-28
+
+### Changed
+
+- 일정 추가/수정 폼에서 앱 전용 「일정 카테고리」를 제거하고, 「캘린더」 선택만 남김
+- 일정 표시 색을 Google 캘린더 색(`calendarColor`)만 사용
 
 ## [0.3.2] - 2026-10-28
 

@@ -17,6 +17,18 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.3",
+    date: "2026-10-28",
+    summary:
+      "일정 폼에서 중복 카테고리를 없애고, 캘린더 색만으로 일정을 구분합니다.",
+    sections: {
+      changed: [
+        "일정 추가/수정에서 「일정 카테고리」 제거, 「캘린더」 선택만 유지",
+        "일정 색을 Google 캘린더 색만 사용",
+      ],
+    },
+  },
+  {
     version: "0.3.2",
     date: "2026-10-28",
     summary:
