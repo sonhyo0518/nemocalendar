@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {
-  CATEGORY_META,
   isMultiDayEvent,
   type CalendarEvent,
 } from "@/lib/dashboard-data"
@@ -73,9 +72,7 @@ export function DayEventsDialog({
           <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto">
             {events.map((e) => {
               const color =
-                e.calendarColor ??
-                CATEGORY_META[e.category]?.token ??
-                "var(--event-amber)"
+                e.calendarColor ?? "var(--event-amber)"
               const multi = isMultiDayEvent(e)
               return (
                 <li

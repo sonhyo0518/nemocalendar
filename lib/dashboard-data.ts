@@ -11,44 +11,6 @@ export type DashboardUser = {
   calendarConnected?: boolean
 }
 
-export type EventCategory = "work" | "personal" | "study" | "health" | "etc"
-
-export const CATEGORY_META: Record<
-  EventCategory,
-  { label: string; token: string; dot: string; soft: string }
-> = {
-  work: {
-    label: "업무",
-    token: "var(--event-blue)",
-    dot: "bg-[var(--event-blue)]",
-    soft: "bg-[var(--event-blue)]/12 text-[var(--event-blue)]",
-  },
-  personal: {
-    label: "개인",
-    token: "var(--event-green)",
-    dot: "bg-[var(--event-green)]",
-    soft: "bg-[var(--event-green)]/12 text-[var(--event-green)]",
-  },
-  study: {
-    label: "학습",
-    token: "var(--event-violet)",
-    dot: "bg-[var(--event-violet)]",
-    soft: "bg-[var(--event-violet)]/12 text-[var(--event-violet)]",
-  },
-  health: {
-    label: "건강",
-    token: "var(--event-rose)",
-    dot: "bg-[var(--event-rose)]",
-    soft: "bg-[var(--event-rose)]/12 text-[var(--event-rose)]",
-  },
-  etc: {
-    label: "기타",
-    token: "var(--event-amber)",
-    dot: "bg-[var(--event-amber)]",
-    soft: "bg-[var(--event-amber)]/12 text-[var(--event-amber)]",
-  },
-}
-
 export interface CalendarEvent {
   id: string
   title: string
@@ -57,7 +19,6 @@ export interface CalendarEvent {
   allDay?: boolean
   time?: string // 시작 HH:mm
   endTime?: string // 종료 HH:mm (시간 일정일 때만)
-  category: EventCategory // todo 보드 호환용; Google은 보통 'etc'
   calendarId?: string
   calendarName?: string
   calendarColor?: string

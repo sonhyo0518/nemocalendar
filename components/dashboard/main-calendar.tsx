@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { onColor } from "@/lib/contrast"
 import { toast } from "sonner"
 import {
-  CATEGORY_META,
   MONTHS_KO,
   WEEKDAYS_KO,
   addDays,
@@ -18,7 +17,6 @@ import {
   startOfWeek,
   toKey,
   type CalendarEvent,
-  type EventCategory,
   type GoogleCalendarOption,
 } from "@/lib/dashboard-data"
 import {
@@ -95,7 +93,6 @@ export function MainCalendar({
   const [time, setTime] = React.useState("")
   const [endTime, setEndTime] = React.useState("")
   const [calendarId, setCalendarId] = React.useState("primary")
-  const [category, setCategory] = React.useState<EventCategory>("etc")
   const [saving, setSaving] = React.useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false)
 
@@ -223,7 +220,6 @@ export function MainCalendar({
         eventCalendars[0]?.id ??
         "primary",
     )
-    setCategory("etc")
     setDialogOpen(true)
   }
   
@@ -242,7 +238,6 @@ export function MainCalendar({
     setCalendarId(event.calendarId ?? "primary")
     setDayDialogOpen(false)
     setDialogOpen(true)
-    setCategory(event.category ?? "etc")
   }
   
   async function submit() {
@@ -256,7 +251,6 @@ export function MainCalendar({
       time: time || undefined,
       endTime: time ? endTime || undefined : undefined,
       allDay: !time,
-      category,
     }
     setSaving(true)
     try {
@@ -526,9 +520,7 @@ export function MainCalendar({
                       >
                         {visibleEvents.map((e) => {
                         const color =
-                          e.calendarColor ??
-                          CATEGORY_META[e.category]?.token ??
-                          "var(--event-amber)"
+                          e.calendarColor ?? "var(--event-amber)"
                         const solid = Boolean(e.allDay)
                         return (
                           <span
@@ -607,10 +599,8 @@ export function MainCalendar({
                   style={{ top: SPAN_BAR_TOP, height: spanAreaHeight }}
                 >
                   {spans.map(({ event, lane, colStart, colEnd }) => {
-                    const color =
-                      event.calendarColor ??
-                      CATEGORY_META[event.category]?.token ??
-                      "var(--event-amber)"
+                      const color =
+                        event.calendarColor ?? "var(--event-amber)"
                       const spanCols = colEnd - colStart + 1
                       const { left, width } = spanBarGeometry(colStart, spanCols)
                       return (
@@ -675,7 +665,6 @@ export function MainCalendar({
         title={title}
         time={time}
         endTime={endTime}
-        category={category}
         calendarId={calendarId}
         eventCalendars={eventCalendars}
         saving={saving}
@@ -684,7 +673,6 @@ export function MainCalendar({
         onTitleChange={setTitle}
         onTimeChange={setTime}
         onEndTimeChange={setEndTime}
-        onCategoryChange={setCategory}
         onCalendarIdChange={setCalendarId}
         onSubmit={submit}
         onDelete={removeEvent}

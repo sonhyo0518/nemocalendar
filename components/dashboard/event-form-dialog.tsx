@@ -3,10 +3,8 @@
 import { ArrowRight, ChevronDown, X } from "lucide-react"
 import { onColor } from "@/lib/contrast"
 import {
-  CATEGORY_META,
   isKoreanHolidayEvent,
   type CalendarEvent,
-  type EventCategory,
   type GoogleCalendarOption,
 } from "@/lib/dashboard-data"
 import {
@@ -137,7 +135,6 @@ export type EventFormDialogProps = {
   title: string
   time: string
   endTime: string
-  category: EventCategory
   calendarId: string
   eventCalendars: GoogleCalendarOption[]
   saving: boolean
@@ -146,7 +143,6 @@ export type EventFormDialogProps = {
   onTitleChange: (value: string) => void
   onTimeChange: (value: string) => void
   onEndTimeChange: (value: string) => void
-  onCategoryChange: (value: EventCategory) => void
   onCalendarIdChange: (value: string) => void
   onSubmit: () => void
   onDelete: () => void
@@ -162,7 +158,6 @@ export function EventFormDialog({
   title,
   time,
   endTime,
-  category,
   calendarId,
   eventCalendars,
   saving,
@@ -171,7 +166,6 @@ export function EventFormDialog({
   onTitleChange,
   onTimeChange,
   onEndTimeChange,
-  onCategoryChange,
   onCalendarIdChange,
   onSubmit,
   onDelete,
@@ -412,56 +406,10 @@ export function EventFormDialog({
             </div>
           </div>
 
-          {/* 일정 카테고리 */}
-          <div className="relative mb-[13px]">
-            <Label htmlFor="event-category" className={scheduleFieldLabelClass}>
-              일정 카테고리
-            </Label>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <button
-                    id="event-category"
-                    type="button"
-                    className={cn(
-                      scheduleInputClass,
-                      "flex w-full min-w-0 cursor-pointer items-center gap-2 text-left",
-                    )}
-                  />
-                }
-              >
-                <span
-                  className="size-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: CATEGORY_META[category].token }}
-                />
-                <span className="min-w-0 flex-1 truncate">
-                  {CATEGORY_META[category].label}
-                </span>
-                <ChevronDown className="size-3.5 shrink-0 text-[var(--schedule-muted)]" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-(--anchor-width)">
-                <DropdownMenuRadioGroup
-                  value={category}
-                  onValueChange={(v) => onCategoryChange(v as EventCategory)}
-                >
-                  {(Object.keys(CATEGORY_META) as EventCategory[]).map((key) => (
-                    <DropdownMenuRadioItem key={key} value={key} closeOnClick>
-                      <span
-                        className="size-2.5 shrink-0 rounded-full border border-black/10"
-                        style={{ backgroundColor: CATEGORY_META[key].token }}
-                      />
-                      {CATEGORY_META[key].label}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* 캘린더 카테고리 */}
+          {/* 캘린더 */}
           <div className="relative mb-[13px]">
             <Label htmlFor="event-calendar" className={scheduleFieldLabelClass}>
-              캘린더 카테고리
+              캘린더
             </Label>
             <DropdownMenu>
               <DropdownMenuTrigger
