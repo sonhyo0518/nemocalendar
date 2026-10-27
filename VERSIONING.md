@@ -9,7 +9,7 @@ Nemo Calendar는 **앱 단위 단일 버전**과 **Practical App SemVer**를 사
 
 | 문서 | 위치 |
 | --- | --- |
-| Changelog · Versioning | **이 레포** (`nemocalendar-frontend`) 루트 |
+| Changelog · Versioning | **이 레포** (`nemocalendar`) 루트 |
 | 사용자용 릴리즈 노트 | `content/changelog.ts` → Vercel `/changelog` |
 | Backend 안내 | `nemocalendar-api`의 [RELEASE.md](https://github.com/sonhyo0518/nemocalendar-api/blob/main/RELEASE.md) (이 문서로의 링크) |
 
@@ -39,6 +39,14 @@ Nemo Calendar는 **앱 단위 단일 버전**과 **Practical App SemVer**를 사
 - `CHANGELOG.md` → `## [X.Y.Z] - YYYY-MM-DD` 섹션
 - `content/changelog.ts` → 사용자용 릴리즈 노트 (`/changelog`, Unreleased 제외)
 
+`package.json` / `package-lock.json` 루트 version은 손으로 고치지 말고 각 레포 루트에서:
+
+```bash
+npm version X.Y.Z --no-git-tag-version
+```
+
+(`--no-git-tag-version`: npm이 커밋·태그를 만들지 않음. annotated tag는 아래 절차로 따로 단다.)
+
 ## Git 태그 규칙
 
 | 항목 | 규칙 |
@@ -55,7 +63,7 @@ Nemo Calendar는 **앱 단위 단일 버전**과 **Practical App SemVer**를 사
 ```bash
 # 1) CHANGELOG.md의 Unreleased → [X.Y.Z]로 이동, package.json·changelog.ts 동기화 후 커밋
 git add CHANGELOG.md package.json package-lock.json content/changelog.ts
-git commit -m "chore(release): vX.Y.Z"
+git commit -m "chore(release): vX.Y.Z로 버전 올림"
 
 # 2) annotated tag
 git tag -a "vX.Y.Z" -m "Release vX.Y.Z"
@@ -70,7 +78,7 @@ git push origin "vX.Y.Z"
 ```bash
 # frontend와 같은 X.Y.Z로 package.json·lock만 맞춘 뒤
 git add package.json package-lock.json
-git commit -m "chore(release): vX.Y.Z"
+git commit -m "chore(release): vX.Y.Z로 버전 올림"
 git tag -a "vX.Y.Z" -m "Release vX.Y.Z"
 git push origin HEAD
 git push origin "vX.Y.Z"
@@ -80,7 +88,7 @@ CHANGELOG·`changelog.ts`는 api 레포에 두지 않습니다. canonical은 fro
 
 ## 듀얼 레포 릴리즈 절차
 
-앱 버전은 `nemocalendar-frontend`와 `nemocalendar-api`가 **항상 동일**한 `X.Y.Z`입니다.
+앱 버전은 `nemocalendar`와 `nemocalendar-api`가 **항상 동일**한 `X.Y.Z`입니다.
 태그는 각 레포에 **같은 이름**의 annotated tag `vX.Y.Z`를 답니다. (커밋 해시는 레포마다 다름 — 정상)
 
 ### 권장 순서
@@ -89,10 +97,10 @@ CHANGELOG·`changelog.ts`는 api 레포에 두지 않습니다. canonical은 fro
    - `CHANGELOG.md`: `[Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`
    - `package.json` / `package-lock.json` 루트 `"version"`
    - `content/changelog.ts` (사용자용 `/changelog`, Unreleased 제외)
-   - `chore(release): vX.Y.Z` 커밋 → annotated tag → `git push origin HEAD` 및 `git push origin "vX.Y.Z"`
+   - `chore(release): vX.Y.Z로 버전 올림` 커밋 → annotated tag → `git push origin HEAD` 및 `git push origin "vX.Y.Z"`
 2. **api**에서 버전만 맞춤
-   - `package.json` / `package-lock.json` 루트 `"version"`을 **같은** `X.Y.Z`
-   - `chore(release): vX.Y.Z` 커밋 → 동일 형식 annotated tag → push
+   - `package.json` / `package-lock.json` 루트 `"version"`을 **같은** `X.Y.Z` (`npm version X.Y.Z --no-git-tag-version`)
+   - `chore(release): vX.Y.Z로 버전 올림` 커밋 → 동일 형식 annotated tag → push
 3. **배포 확인**
    - Vercel(frontend) · Render(api)가 해당 커밋/태그와 대응하는지 확인
 
@@ -124,7 +132,7 @@ git tag -d "vX.Y.Z"
 3. **frontend 먼저** version·CHANGELOG·`changelog.ts`·tag를 맞춘다.
 4. **api**에서 동일 `X.Y.Z`로 `package.json`(및 lock)과 annotated tag를 맞춘다.
 5. 날짜는 **배포일** 기준 `YYYY-MM-DD` (로컬은 UTC+9).
-6. 각 레포에서 `chore(release): vX.Y.Z` 커밋 후 `vX.Y.Z` annotated tag를 단다.
+6. 각 레포에서 `chore(release): vX.Y.Z로 버전 올림` 커밋 후 `vX.Y.Z` annotated tag를 단다.
 7. Vercel(프론트)·Render(API) 배포가 해당 커밋/태그와 대응하는지 확인한다.
 8. (선택) GitHub Release를 만들고 CHANGELOG 해당 섹션을 본문에 붙인다.
 

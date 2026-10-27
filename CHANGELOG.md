@@ -5,7 +5,7 @@
 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르고,
 버전은 [Semantic Versioning](https://semver.org/lang/ko/)과 [VERSIONING.md](./VERSIONING.md) 규칙을 따릅니다.
 
-> **Canonical 위치:** 이 파일은 `nemocalendar-frontend` 레포 루트에 둡니다.
+> **Canonical 위치:** 이 파일은 `nemocalendar` 레포 루트에 둡니다.
 > 로컬 워크스페이스(`nemoCalendar2/`)의 루트 `CHANGELOG.md`는 여기로 가는 포인터입니다.
 
 ## [Unreleased]
@@ -29,6 +29,17 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+
+## [0.3.2] - 2026-10-28
+
+### Fixed
+
+- 할 일 「오늘」 뷰에 진행 중(`in-progress`) 항목이 마감과 무관하게 포함되지 않던 문제
+
+### Changed
+
+- 「오늘」 포커스에 마감 없는 미완료도 포함
+- 상단 「오늘」 카운트를 포커스 목록과 맞추고, 「진행」 클릭 시 「오늘」 뷰로 이동
 
 ## [0.3.1] - 2026-10-11
 

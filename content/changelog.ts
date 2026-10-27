@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.2",
+    date: "2026-10-28",
+    summary:
+      "할 일 「오늘」에 진행 중·마감 없는 일도 모으고, 상단 카운트와 보기를 맞췄습니다.",
+    sections: {
+      fixed: [
+        "진행 중인 할 일이 마감이 없으면 「오늘」에 안 보이던 문제",
+      ],
+      changed: [
+        "마감이 없는 미완료 할 일도 「오늘」 포커스에 표시",
+        "상단 「오늘」 숫자와 목록을 맞추고 「진행」을 누르면 「오늘」 보기로 이동",
+      ],
+    },
+  },
+  {
     version: "0.3.1",
     date: "2026-10-11",
     summary:
