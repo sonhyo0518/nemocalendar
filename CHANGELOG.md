@@ -14,6 +14,9 @@
 
 ### Changed
 
+- 일정 추가/수정 폼에서 앱 전용 「일정 카테고리」를 제거하고, 「캘린더」 선택만 남김
+- 일정 표시 색을 Google 캘린더 색(`calendarColor`)만 사용
+
 ### Deprecated
 
 ### Removed
