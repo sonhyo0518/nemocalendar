@@ -4,6 +4,7 @@ import {
   filterTodayTasks,
   formatDueLabel,
   isOverdue,
+  isTodayFocusTask,
   nextStatusOnCheck,
   sortTasks,
   summarizeTasks,
@@ -29,7 +30,7 @@ describe("todo-view", () => {
     vi.useRealTimers()
   })
 
-  it("isOverdue / filterTodayTasks", () => {
+  it("isOverdue / isTodayFocusTask / filterTodayTasks", () => {
     const overdue = task({ id: "1", title: "a", due: "2026-10-10" })
     const today = task({ id: "2", title: "b", due: "2026-10-11" })
     const future = task({ id: "3", title: "c", due: "2026-10-12" })
@@ -39,13 +40,43 @@ describe("todo-view", () => {
       due: "2026-10-10",
       status: "done",
     })
-
+    const futureInProgress = task({
+      id: "5",
+      title: "e",
+      due: "2026-10-12",
+      status: "in-progress",
+    })
+    const noDue = task({ id: "6", title: "f", due: "" })
+    const noDueInProgress = task({
+      id: "7",
+      title: "g",
+      due: "",
+      status: "in-progress",
+    })
+  
     expect(isOverdue(overdue)).toBe(true)
     expect(isOverdue(today)).toBe(false)
     expect(isOverdue(done)).toBe(false)
-
-    const focus = filterTodayTasks([overdue, today, future, done])
-    expect(focus.map((t) => t.id)).toEqual(["1", "2"])
+  
+    expect(isTodayFocusTask(overdue)).toBe(true)
+    expect(isTodayFocusTask(today)).toBe(true)
+    expect(isTodayFocusTask(future)).toBe(false)
+    expect(isTodayFocusTask(done)).toBe(false)
+    expect(isTodayFocusTask(futureInProgress)).toBe(true)
+    expect(isTodayFocusTask(noDue)).toBe(true)
+    expect(isTodayFocusTask(noDueInProgress)).toBe(true)
+  
+    const focus = filterTodayTasks([
+      overdue,
+      today,
+      future,
+      done,
+      futureInProgress,
+      noDue,
+      noDueInProgress,
+    ])
+    // sort: due 없는 항목은 뒤로, due 오름차순 → 1,2,5,6,7
+    expect(focus.map((t) => t.id)).toEqual(["1", "2", "5", "7", "6"])
   })
 
   it("sortTasks: active before done, then due, then priority", () => {
@@ -73,8 +104,16 @@ describe("todo-view", () => {
         due: "2026-10-11",
         status: "in-progress",
       }),
+      task({ id: "4", title: "d", due: "" }),
+      task({
+        id: "5",
+        title: "e",
+        due: "2026-10-20",
+        status: "todo",
+      }),
     ])
-    expect(summary).toEqual({ today: 2, overdue: 1, inProgress: 1 })
+    // 포커스: 1·2·3·4 (미래 마감 todo인 5 제외)
+    expect(summary).toEqual({ today: 4, overdue: 1, inProgress: 1 })
 
     expect(formatDueLabel("2026-10-10").tone).toBe("overdue")
     expect(formatDueLabel("2026-10-11")).toEqual({

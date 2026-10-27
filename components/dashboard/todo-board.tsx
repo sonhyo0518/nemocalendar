@@ -316,12 +316,16 @@ export function TodoBoard({
         <span aria-hidden className="text-border">
           ·
         </span>
-        <span>
+        <button
+          type="button"
+          className="hover:text-foreground"
+          onClick={() => setViewMode("today")}
+        >
           진행{" "}
           <span className="font-semibold tabular-nums text-foreground">
             {summary.inProgress}
           </span>
-        </span>
+        </button>
       </div>
 
       {viewMode === "all" && (

@@ -29,10 +29,11 @@ export function isDueToday(task: BoardTask): boolean {
   return daysUntil(task.due) === 0
 }
 
-/** 오늘 뷰: 마감이 오늘이거나 지연인 미완료 할 일 */
+/** 오늘 뷰: 진행 중(마감 무관) · 마감 없는 미완료 · 마감 ≤ 오늘인 미완료 */
 export function isTodayFocusTask(task: BoardTask): boolean {
   if (task.status === "done") return false
-  if (!task.due) return false
+  if (task.status === "in-progress") return true
+  if (!task.due) return true
   return daysUntil(task.due) <= 0
 }
 
@@ -74,7 +75,7 @@ export function summarizeTasks(tasks: BoardTask[]) {
   let inProgress = 0
   for (const task of tasks) {
     if (task.status === "done") continue
-    if (isDueToday(task)) today += 1
+    if (isTodayFocusTask(task)) today += 1
     if (isOverdue(task)) overdue += 1
     if (task.status === "in-progress") inProgress += 1
   }

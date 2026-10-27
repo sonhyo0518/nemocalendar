@@ -23,7 +23,7 @@ if (tasks.length === 0) {
     return (
     <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
         <p className="text-sm text-muted-foreground">
-        오늘·지연된 할 일이 없습니다.
+        오늘 할 일이 없습니다.
         </p>
         <button
         type="button"
@@ -39,7 +39,7 @@ if (tasks.length === 0) {
 return (
     <section className="overflow-hidden rounded-lg border border-border">
     <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-        <h3 className="text-[13.5px] font-bold tracking-tight">오늘 · 지연</h3>
+        <h3 className="text-[13.5px] font-bold tracking-tight">오늘</h3>
         <span className="text-xs font-semibold text-muted-foreground">
         {tasks.length}
         </span>
