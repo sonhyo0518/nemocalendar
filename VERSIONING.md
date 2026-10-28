@@ -10,10 +10,11 @@ Nemo Calendar는 **앱 단위 단일 버전**과 **Practical App SemVer**를 사
 | 문서 | 위치 |
 | --- | --- |
 | Changelog · Versioning | **이 레포** (`nemocalendar`) 루트 |
+| Deployment · Roadmap · 프로젝트 설명 | **이 레포** 루트 (`DEPLOYMENT.md`, `ROADMAP.md`, `프로젝트 설명.md`) |
 | 사용자용 릴리즈 노트 | `content/changelog.ts` → Vercel `/changelog` |
 | Backend 안내 | `nemocalendar-api`의 [RELEASE.md](https://github.com/sonhyo0518/nemocalendar-api/blob/main/RELEASE.md) (이 문서로의 링크) |
 
-로컬 워크스페이스(`nemoCalendar2/`)에서는 `frontend/CHANGELOG.md`, `frontend/VERSIONING.md`가 원본입니다.
+로컬 워크스페이스(`nemoCalendar2/`)에서는 `frontend/` 아래 동명 파일이 원본입니다.
 루트에 있는 동명 파일은 포인터만 둡니다. 내용을 편집할 때는 **여기(frontend)** 만 수정하세요.
 
 ## SemVer

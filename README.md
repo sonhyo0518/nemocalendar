@@ -113,10 +113,13 @@ npm run dev
 
 ## 버전·릴리즈
 
-앱 Changelog·SemVer·태그 규칙의 **원본**은 이 레포에 있습니다. 현재 앱 버전: **0.3.1**.
+앱 Changelog·SemVer·태그·배포·로드맵 문서의 **원본**은 이 레포에 있습니다. 현재 앱 버전: **0.3.3**.
 
 - [CHANGELOG.md](./CHANGELOG.md)
 - [VERSIONING.md](./VERSIONING.md)
+- [DEPLOYMENT.md](./DEPLOYMENT.md)
+- [ROADMAP.md](./ROADMAP.md)
+- [프로젝트 설명.md](./프로젝트%20설명.md)
 - 사용자용 페이지: [`/changelog`](./app/changelog/page.tsx) (`content/changelog.ts`)
 
-Backend는 [../backend/RELEASE.md](../backend/RELEASE.md)에서 이 문서를 가리킵니다.
+Backend는 [../backend/RELEASE.md](../backend/RELEASE.md)에서 Changelog·Versioning을 가리킵니다.
