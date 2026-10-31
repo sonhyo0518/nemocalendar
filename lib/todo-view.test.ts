@@ -153,8 +153,8 @@ describe("todo-view", () => {
 
     expect(filterByViewMode(all, "overdue").map((t) => t.id)).toEqual(["1"])
     expect(filterByViewMode(all, "future").map((t) => t.id)).toEqual([
-      "3",
       "5",
+      "3",
     ])
     expect(filterByViewMode(all, "no-due").map((t) => t.id)).toEqual(["6"])
     expect(filterByViewMode(all, "done").map((t) => t.id)).toEqual(["4"])
