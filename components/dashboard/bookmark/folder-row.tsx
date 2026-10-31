@@ -105,7 +105,7 @@ export function FolderRow({
                     type="button"
                     title="폴더 메뉴"
                     aria-label="폴더 메뉴"
-                    className="grid size-5 place-items-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+                    className="grid size-5 max-sm:size-11 place-items-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
                   />
                 }
               >

@@ -84,7 +84,7 @@ export function BookmarkCard({
             type="button"
             title="열기"
             aria-label="북마크 열기"
-            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="grid size-5 max-sm:size-11 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={() => openBookmark(item.url)}
           >
             <ExternalLink className="size-2.5" />
@@ -93,7 +93,7 @@ export function BookmarkCard({
             type="button"
             title="수정"
             aria-label="북마크 수정"
-            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="grid size-5 max-sm:size-11 place-items-center rounded text-muted-foreground hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={onEdit}
           >
             <Pencil className="size-2.5" />
@@ -102,7 +102,7 @@ export function BookmarkCard({
             type="button"
             title="삭제"
             aria-label="북마크 삭제"
-            className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="grid size-5 max-sm:size-11 place-items-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={onRemove}
           >
             <X className="size-2.5" />

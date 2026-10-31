@@ -31,8 +31,8 @@ const TEXTAREA_CLASS = cn(
 )
 
 const ACTION_BTN_CLASS =
-  "grid size-5 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
-
+  "grid size-5 max-sm:size-11 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
+  
 const ACTION_DANGER_CLASS =
   "hover:bg-destructive/10 hover:text-destructive"
 

@@ -95,7 +95,16 @@ export function MainCalendar({
   const [calendarId, setCalendarId] = React.useState("primary")
   const [saving, setSaving] = React.useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false)
-
+  const [isNarrow, setIsNarrow] = React.useState(false)
+  
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)")
+    const apply = () => setIsNarrow(mq.matches)
+    apply()
+    mq.addEventListener("change", apply)
+    return () => mq.removeEventListener("change", apply)
+  }, [])
+  
   const eventCalendars = React.useMemo(
     () => calendars.filter((c) => !isHolidayCalendarOption(c)),
     [calendars],
@@ -410,13 +419,22 @@ export function MainCalendar({
                   const chipH = compact ? LANE_HEIGHT : TWO_LINE_CHIP_H
                   const allFitCompact =
                     compact && dayEvents.length * chipH <= avail
-                  const maxChips = Math.max(
+                  const layoutMax = Math.max(
                     0,
                     Math.floor(
                       (avail - (allFitCompact ? 0 : MORE_LABEL_H)) / chipH,
                     ),
                   )
-                  const visibleEvents = compact
+                  const maxChips =
+                    mode === "month" && isNarrow
+                      ? Math.min(layoutMax, 2)
+                      : layoutMax
+                  const forceSlice =
+                    compact ||
+                    (mode === "month" &&
+                      isNarrow &&
+                      dayEvents.length > maxChips)
+                  const visibleEvents = forceSlice
                     ? dayEvents.slice(0, maxChips)
                     : dayEvents
                   const showMore = visibleEvents.length < dayEvents.length
@@ -500,7 +518,7 @@ export function MainCalendar({
                           openAdd(key)
                         }}
                         className={cn(
-                          "absolute top-0 right-0 rounded border border-border p-0.5 text-muted-foreground transition-opacity",
+                          "absolute top-0 right-0 grid size-6 max-sm:size-11 place-items-center rounded border border-border p-0 text-muted-foreground transition-opacity",
                           canAddEvents
                             ? "opacity-0 hover:bg-muted max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
                             : "cursor-not-allowed opacity-30",

@@ -126,7 +126,7 @@ export function ThemeSettingsDialog({
                   aria-label={preset}
                   onClick={() => applyLocal(preset)}
                   className={cn(
-                    "size-7 cursor-pointer rounded-full border border-black/10",
+                    "size-7 max-sm:size-11 cursor-pointer rounded-full border border-black/10",
                     hex.toLowerCase() === preset.toLowerCase() &&
                       "ring-2 ring-foreground ring-offset-1 ring-offset-background",
                   )}
@@ -135,7 +135,7 @@ export function ThemeSettingsDialog({
               ))}
               <label
                 className={cn(
-                  "relative size-7 cursor-pointer overflow-hidden rounded-full border border-black/10",
+                  "relative size-7 max-sm:size-11 cursor-pointer overflow-hidden rounded-full border border-black/10",
                   !isPreset && "ring-2 ring-foreground ring-offset-1 ring-offset-background",
                 )}
                 title="사용자 지정"

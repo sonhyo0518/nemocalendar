@@ -69,7 +69,7 @@ export function GuestLanding({
           onClick={onStart}
           disabled={isStarting}
           aria-busy={isStarting}
-            className="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-md border border-[#DADCE0] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DADCE0]/50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3C4043] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
+            className="inline-flex h-10 max-sm:h-11 min-h-11 cursor-pointer items-center gap-2.5 rounded-md border border-[#DADCE0] bg-[#FFFFFF] pl-3 pr-3 text-sm font-medium leading-5 text-[#1F1F1F] hover:bg-[#F8F9FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DADCE0]/50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3C4043] dark:bg-[#131314] dark:text-[#E3E3E3] dark:hover:bg-[#1F1F1F]"
           >
             <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-white">
               <GoogleGlyph />
