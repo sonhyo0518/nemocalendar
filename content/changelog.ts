@@ -17,6 +17,26 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.4",
+    date: "2026-11-01",
+    summary:
+      "할 일 보기·마감 칩, 터치·캘린더 밀도, 배너 반사를 다듬고 위젯 401 오탐 토스트를 줄였습니다.",
+    sections: {
+      changed: [
+        "할 일 마감일 빠른 칩(없음 / 오늘 / 내일 / 이번 주말)",
+        "할 일 보기 분리와 상단 카운트 연결",
+        "터치 타겟·호버 액션 보강",
+        "할 일 행 진행·마감 칩 통일",
+        "모바일 월 캘린더 칩 수 제한",
+        "배너 이미지 수면 반사",
+      ],
+      fixed: [
+        "세션 만료 시 위젯 로드 실패 오탐 토스트 억제",
+        "취소된 요청을 콜드스타트로 오인해 재시도하던 문제",
+      ],
+    },
+  },
+  {
     version: "0.3.3",
     date: "2026-10-28",
     summary:

@@ -113,7 +113,7 @@ npm run dev
 
 ## 버전·릴리즈
 
-앱 Changelog·SemVer·태그·배포·로드맵 문서의 **원본**은 이 레포에 있습니다. 현재 앱 버전: **0.3.3**.
+앱 Changelog·SemVer·태그·배포·로드맵 문서의 **원본**은 이 레포에 있습니다. 현재 앱 버전: **0.3.4**.
 
 - [CHANGELOG.md](./CHANGELOG.md)
 - [VERSIONING.md](./VERSIONING.md)
