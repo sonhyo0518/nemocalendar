@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { BoardTask } from "@/lib/dashboard-data"
 import {
+  filterByViewMode,
   filterTodayTasks,
   formatDueLabel,
+  isFutureTask,
+  isNoDueTask,
   isOverdue,
   isTodayFocusTask,
   nextStatusOnCheck,
@@ -122,9 +125,54 @@ describe("todo-view", () => {
     })
   })
 
+  it("filterByViewMode and due helpers", () => {
+    const overdue = task({ id: "1", title: "a", due: "2026-10-10" })
+    const today = task({ id: "2", title: "b", due: "2026-10-11" })
+    const future = task({ id: "3", title: "c", due: "2026-10-12" })
+    const done = task({
+      id: "4",
+      title: "d",
+      due: "2026-10-10",
+      status: "done",
+    })
+    const inProgress = task({
+      id: "5",
+      title: "e",
+      due: "2026-10-12",
+      status: "in-progress",
+    })
+    const noDue = task({ id: "6", title: "f", due: "" })
+    const all = [overdue, today, future, done, inProgress, noDue]
+
+    expect(isFutureTask(future)).toBe(true)
+    expect(isFutureTask(overdue)).toBe(false)
+    expect(isFutureTask(done)).toBe(false)
+    expect(isNoDueTask(noDue)).toBe(true)
+    expect(isNoDueTask(today)).toBe(false)
+    expect(isNoDueTask(done)).toBe(false)
+
+    expect(filterByViewMode(all, "overdue").map((t) => t.id)).toEqual(["1"])
+    expect(filterByViewMode(all, "future").map((t) => t.id)).toEqual([
+      "3",
+      "5",
+    ])
+    expect(filterByViewMode(all, "no-due").map((t) => t.id)).toEqual(["6"])
+    expect(filterByViewMode(all, "done").map((t) => t.id)).toEqual(["4"])
+    expect(filterByViewMode(all, "in-progress").map((t) => t.id)).toEqual([
+      "5",
+    ])
+    expect(filterByViewMode(all, "today").map((t) => t.id)).toEqual([
+      "1",
+      "2",
+      "5",
+      "6",
+    ])
+  })
+
   it("nextStatusOnCheck", () => {
     expect(nextStatusOnCheck("todo", true)).toBe("done")
     expect(nextStatusOnCheck("done", false)).toBe("todo")
     expect(nextStatusOnCheck("in-progress", false)).toBe("in-progress")
   })
 })
+

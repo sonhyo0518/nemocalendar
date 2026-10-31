@@ -5,7 +5,14 @@ import {
   type TodoStatus,
 } from "@/lib/dashboard-data"
 
-export type TodoViewMode = "today" | "all"
+export type TodoViewMode =
+  | "today"
+  | "all"
+  | "overdue"
+  | "done"
+  | "future"
+  | "no-due"
+  | "in-progress"
 
 const PRIORITY_RANK: Record<TodoPriority, number> = {
   high: 0,
@@ -27,6 +34,38 @@ export function isOverdue(task: BoardTask): boolean {
 export function isDueToday(task: BoardTask): boolean {
   if (!task.due || task.status === "done") return false
   return daysUntil(task.due) === 0
+}
+
+export function isFutureTask(task: BoardTask): boolean {
+  if (task.status === "done" || !task.due) return false
+  return daysUntil(task.due) > 0
+}
+export function isNoDueTask(task: BoardTask): boolean {
+  return task.status !== "done" && !task.due
+}
+export function filterByViewMode(
+  tasks: BoardTask[],
+  mode: TodoViewMode,
+): BoardTask[] {
+  switch (mode) {
+    case "today":
+      return filterTodayTasks(tasks)
+    case "overdue":
+      return sortTasks(tasks.filter(isOverdue))
+    case "in-progress":
+      return sortTasks(
+        tasks.filter((t) => t.status === "in-progress"),
+      )
+    case "done":
+      return sortTasks(tasks.filter((t) => t.status === "done"))
+    case "future":
+      return sortTasks(tasks.filter(isFutureTask))
+    case "no-due":
+      return sortTasks(tasks.filter(isNoDueTask))
+    case "all":
+    default:
+      return sortTasks(tasks)
+  }
 }
 
 /** 오늘 뷰: 진행 중(마감 무관) · 마감 없는 미완료 · 마감 ≤ 오늘인 미완료 */

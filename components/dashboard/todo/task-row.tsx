@@ -99,17 +99,17 @@ return (
         </Badge>
         )}
         {dueMeta && (
-        <span
-            className={cn(
-            "inline-flex shrink-0 items-center gap-1 text-[11px]",
-            dueMeta.tone === "overdue" && "text-destructive",
-            dueMeta.tone === "today" && "font-medium text-foreground",
-            dueMeta.tone === "muted" && "text-muted-foreground",
-            )}
-        >
-            <CalendarClock className="size-3" />
-            {dueMeta.text}
-        </span>
+            <span
+                className={cn(
+                "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+                dueMeta.tone === "overdue" && "bg-destructive/10 text-destructive",
+                dueMeta.tone === "today" && "bg-foreground/5 text-foreground",
+                dueMeta.tone === "muted" && "bg-muted text-muted-foreground",
+                )}
+            >
+                <CalendarClock className="size-3" />
+                {dueMeta.text}
+            </span>
         )}
         <DropdownMenu>
         <DropdownMenuTrigger
@@ -118,7 +118,7 @@ return (
                 type="button"
                 title="더보기"
                 aria-label="더보기"
-                className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+                className="grid size-6 max-sm:size-11 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
             />
             }
         >

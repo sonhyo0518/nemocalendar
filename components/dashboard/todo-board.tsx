@@ -22,6 +22,7 @@ import {
   type TodoStatus,
 } from "@/lib/dashboard-data"
 import {
+  filterByViewMode,
   filterTodayTasks,
   formatDueLabel,
   nextStatusOnCheck,
@@ -30,6 +31,7 @@ import {
   summarizeTasks,
   type TodoViewMode,
 } from "@/lib/todo-view"
+
 import { TODO_CATEGORY_COLOR_PRESETS as COLOR_PRESETS } from "@/lib/color-presets"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -80,8 +82,45 @@ const STATUSES: TodoStatus[] = ["todo", "in-progress", "done"]
 const PRIORITIES = Object.keys(PRIORITY_META) as TodoPriority[]
 const VIEW_MODES: { id: TodoViewMode; label: string }[] = [
   { id: "today", label: "오늘" },
-  { id: "all", label: "전체" },
+  { id: "overdue", label: "지연" },
+  { id: "future", label: "미래" },
+  { id: "no-due", label: "마감 없음" },
+  { id: "done", label: "완료" },
+  { id: "all", label: "전체" }, // 카테고리별 섹션은 기존 all UI 재사용
 ]
+
+function toDateKey(d: Date) {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
+function duePresetKeys() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+  // 이번 주 토요일이 이미 지났으면 다음 주 토요일
+  const saturday = new Date(today)
+  const dow = today.getDay() // 0=일 … 6=토
+  const add = dow === 6 ? 0 : (6 - dow + 7) % 7 || 7
+  // 토요일이 오늘이면 0, 아니면 이번 주 토(지났으면 +7)
+  const daysToSat = dow === 6 ? 0 : 6 - dow
+  saturday.setDate(today.getDate() + daysToSat)
+  return {
+    today: toDateKey(today),
+    tomorrow: toDateKey(tomorrow),
+    weekend: toDateKey(saturday),
+  }
+}
+
+const DUE_CHIPS = [
+  { id: "none", label: "없음", value: "" },
+  { id: "today", label: "오늘", value: "today" as const },
+  { id: "tomorrow", label: "내일", value: "tomorrow" as const },
+  { id: "weekend", label: "이번 주말", value: "weekend" as const },
+] as const
 
 export function TodoBoard({
   tasks,
@@ -306,7 +345,7 @@ export function TodoBoard({
             "hover:text-foreground",
             summary.overdue > 0 && "text-destructive hover:text-destructive",
           )}
-          onClick={() => setViewMode("today")}
+          onClick={() => setViewMode("overdue")}
         >
           지연{" "}
           <span className="font-semibold tabular-nums">
@@ -319,7 +358,7 @@ export function TodoBoard({
         <button
           type="button"
           className="hover:text-foreground"
-          onClick={() => setViewMode("today")}
+          onClick={() => setViewMode("in-progress")}
         >
           진행{" "}
           <span className="font-semibold tabular-nums text-foreground">
@@ -433,16 +472,8 @@ export function TodoBoard({
         </div>
       )}
 
-      {viewMode === "today" ? (
-        <TodayView
-          tasks={todayTasks}
-          categoryById={categoryById}
-          onMove={moveTask}
-          onRemove={removeTask}
-          onEdit={openEditor}
-          onAdd={() => openComposer()}
-        />
-      ) : visibleCats.length === 0 ? (
+    {viewMode === "all" ? (
+      visibleCats.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
           표시할 카테고리가 없습니다. 위 칩에서 선택하세요.
         </p>
@@ -600,7 +631,21 @@ export function TodoBoard({
             )
           })}
         </div>
-      )}
+      )
+    ) : (
+      <TodayView
+        tasks={
+          viewMode === "today"
+            ? todayTasks
+            : filterByViewMode(tasks, viewMode)
+        }
+        categoryById={categoryById}
+        onMove={moveTask}
+        onRemove={removeTask}
+        onEdit={openEditor}
+        onAdd={() => openComposer()}
+      />
+    )}
 
       <Dialog
         open={open}
@@ -652,6 +697,46 @@ export function TodoBoard({
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="task-due">마감일</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {(() => {
+                    const keys = duePresetKeys()
+                    const active =
+                      due === ""
+                        ? "none"
+                        : due === keys.today
+                          ? "today"
+                          : due === keys.tomorrow
+                            ? "tomorrow"
+                            : due === keys.weekend
+                              ? "weekend"
+                              : null
+                    return DUE_CHIPS.map((chip) => (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        onClick={() =>
+                          setDue(
+                            chip.id === "none"
+                              ? ""
+                              : chip.id === "today"
+                                ? keys.today
+                                : chip.id === "tomorrow"
+                                  ? keys.tomorrow
+                                  : keys.weekend,
+                          )
+                        }
+                        className={cn(
+                          "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-2.5 text-xs font-medium transition-colors",
+                          active === chip.id
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:bg-muted",
+                        )}
+                      >
+                        {chip.label}
+                      </button>
+                    ))
+                  })()}
+                </div>
                 <Input
                   id="task-due"
                   type="date"
