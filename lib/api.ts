@@ -119,6 +119,8 @@ export async function authFetch(
       credentials: "include",
     })
   } catch (err) {
+    // Abort는 콜드스타트가 아님 — wake 재시도하면 remount/로그아웃 폭주만 키움
+    if (err instanceof Error && err.name === "AbortError") throw err
     // Render 콜드스타트·일시 네트워크 오류 (GET 등만)
     if (canWakeRetry) {
       await new Promise((r) => setTimeout(r, 2500))

@@ -11,7 +11,7 @@ import type {
   TodoCategory,
   TodoStatus,
 } from "@/lib/dashboard-data"
-import { authJson, notifyApiError } from "@/lib/api"
+import { ApiError, authJson, notifyApiError } from "@/lib/api"
 
 async function mutateWidget<T>(
   request: () => Promise<T>,
@@ -489,10 +489,10 @@ export function useDashboardWidgets({
   
     Promise.allSettled(jobs.map((j) => j.run())).then((results) => {
       if (ctrl.signal.aborted) return
-  
+
       let anyFail = false
       const nextErrors: Partial<Record<WidgetKey, boolean>> = {}
-  
+
       results.forEach((result, i) => {
         const job = jobs[i]
         if (result.status === "fulfilled") {
@@ -502,11 +502,13 @@ export function useDashboardWidgets({
         }
         const err = result.reason
         if (err instanceof Error && err.name === "AbortError") return
+        // 401은 onUnauthorized 로그아웃 경로 — 위젯 오탐 토스트 제외
+        if (err instanceof ApiError && err.status === 401) return
         anyFail = true
         nextErrors[job.key] = true
         // 실패 키는 기존 state 유지 (전체 공란으로 만들지 않음)
       })
-  
+
       setWidgetErrors((prev) => ({ ...prev, ...nextErrors }))
       if (anyFail) {
         notifyApiError(

@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   ApiError,
+  authFetch,
   authJson,
   clearAuthSession,
   hasStoredSession,
+  notifyApiError,
 } from "@/lib/api"
 
 describe("ApiError", () => {
@@ -41,6 +43,46 @@ describe("session helpers", () => {
     clearAuthSession()
     expect(store.has("user")).toBe(false)
     expect(store.has("accessToken")).toBe(false)
+  })
+})
+
+describe("notifyApiError", () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it("skips toast on 401", async () => {
+    const { toast } = await import("sonner")
+    const spy = vi.spyOn(toast, "error").mockImplementation(() => "")
+    notifyApiError(new ApiError("Unauthorized", 401), "fallback")
+    expect(spy).not.toHaveBeenCalled()
+  })
+
+  it("uses fallback when err is not ApiError", async () => {
+    const { toast } = await import("sonner")
+    const spy = vi.spyOn(toast, "error").mockImplementation(() => "")
+    notifyApiError(undefined, "일부 실패")
+    expect(spy).toHaveBeenCalledWith("일부 실패")
+  })
+})
+
+describe("authFetch wake retry", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+    vi.useRealTimers()
+  })
+
+  it("does not wake-retry AbortError", async () => {
+    const abortErr = new Error("aborted")
+    abortErr.name = "AbortError"
+    const fetchMock = vi.fn().mockRejectedValue(abortErr)
+    vi.stubGlobal("fetch", fetchMock)
+
+    await expect(authFetch("/api/pins", { auth: false })).rejects.toMatchObject({
+      name: "AbortError",
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })
 
