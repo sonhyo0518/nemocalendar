@@ -105,14 +105,38 @@ export function CalendarDashboard() {
           className="pointer-events-none absolute inset-x-0 top-0 h-[280px] sm:h-[340px] md:h-[400px]"
         >
           {user?.banner_img_url ? (
-            <Image
-              src={user.banner_img_url}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center"
-            />
+            <div className="absolute inset-0 flex flex-col">
+              {/* 본문 ~3:1에 가깝게 상단 비중 */}
+              <div className="relative min-h-0 flex-[3] overflow-hidden">
+                <Image
+                  src={user.banner_img_url}
+                  alt=""
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
+              </div>
+              {/* 수면 반사 */}
+              <div
+                className="relative min-h-0 flex-1 overflow-hidden opacity-50"
+                style={{
+                  transform: "scaleY(-1)",
+                  maskImage:
+                    "linear-gradient(to bottom, black 0%, transparent 85%)",
+                  WebkitMaskImage:
+                    "linear-gradient(to bottom, black 0%, transparent 85%)",
+                }}
+              >
+                <Image
+                  src={user.banner_img_url}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover object-bottom"
+                />
+              </div>
+            </div>
           ) : (
             <div
               className="absolute inset-0"
