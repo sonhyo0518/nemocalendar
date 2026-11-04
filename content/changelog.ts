@@ -17,6 +17,23 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.4.0",
+    date: "2026-11-04",
+    summary:
+      "첫 로그인·복귀 시 서버/세션 안내를 다듬고, 대시보드 로딩을 안정화했습니다.",
+    sections: {
+      changed: [
+        "로그인 전 서버 준비 안내",
+        "세션 확인·만료 안내",
+        "로그인 후 데이터 순차 로드",
+      ],
+      fixed: [
+        "일시 DB 오류 시 재시도 안내",
+        "새로고침 시 화면 깜빡임 완화",
+      ],
+    },
+  },
+  {
     version: "0.3.7",
     date: "2026-11-04",
     summary:
