@@ -8,6 +8,7 @@ import {
   type GoogleCalendarOption,
   monthGridRange,
   replaceEventsInDateRange,
+  compareCalendarOptions,
   isHolidayCalendarOption,
   isKoreanHolidayEvent,
 } from "@/lib/dashboard-data"
@@ -56,7 +57,8 @@ export function useCalendarEvents({
 }: UseCalendarEventsOptions) {
   const [calendars, setCalendars] = useState<GoogleCalendarOption[]>(() => {
     const stored = readStoredUser()
-    return stored ? (readCalendarsCache(stored.email) ?? []) : []
+    const cached = stored ? (readCalendarsCache(stored.email) ?? []) : []
+    return [...cached].sort(compareCalendarOptions)
   })
   const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(() => {
     const stored = readStoredUser()
@@ -455,9 +457,7 @@ export function useCalendarEvents({
             .map((c) =>
               overrides[c.id] ? { ...c, backgroundColor: overrides[c.id] } : c,
             )
-            .sort((a, b) =>
-              isHolidayCalendarOption(a) ? -1 : isHolidayCalendarOption(b) ? 1 : 0,
-            )
+            .sort(compareCalendarOptions)
           setCalendars(sorted)
           writeCalendarsCache(userEmail, sorted)
         }

@@ -46,6 +46,16 @@ export function isHolidayCalendarOption(c: GoogleCalendarOption): boolean {
   return isHolidayCalendarName(c.summary)
 }
 
+export function compareCalendarOptions(
+  a: GoogleCalendarOption,
+  b: GoogleCalendarOption,
+): number {
+  const ah = isHolidayCalendarOption(a)
+  const bh = isHolidayCalendarOption(b)
+  if (ah !== bh) return ah ? -1 : 1
+  return a.summary.localeCompare(b.summary, "ko")
+}
+
 export function isKoreanHolidayEvent(e: CalendarEvent): boolean {
   return isHolidayCalendarName(e.calendarName)
 }
