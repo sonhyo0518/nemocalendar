@@ -52,6 +52,7 @@ export function useDashboardWidgets({
   const [widgetErrors, setWidgetErrors] = useState<
     Partial<Record<WidgetKey, boolean>>
   >({})
+  const [dbUnavailable, setDbUnavailable] = useState(false)
   const [reloadNonce, setReloadNonce] = useState(0)
 
   const resetWidgetsState = useCallback(() => {
@@ -62,9 +63,11 @@ export function useDashboardWidgets({
     setBookmarks([])
     setBookmarkFolders([])
     setWidgetErrors({})
+    setDbUnavailable(false)
   }, [])
 
   const reloadWidgets = useCallback(() => {
+    setDbUnavailable(false)
     setReloadNonce((n) => n + 1)
   }, [])
 
@@ -491,6 +494,7 @@ export function useDashboardWidgets({
       if (ctrl.signal.aborted) return
 
       let anyFail = false
+      let sawDbDown = false
       const nextErrors: Partial<Record<WidgetKey, boolean>> = {}
 
       results.forEach((result, i) => {
@@ -502,18 +506,22 @@ export function useDashboardWidgets({
         }
         const err = result.reason
         if (err instanceof Error && err.name === "AbortError") return
-        // 401은 onUnauthorized 로그아웃 경로 — 위젯 오탐 토스트 제외
         if (err instanceof ApiError && err.status === 401) return
         anyFail = true
         nextErrors[job.key] = true
-        // 실패 키는 기존 state 유지 (전체 공란으로 만들지 않음)
+        if (err instanceof ApiError && err.status === 503) {
+          sawDbDown = true
+        }
       })
 
       setWidgetErrors((prev) => ({ ...prev, ...nextErrors }))
+      setDbUnavailable(sawDbDown)
       if (anyFail) {
         notifyApiError(
           undefined,
-          "일부 대시보드 데이터를 불러오지 못했습니다.",
+          sawDbDown
+            ? "데이터베이스를 준비하는 중입니다. 잠시 후 다시 시도해 주세요."
+            : "일부 대시보드 데이터를 불러오지 못했습니다.",
         )
       }
     })
@@ -551,6 +559,7 @@ export function useDashboardWidgets({
     removeTodoCategory,
     resetWidgetsState,
     widgetErrors,
+    dbUnavailable,
     reloadWidgets,
   }
 }

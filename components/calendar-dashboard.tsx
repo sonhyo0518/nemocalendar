@@ -76,6 +76,7 @@ export function CalendarDashboard() {
     removeAnniversary,
     updateAnniversary,
     widgetErrors,
+    dbUnavailable,
     reloadWidgets,
   } = useCalendarDashboardModel()
 
@@ -88,7 +89,11 @@ export function CalendarDashboard() {
 
   const widgetRetry = (
     <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
-      <p>데이터를 불러오지 못했습니다.</p>
+      <p>
+        {dbUnavailable
+          ? "데이터베이스를 준비하는 중입니다."
+          : "데이터를 불러오지 못했습니다."}
+      </p>
       <Button size="sm" variant="outline" onClick={reloadWidgets}>
         다시 시도
       </Button>

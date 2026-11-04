@@ -98,6 +98,7 @@ export function useCalendarDashboardModel() {
     bookmarkFolders: widgets.bookmarkFolders,
     anniversaries: widgets.anniversaries,
     widgetErrors: widgets.widgetErrors,
+    dbUnavailable: widgets.dbUnavailable,
     reloadWidgets: widgets.reloadWidgets,
     handleSignIn,
     handleSignOut,
