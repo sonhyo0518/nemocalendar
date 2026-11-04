@@ -17,6 +17,8 @@ const GuestDashboardMockup = dynamic(
 type GuestLandingProps = {
   onStart: () => void
   isStarting?: boolean
+  /** 있으면 버튼 문구로 사용 (기본: 로그인 중…) */
+  startingLabel?: string
   errorMessage?: string | null
 }
 
@@ -46,6 +48,7 @@ function GoogleGlyph() {
 export function GuestLanding({
   onStart,
   isStarting = false,
+  startingLabel,
   errorMessage,
 }: GuestLandingProps) {
   return (
@@ -74,7 +77,9 @@ export function GuestLanding({
             <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-white">
               <GoogleGlyph />
             </span>
-            {isStarting ? "로그인 중…" : "Google 계정으로 로그인"}
+            {isStarting
+            ? (startingLabel ?? "로그인 중…")
+            : "Google 계정으로 로그인"}
           </button>
           {errorMessage ? (
             <p role="alert" className="text-sm text-destructive">

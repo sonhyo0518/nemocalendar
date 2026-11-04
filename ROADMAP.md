@@ -85,7 +85,7 @@ SI 점검(아키텍처·QA·운영) 갭을 버전 트랙에 흡수한 순서. �
 | 순위 | ID | 항목 | 내용 | 노트 | 상태 |
 | --- | --- | --- | --- | --- | --- |
 | 1 | P3-2 | 관측 가능성 | **v0.4 Done (최소):** BE 구조화 로그(`requestId` + access JSON), keep-alive/`/health` **실패 알림**(메일·Discord 등 — SaaS 불문). Render 로그로 `db:false`·`P1001` 추적 가능하면 충분. **보류:** FE+BE Sentry(또는 동급 에러 SaaS) — 1인·소규모·병목이 인프라(슬립·TiDB·쿠키)인 동안은 과함. 재현 안 되는 앱 예외가 반복될 때 재검토 | (운영) | 완료 |
-| 2 | P3-1 | Render cold start | keep-alive 의존 완화(유료 always-on 또는 `/health` 5분 ping 실효 확인). 로그인 전 health/워밍 게이트·콜드스타트 UX(「서버 깨우는 중」). 필요 시 로그인 POST 제한적 재시도(code 재사용·멱등 주의) | Changed | 예정 |
+| 2 | P3-1 | Render cold start | keep-alive 의존 완화(유료 always-on 또는 `/health` 5분 ping 실효 확인). 로그인 전 health/워밍 게이트·콜드스타트 UX(「서버 깨우는 중」). 필요 시 로그인 POST 제한적 재시도(code 재사용·멱등 주의). **진행:** 게이트+UX 문구 반영. 남은 선택: POST 재시도·always-on | Changed | 진행 중 |
 | 3 | P3-12 | TiDB 연결 회복력 | Prisma 짧은 재시도는 0.3.1 P1-15로 반영됨. 남은 범위: `/health` db 실패 시 프론트 「DB 준비 중」·위젯 재시도 CTA. **운영 실패 알림은 P3-2** (이 항목은 UX만). 운영 체크리스트는 상기 메모 | Fixed / Changed | 예정 |
 | 4 | P3-10 | Dashboard bootstrap API | 위젯 bootstrap(P1-11) 이후 잔여: 로그인 직후 `/me`·weather·캘린더 폭주 완화(단일/소수 bootstrap 또는 우선순위·순차 로딩) | Performance | 예정 |
 | 5 | P3-11 | 최초·복귀 로그인 로드 안정화 | `/me` 401 시 즉시 전체 클리어·abort 연쇄 완화; refresh 실패 vs 쿠키 없음 구분; localStorage-only 착시 UX; 날씨/위젯 재시도 안내. P3-1·P3-12와 병행(쿠키 근본은 P3-4). 위젯 partial UI는 P2-23 완료. **위젯 401 오탐 토스트는 P2-33(v0.3.4)로 선반영** | Fixed / Changed | 예정 |

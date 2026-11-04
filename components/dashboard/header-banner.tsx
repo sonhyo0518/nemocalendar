@@ -86,7 +86,7 @@ export function HeaderBanner({
     [onSignIn],
   )
   
-  const { startLogin, loginStarting, loginError } = useGoogleSignIn({
+  const { startLogin, loginStarting, wakingApi, loginError } = useGoogleSignIn({
     onSignedIn,
   })
 
@@ -286,7 +286,8 @@ export function HeaderBanner({
       {!user && authReady ? (
         <GuestLanding
           onStart={startLogin}
-          isStarting={loginStarting}
+          isStarting={loginStarting || wakingApi}
+          startingLabel={wakingApi ? "서버 깨우는 중…" : undefined}
           errorMessage={loginError}
         />
       ) : null}
