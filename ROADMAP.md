@@ -28,9 +28,9 @@ SI 점검(아키텍처·QA·운영) 갭을 버전 트랙에 흡수한 순서. �
 ```
 지금(0.3.7) · [§4](#4-완료됨-버전별)
   ├─ 병행(§2.1, bump 없음): P0-1 OAuth · P1-17 BE 테스트 · P1-18 Zod 파일럿
-  ├─ v0.4.0(§2.4): P3-2 → P3-1 → P3-12(TiDB UX) → P3-10 → P3-11 → P3-7 → …
-  │            (P3-3·P3-9는 인스턴스 2+ 조건부 · 단일면 1.0 후로 미뤄도 됨)
-  │            (P3-4 쿠키 근본은 v0.4 밖 · 1.0 전후 MAJOR/배포 — 동시 여부 결정)
+  ├─ v0.4.0(§2.4): 코어 완료 (P3-2·1·12·10·11) → 릴리즈 대기
+  │            (0.4.0 미포함: P3-7 실측 후 · P1-6·P0-15는 1.0 전 · P3-3·5·9 조건부)
+  │            (P3-4 쿠키 근본은 v0.4 밖 · §2.6에서 1.0 동시 여부 결정 — Inbox 아님)
   │            (운영·bump 없음: TiDB Active·IP·DATABASE_URL·health ping·실패 알림)
   ├─ (선택) v0.5.0(§2.5): P2-19 → P2-20  (마케팅/SEO 필요할 때만)
   ├─ v1.0.0(§2.6): P0-1 · P1-4 · P1-5 · D-3 · P1-14  (+P3-4 동시 여부)
@@ -59,50 +59,54 @@ SI 점검(아키텍처·QA·운영) 갭을 버전 트랙에 흡수한 순서. �
 ### 2.4 목표 **v0.4.0** (MINOR) — 인프라·관측
 
 동작은 대체로 동일, 운영/스케일. 사용자 노트는 짧게.  
-순위는 **로그인·공란 체감 원인**을 앞에 두고, Redis·락·자동화는 뒤에 둔다.
+**상태:** 코어(P3-2·1·12·10·11) **코드 완료** — SemVer/`CHANGELOG` bump·§4 이동은 릴리즈 시.  
+쿠키 근본(P3-4)과 quota·보안 후순위는 **0.4.0에 넣지 않음** (아래 표). Inbox(§3.1)로 내리지 않는다 — 범위·결정 프레임이 이미 있음.
 
-**요약:** 첫 로그인·장시간 미사용 후 로드 실패·대시보드 공란 → cold start · 로그인 직후 폭주 · 크로스 사이트 쿠키 · 세션 착시 · TiDB(`P1001`). 위젯 전체 공란 UX는 v0.3.1 P2-23으로 완화. 코드 축: P3-2 · P3-1 · P3-12 · P3-10 · P3-11. 쿠키 근본은 P3-4(v0.4 밖).
+**요약:** 첫 로그인·장시간 미사용 후 로드 실패·대시보드 공란 → cold start · 로그인 직후 폭주 · 크로스 사이트 쿠키 · 세션 착시 · TiDB(`P1001`). 위젯 전체 공란 UX는 v0.3.1 P2-23으로 완화. **코어로 완화:** P3-2 · P3-1 · P3-12 · P3-10 · P3-11. 남은 근본(쿠키)은 P3-4.
 
-#### 메모: 최초·오랜만 로그인·대시보드 공란 (당장 착수 안 함 · 이후 개선)
+#### 메모: 최초·오랜만 로그인·대시보드 공란 (배경 · 코어로 완화)
 
 증상: 첫 로그인·장시간 미사용 후 로드 실패가 잦음. 로그인 UI만 보이고 위젯/캘린더가 비는 경우도 있음.  
 관측 예: `POST /google-login` 200 → `GET /me` 401(이후 `refresh` 200으로 복구 가능); `pins`/`todo-categories` 500; `/health` 503; 콘솔 COOP/`window.closed`는 대개 무관 노이즈.  
-*(과거)* 위젯 `Promise.all`로 일부 500이 전체 공란이 되던 UX → v0.3.1 **P2-23**(`allSettled`)로 완화. 남은 축은 cold start·쿠키·TiDB·로그인 직후 폭주.
+*(과거)* 위젯 `Promise.all`로 일부 500이 전체 공란 → v0.3.1 **P2-23**. *(0.4 코어)* cold start 게이트·TiDB UX·authReady 순차 로드·세션 안내로 완화. **미해결 근본:** 원인 3 쿠키 → **P3-4**.
 
 원인 후보 (겹침):
 
-1. **Render 슬립·콜드스타트** — 무료 플랜 ~15분 무활동 시 sleep, wake 30~60초. `/health` 워밍·`authFetch` wake 재시도는 있으나 **GET 계열만**; 로그인 `POST`는 재시도 공백. health와 로그인 클릭 레이스.
-2. **로그인 직후 요청 폭주** — `/me`·weather·위젯·캘린더가 동시에 깨어난 API에 몰림. `/me` 401 → 세션 클리어 → 진행 중 fetch abort.
-3. **Vercel ↔ Render 크로스 사이트 쿠키** — `SameSite=None; Secure`여도 3rd-party 제한 시 Set-Cookie 미저장 → 보호 API 401. (프론트는 `www.nemocalendar.com` 등)
-4. **복귀 세션 착시** — `localStorage.user`만 남고 httpOnly 쿠키 만료 시 UI는 로그인처럼 보이다 cascade 401.
-5. **TiDB 연결 불가 (`P1001`)** — Render→`gateway…tidbcloud.com:4000` 도달 실패. `/health`의 `SELECT 1` 실패(503 `db:false`) → `pins`/`todo-categories` 등 Prisma 500. 클러스터 Active·Public Endpoint·방화벽 `0.0.0.0`~`255.255.255.255`(CIDR `0.0.0.0/0` 동치)여도 간헐 단절 가능.
+1. **Render 슬립·콜드스타트** — 무료 플랜 ~15분 무활동 시 sleep, wake 30~60초. → **P3-1** (POST 재시도·always-on은 보류).
+2. **로그인 직후 요청 폭주** — `/me`·weather·위젯·캘린더 동시 타격. → **P3-10**.
+3. **Vercel ↔ Render 크로스 사이트 쿠키** — 3rd-party 제한 시 Set-Cookie 미저장 → 401. → **P3-4** (0.4 밖).
+4. **복귀 세션 착시** — `localStorage.user`만 남음. → **P3-11** (근본 쿠키는 P3-4).
+5. **TiDB 연결 불가 (`P1001`)** — `/health` 503 `db:false`. → **P3-12** (+ P3-2 알림).
 
-판별: TTFB 수십 초→cold start; `/me` 즉시 401·Cookie 없음→쿠키; `/health` `db:false` + 로그 `P1001`→TiDB; 일부 API만 500인데 화면이 통째로 비면→(과거) 위젯 `Promise.all` / (현재) P2-23 후엔 실패 위젯만.
+판별: TTFB 수십 초→cold start; `/me` 즉시 401·Cookie 없음→쿠키; `/health` `db:false` + 로그 `P1001`→TiDB; 일부 API만 500→P2-23 후엔 실패 위젯만.
 
-이후 코드 개선: P3-2 · P3-1 · P3-12 · P3-10 · P3-11. 쿠키 근본은 **P3-4**(v0.4 밖 · 별도 MAJOR/배포 이슈).  
 **버전 bump 없음(운영):** TiDB Active 유지, IP 전체 허용 유지, `DATABASE_URL`(4000·`sslaccept=strict`) 정합, `/health` keep-alive·**실패 알림**(Actions/UptimeRobot 등).
+
+#### 코어 (0.4.0 출구)
 
 | 순위 | ID | 항목 | 내용 | 노트 | 상태 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | P3-2 | 관측 가능성 | **v0.4 Done (최소):** BE 구조화 로그(`requestId` + access JSON), keep-alive/`/health` **실패 알림**(메일·Discord 등 — SaaS 불문). Render 로그로 `db:false`·`P1001` 추적 가능하면 충분. **보류:** FE+BE Sentry(또는 동급 에러 SaaS) — 1인·소규모·병목이 인프라(슬립·TiDB·쿠키)인 동안은 과함. 재현 안 되는 앱 예외가 반복될 때 재검토 | (운영) | 완료 |
-| 2 | P3-1 | Render cold start | keep-alive·로그인 전 health 워밍 게이트·「서버 깨우는 중」 UX. **Done.** **보류:** 로그인 POST 재시도, Render always-on (keep-alive로 완화 중) | Changed | 완료 |
-| 3 | P3-12 | TiDB 연결 회복력 | 위젯 503 시 「DB 준비 중」·재시도 CTA. **Done.** 운영 알림은 P3-2. **보류:** 진입 시 `/health` 선배너 | Fixed / Changed | 완료 |
-| 4 | P3-10 | Dashboard bootstrap API | 위젯 bootstrap(P1-11) 이후 잔여: 로그인 직후 `/me`·weather·캘린더 폭주 완화. **Done:** `authReady` 후 위젯·캘린더·날씨 로드 (전용 bootstrap API 없음) | Performance | 완료 |
-| 5 | P3-11 | 최초·복귀 로그인 로드 안정화 | 세션 확인 중 표시, refresh 실패 vs 쿠키 없음 토스트, authReady 게이트로 abort 완화. **Done.** 쿠키 근본은 P3-4. **보류:** 날씨 전용 재시도 카피 (위젯 503은 P3-12) | Fixed / Changed | 완료 |
-| 6 | P3-7 | Calendar quota 최적화 | calendarList 분리 캐시, selected fan-out 완화 (실측 후) | Performance | 예정 |
-| 7 | P3-3 | 캐시 LRU → Redis | calendar/weather Map에 max size·만료 스윕 후, **인스턴스 2+** 시 Redis. **단일 인스턴스면 1.0 후로 미뤄도 됨** | Changed / Performance | 예정 |
-| 8 | P1-6 | Access 무효화·blacklist | 재사용 탐지는 완료. 남은 범위: logout 후 access JWT 조기 무효화(버전 클레임/blacklist 등). 0.4 후반~1.0 전 권장 | Security | 예정 |
-| 9 | P0-15 | CSRF double-submit | Origin 가드 유지 + `X-CSRF-Token`(또는 동등) defense-in-depth. 도메인/쿠키 단순화(P3-4)와 분리. 0.4 후반~1.0 전 권장 | Security | 예정 |
-| 10 | P3-5 | 릴리즈 자동화 | changesets / release-please. 듀얼 레포 피로가 커질 때(1.0 후도 가능) | (내부) | 예정 |
-| 11 | P3-9 | 유저 락 DB화 | `withUserLock`을 프로세스 mutex → `SELECT … FOR UPDATE`(또는 분산 락). 인스턴스 2+ 또는 sequence 유니크 도입 시. **단일면 1.0 후·P3-13과 묶어도 됨** | Fixed | 예정 |
+| 1 | P3-2 | 관측 가능성 | BE 구조화 로그(`requestId` + access JSON), keep-alive/`/health` 실패 알림. **보류:** Sentry(동급) — 재현 안 되는 앱 예외가 반복될 때 | (운영) | 완료 |
+| 2 | P3-1 | Render cold start | keep-alive·로그인 전 health 워밍 게이트·「서버 깨우는 중」. **보류:** 로그인 POST 재시도, Render always-on | Changed | 완료 |
+| 3 | P3-12 | TiDB 연결 회복력 | 위젯 503 시 「DB 준비 중」·재시도 CTA. 운영 알림은 P3-2. **보류:** 진입 시 `/health` 선배너 | Fixed / Changed | 완료 |
+| 4 | P3-10 | Dashboard bootstrap API | `authReady` 후 위젯·캘린더·날씨 로드 (전용 bootstrap API 없음) | Performance | 완료 |
+| 5 | P3-11 | 최초·복귀 로그인 로드 안정화 | 세션 확인 중 표시, refresh 실패 vs 쿠키 없음 토스트, authReady로 abort 완화. **보류:** 날씨 전용 재시도 카피 | Fixed / Changed | 완료 |
 
-P1-17·P1-18은 [§2.1](#21-병행-버전-bump-없음--공개문서ci-위생) 병행(bump 없음). 0.4 순위 표와 섞지 않음.
+P1-17·P1-18은 [§2.1](#21-병행-버전-bump-없음--공개문서ci-위생) 병행(bump 없음).
 
-v0.4에 **넣지 않음** (별도 MAJOR / 배포 이슈):
+#### 0.4.0에 넣지 않음
+
+Inbox(§3.1)가 아님 — 범위·결정 프레임이 있어 §2.4에 명시만 한다. 릴리즈 범위 밖 · 후속 트랙. P3-4 결정은 [§2.6](#26-목표-v100-major--계약-선언).
 
 | ID | 항목 | 비고 |
 | --- | --- | --- |
-| P3-4 | 도메인·쿠키 단순화 | 상기 메모 원인 3의 근본 처방. same-site(`api.` 서브도메인 또는 Vercel `/api` rewrite)로 쿠키 1st-party화. **A:** 1.0과 동시(공개 직후 401 리스크 제거) · **B:** D-3에 한계로 적고 1.x MAJOR. P0-15·v0.4.0과 묶지 말 것 |
+| P3-4 | 도메인·쿠키 단순화 | 원인 3 근본. same-site(`api.` 또는 Vercel `/api` rewrite). **A:** 1.0 동시 · **B:** D-3 한계 + 1.x MAJOR. P0-15와 묶지 말 것 |
+| P3-7 | Calendar quota 최적화 | calendarList 분리 캐시·fan-out 완화. **실측 후** (429/느림이 보일 때). 0.4.x 또는 이후 |
+| P1-6 | Access 무효화·blacklist | logout 후 access 조기 무효화. **1.0 전** 권장 |
+| P0-15 | CSRF double-submit | Origin 가드 + 토큰. P3-4와 분리. **1.0 전** 권장 |
+| P3-5 | 릴리즈 자동화 | changesets / release-please. 듀얼 레포 피로 시 (1.0 후도 가능) |
+| P3-3 | 캐시 LRU → Redis | Map max·스윕 후 **인스턴스 2+** 시 Redis. 단일면 1.0 후 |
+| P3-9 | 유저 락 DB화 | `withUserLock` → DB/분산 락. 인스턴스 2+ 시. 단일면 1.0 후·P3-13과 묶어도 됨 |
 
 ---
 
@@ -120,7 +124,7 @@ v0.4에 **넣지 않음** (별도 MAJOR / 배포 이슈):
 ### 2.6 목표 **v1.0.0** (MAJOR) — 계약 선언
 
 SI 「인수 게이트」: 공개·계약·E2E·한계 명시. UX 완성(반응형 본편)은 1.0 후에 둔다.  
-**P3-4**를 1.0과 동시(A)로 갈지, D-3에만 적고 미룰지(B)는 공개 직전 결정 → [§2.4](#24-목표-v040-minor--인프라관측) 표 비고.
+**P3-4**를 1.0과 동시(A)로 갈지, D-3에만 적고 미룰지(B)는 공개 직전 결정 → [§2.4 «0.4.0에 넣지 않음»](#24-목표-v040-minor--인프라관측).
 
 | ID | 항목 | 내용 | 노트 | 상태 |
 | --- | --- | --- | --- | --- |
@@ -130,7 +134,7 @@ SI 「인수 게이트」: 공개·계약·E2E·한계 명시. UX 완성(반응�
 | P1-14 | Frontend 커버리지 바닥선 | CI coverage threshold(또는 핵심 util 필수 통과). **P1-16(FE CI test) 완료** | (내부) | 예정 |
 | P0-1 | (§2.1과 동일) | 1.0 전 검수 권장 · 상세는 §2.1 | 보통 미기재 또는 Changed 한 줄 | 예정 |
 
-1.0 **전** 제품: v0.3.7(P2-37) · v0.3.6(P2-36) · v0.3.5(P2-35) · v0.3.4(P2-33·25·26·31·28·32·22) 완료 → [§4](#4-완료됨-버전별). 다음은 [v0.4.0](#24-목표-v040-minor--인프라관측). (P2-24는 v0.3.2 · P2-29는 v0.3.3)  
+1.0 **전** 제품: v0.3.7(P2-37) · … → [§4](#4-완료됨-버전별). **다음:** [v0.4.0](#24-목표-v040-minor--인프라관측) 코어 완료 → **릴리즈(bump·§4)** . (P2-24는 v0.3.2 · P2-29는 v0.3.3)  
 1.0 **이후** MINOR 후보: **반응형 잔여** P2-30 · P2-32(대안뷰·게스트) → 캘린더/할 일/i18n(P2-21·3·27 · P2-5) → 스케일(P3-3·9·P3-13) → [§3.2](#32-다듬음--10-이후-minor).
 
 ---
