@@ -10,6 +10,7 @@ import {
   authJson,
   clearAuthSession,
   notifyApiError,
+  type AuthUnauthorizedInfo,
 } from "@/lib/api"
 import { toast } from "sonner"
 
@@ -96,22 +97,31 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     document.documentElement.style.removeProperty("--banner-theme")
   }, [user?.email, onSignedOut])
 
-  const handleUnauthorized = useCallback(() => {
-    if (signedOutRef.current) return
-    signedOutRef.current = true
-    const email = user?.email
-    clearAuthSession()
-    onSignedOut?.(email)
-    setUser(null)
-    setCalendarConnected(false)
-    setAuthReady(true)
-    document.documentElement.style.removeProperty("--banner-img")
-    document.documentElement.style.removeProperty("--banner-theme")
-    toast.message("다시 로그인해 주세요.", {
-      description:
-        "세션이 만료되었거나, 브라우저가 로그인 쿠키를 저장하지 못했을 수 있습니다.",
-    })
-  }, [user?.email, onSignedOut])
+  const handleUnauthorized = useCallback(
+    (info?: AuthUnauthorizedInfo) => {
+      if (signedOutRef.current) return
+      signedOutRef.current = true
+      const email = user?.email
+      clearAuthSession()
+      onSignedOut?.(email)
+      setUser(null)
+      setCalendarConnected(false)
+      setAuthReady(true)
+      document.documentElement.style.removeProperty("--banner-img")
+      document.documentElement.style.removeProperty("--banner-theme")
+      if (info?.reason === "refresh_failed") {
+        toast.message("다시 로그인해 주세요.", {
+          description: "로그인 세션이 만료되었습니다.",
+        })
+      } else {
+        toast.message("다시 로그인해 주세요.", {
+          description:
+            "로그인 쿠키가 없거나 확인할 수 없습니다. 브라우저가 쿠키를 차단했을 수도 있습니다.",
+        })
+      }
+    },
+    [user?.email, onSignedOut],
+  )
 
   const deleteAccount = useCallback(async () => {
     signedOutRef.current = true

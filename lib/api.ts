@@ -87,9 +87,13 @@ function isIdempotentMethod(method?: string): boolean {
   return m === "GET" || m === "HEAD" || m === "OPTIONS"
 }
 
+export type AuthUnauthorizedInfo = {
+  reason: "refresh_failed" | "unauthorized"
+}
+
 type AuthFetchOptions = RequestInit & {
   auth?: boolean
-  onUnauthorized?: () => void
+  onUnauthorized?: (info?: AuthUnauthorizedInfo) => void
   _retried?: boolean
   _wakeRetried?: boolean
 }
@@ -153,7 +157,7 @@ export async function authFetch(
       return authFetch(path, { ...options, _retried: true })
     } catch {
       clearAuthSession()
-      onUnauthorized?.()
+      onUnauthorized?.({ reason: "refresh_failed" })
       throw new ApiError("Unauthorized", 401)
     }
   }
@@ -161,7 +165,7 @@ export async function authFetch(
   if (res.status === 401) {
     if (auth) {
       clearAuthSession()
-      onUnauthorized?.()
+      onUnauthorized?.({ reason: "unauthorized" })
     }
     throw new ApiError("Unauthorized", 401)
   }
