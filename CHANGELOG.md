@@ -14,8 +14,6 @@
 
 ### Changed
 
-- `/changelog` 버전 뱃지(sections 자동)와 종류 체크 필터, `added`/`changed` 소급 재분류 (P2-37 → v0.3.7)
-
 ### Deprecated
 
 ### Removed
@@ -31,6 +29,16 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+
+## [0.3.7] - 2026-11-04
+
+### Added
+
+- `/changelog` 버전 날짜 옆 종류 뱃지와 상단 종류 체크 필터
+
+### Changed
+
+- 릴리즈 노트 항목의 added/changed 분류 정합
 
 ## [0.3.6] - 2026-11-04
 

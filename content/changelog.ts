@@ -17,6 +17,21 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.7",
+    date: "2026-11-04",
+    summary:
+      "릴리즈 노트에 종류 뱃지와 필터를 넣고, 항목 분류를 다듬었습니다.",
+    sections: {
+      added: [
+        "릴리즈 노트 버전 종류 뱃지",
+        "릴리즈 노트 종류 체크 필터",
+      ],
+      changed: [
+        "릴리즈 노트 added/changed 분류 정합",
+      ],
+    },
+  },
+  {
     version: "0.3.6",
     date: "2026-11-04",
     summary:
