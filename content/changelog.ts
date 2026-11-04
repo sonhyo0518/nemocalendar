@@ -243,9 +243,9 @@ export const CHANGELOG: ChangelogEntry[] = [
 export const APP_VERSION = CHANGELOG[0]?.version ?? "0.0.0"
 
 export const SECTION_LABELS: Record<keyof ChangelogSection, string> = {
-  added: "새 기능",
+  added: "추가",
   changed: "변경",
-  deprecated: "곧 제거",
+  deprecated: "폐기 예정",
   removed: "제거",
   fixed: "버그 수정",
   security: "보안",
@@ -264,4 +264,13 @@ export function entrySectionKeys(
   sections: ChangelogSection,
 ): (keyof ChangelogSection)[] {
   return SECTION_ORDER.filter((k) => (sections[k]?.length ?? 0) > 0)
+}
+
+/** 필터에 쓸 종류: 전체 이력에 한 번이라도 등장한 section만 */
+export function usedSectionKeys(
+  entries: ChangelogEntry[],
+): (keyof ChangelogSection)[] {
+  return SECTION_ORDER.filter((k) =>
+    entries.some((e) => (e.sections[k]?.length ?? 0) > 0),
+  )
 }
