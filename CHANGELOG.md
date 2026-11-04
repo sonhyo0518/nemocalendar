@@ -15,6 +15,7 @@
 ### Changed
 
 - 캘린더 카테고리 필터를 공휴일 상단 + 이름순(`ko`)으로 정렬 (P2-36 → v0.3.6)
+- `/changelog` 버전 뱃지(sections 자동)와 종류 체크 필터, `added`/`changed` 소급 재분류 (P2-37 → v0.3.7)
 
 ### Deprecated
 
