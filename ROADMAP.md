@@ -292,11 +292,11 @@ P2-33·25·26·31·28·32(얇게)·22는 v0.3.4 코드 완료 → [§4](#4-완�
 | --- | --- |
 | P1-16 | Frontend CI에 Vitest (`npm test`) |
 
-### v0.3.5 — 2026-11-04 (Fixed)
+### v0.3.5 — 2026-11-04 (Fixed / Changed)
 
 | ID | 항목 |
 | --- | --- |
-| P2-35 | Google 캘린더 외부 삭제 반영 (범위 교체, soft revalidate, `fresh=1`) |
+| P2-35 | Google 캘린더 외부 삭제 반영 (범위 교체, soft revalidate, `fresh=1`, 수동 새로고침) |
 
 ---
 
