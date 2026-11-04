@@ -17,6 +17,17 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.6",
+    date: "2026-11-04",
+    summary:
+      "캘린더 카테고리 목록을 공휴일 우선, 이름순으로 정리했습니다.",
+    sections: {
+      changed: [
+        "캘린더 카테고리 필터: 공휴일 상단 + 이름순(ko)",
+      ],
+    },
+  },
+  {
     version: "0.3.5",
     date: "2026-11-04",
     summary:

@@ -14,7 +14,6 @@
 
 ### Changed
 
-- 캘린더 카테고리 필터를 공휴일 상단 + 이름순(`ko`)으로 정렬 (P2-36 → v0.3.6)
 - `/changelog` 버전 뱃지(sections 자동)와 종류 체크 필터, `added`/`changed` 소급 재분류 (P2-37 → v0.3.7)
 
 ### Deprecated
@@ -32,6 +31,12 @@
 3. Breaking 변경은 Changed/Removed 상단에 **Breaking**으로 명시한다.
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
+
+## [0.3.6] - 2026-11-04
+
+### Changed
+
+- 캘린더 카테고리 필터를 공휴일 상단 + 이름순(`ko`)으로 정렬
 
 ## [0.3.5] - 2026-11-04
 
