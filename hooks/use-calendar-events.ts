@@ -7,9 +7,14 @@ import {
   type CalendarEvent,
   type GoogleCalendarOption,
   monthGridRange,
+  replaceEventsInDateRange,
   isHolidayCalendarOption,
   isKoreanHolidayEvent,
 } from "@/lib/dashboard-data"
+
+const RANGE_STALE_MS = 20_000
+const SOFT_REVALIDATE_DEBOUNCE_MS = 400
+
 import {
   applyColorOverrides,
   readCalendarsCache,
@@ -70,10 +75,13 @@ export function useCalendarEvents({
   const knownCalendarIdsRef = useRef<Set<string>>(new Set())
 
   const loadedRangesRef = useRef(new Set<string>())
+  const rangeFetchedAtRef = useRef(new Map<string, number>())
+  const pendingFreshRef = useRef(false)
   const [eventsReloadToken, setEventsReloadToken] = useState(0)
-
+  
   const invalidateEventsReload = useCallback(() => {
     loadedRangesRef.current.clear()
+    rangeFetchedAtRef.current.clear()
     setEventsReloadToken((n) => n + 1)
   }, [])
 
@@ -86,12 +94,16 @@ export function useCalendarEvents({
   const [eventsError, setEventsError] = useState(false)
   const [eventsLoading, setEventsLoading] = useState(false)
   const [viewDate, setViewDate] = useState(() => new Date())
+  const viewDateRef = useRef(viewDate)
+  viewDateRef.current = viewDate
   const [selectedDate, setSelectedDate] = useState(() => new Date())
 
   const resetCalendarState = useCallback((email?: string) => {
     setEvents([])
     setEventsError(false)
     loadedRangesRef.current.clear()
+    rangeFetchedAtRef.current.clear()
+    pendingFreshRef.current = false
     setCalendars([])
     setVisibleCalendarIds(new Set())
     visibilityInitialized.current = false
@@ -304,6 +316,41 @@ export function useCalendarEvents({
     setViewDate(new Date(date.getFullYear(), date.getMonth(), 1))
   }, [])
 
+  const softRevalidateIfStale = useCallback(() => {
+    if (!userEmail || !calendarConnected) return
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+      return
+    }
+    const { from, to } = monthGridRange(viewDateRef.current)
+    const rangeKey = `${from}:${to}`
+    const lastAt = rangeFetchedAtRef.current.get(rangeKey) ?? 0
+    if (Date.now() - lastAt < RANGE_STALE_MS) return
+  
+    pendingFreshRef.current = true
+    loadedRangesRef.current.delete(rangeKey)
+    setEventsReloadToken((n) => n + 1)
+  }, [userEmail, calendarConnected])
+  
+  useEffect(() => {
+    let timer: number | undefined
+    const schedule = () => {
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => {
+        softRevalidateIfStale()
+      }, SOFT_REVALIDATE_DEBOUNCE_MS)
+    }
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") schedule()
+    }
+    document.addEventListener("visibilitychange", onVisibility)
+    window.addEventListener("focus", schedule)
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener("visibilitychange", onVisibility)
+      window.removeEventListener("focus", schedule)
+    }
+  }, [softRevalidateIfStale])
+
   useEffect(() => {
     if (calendars.length === 0) return
   
@@ -338,7 +385,23 @@ export function useCalendarEvents({
     if (!userEmail || !calendarConnected) return
     const { from, to } = monthGridRange(viewDate)
     const rangeKey = `${from}:${to}`
-    if (loadedRangesRef.current.has(rangeKey)) return
+    const lastAt = rangeFetchedAtRef.current.get(rangeKey) ?? 0
+    const age = Date.now() - lastAt
+    const softFresh = pendingFreshRef.current
+    pendingFreshRef.current = false
+  
+    if (
+      loadedRangesRef.current.has(rangeKey) &&
+      !softFresh &&
+      age < RANGE_STALE_MS
+    ) {
+      return
+    }
+  
+    const wantFresh =
+      softFresh ||
+      (loadedRangesRef.current.has(rangeKey) && age >= RANGE_STALE_MS)
+  
     const ctrl = new AbortController()
     const hasCache = Boolean(readEventsCache(userEmail, { allowStale: true }))
     void Promise.resolve().then(() => {
@@ -350,6 +413,7 @@ export function useCalendarEvents({
       })
     }
     const qs = new URLSearchParams({ from, to })
+    if (wantFresh) qs.set("fresh", "1")
     authFetch(`/api/calendar/events?${qs}`, {
       onUnauthorized,
       signal: ctrl.signal,
@@ -378,12 +442,11 @@ export function useCalendarEvents({
           "calendarColor",
         )
         loadedRangesRef.current.add(rangeKey)
+        rangeFetchedAtRef.current.set(rangeKey, Date.now())
         setEvents((prev) => {
-          const byId = new Map(prev.map((e) => [e.id, e]))
-          for (const e of fresh) byId.set(e.id, e)
-          const merged = [...byId.values()]
-          writeEventsCache(userEmail, merged)
-          return merged
+          const next = replaceEventsInDateRange(prev, fresh, from, to)
+          writeEventsCache(userEmail, next)
+          return next
         })
         if (data.calendars?.length) {
           const overrides = readColorOverrides(userEmail)

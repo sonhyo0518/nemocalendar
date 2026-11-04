@@ -177,3 +177,24 @@ export function monthGridRange(viewDate: Date): { from: string; to: string } {
   const days = buildMonthGrid(viewDate)
   return { from: toKey(days[0]), to: toKey(days[days.length - 1]) }
 }
+
+/** inclusive yyyy-mm-dd 구간과 이벤트가 겹치는지 */
+export function eventOverlapsDateRange(
+  event: Pick<CalendarEvent, "date" | "endDate">,
+  from: string,
+  to: string,
+): boolean {
+  const end = event.endDate ?? event.date
+  return end >= from && event.date <= to
+}
+
+/** fetch한 [from, to] 구간만 fresh로 교체. 구간 밖 이벤트는 유지 */
+export function replaceEventsInDateRange(
+  prev: CalendarEvent[],
+  fresh: CalendarEvent[],
+  from: string,
+  to: string,
+): CalendarEvent[] {
+  const kept = prev.filter((e) => !eventOverlapsDateRange(e, from, to))
+  return [...kept, ...fresh]
+}
