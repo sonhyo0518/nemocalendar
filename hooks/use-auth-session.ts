@@ -123,6 +123,9 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     [user?.email, onSignedOut],
   )
 
+  const handleUnauthorizedRef = useRef(handleUnauthorized)
+  handleUnauthorizedRef.current = handleUnauthorized
+
   const deleteAccount = useCallback(async () => {
     signedOutRef.current = true
     const email = user?.email
@@ -180,12 +183,12 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
   useEffect(() => {
     if (!user?.email) return
     let cancelled = false
-    queueMicrotask(() => {
-      if (!cancelled) setAuthReady(false)
-    })
+    setAuthReady(false)
     authJson<{ user: DashboardUser & { calendarConnected?: boolean } }>(
       "/api/user/me",
-      { onUnauthorized: handleUnauthorized },
+      {
+        onUnauthorized: (info) => handleUnauthorizedRef.current(info),
+      },
     )
       .then((data) => {
         if (cancelled || signedOutRef.current || !data?.user) return
@@ -229,7 +232,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
       .catch((err) => {
         if (cancelled) return
         if (err instanceof ApiError && err.status === 401) {
-          handleUnauthorized()
+          handleUnauthorizedRef.current()
           return
         }
         notifyApiError(err, "사용자 정보를 불러오지 못했습니다.")
@@ -240,7 +243,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     return () => {
       cancelled = true
     }
-  }, [user?.email, handleUnauthorized])
+  }, [user?.email])
 
   return {
     user,
