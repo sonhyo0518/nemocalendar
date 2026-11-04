@@ -33,7 +33,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     summary:
       "Google에서 지운 일정이 남지 않도록 고치고, 수동 새로고침을 추가했습니다.",
     sections: {
-      changed: [
+      added: [
         "캘린더 헤더에 Google 연동 옆 수동 새로고침 버튼",
       ],
       fixed: [
@@ -47,13 +47,15 @@ export const CHANGELOG: ChangelogEntry[] = [
     summary:
       "할 일 보기·마감 칩, 터치·캘린더 밀도, 배너 반사를 다듬고 위젯 401 오탐 토스트를 줄였습니다.",
     sections: {
-      changed: [
+      added: [
         "할 일 마감일 빠른 칩(없음 / 오늘 / 내일 / 이번 주말)",
         "할 일 보기 분리와 상단 카운트 연결",
+        "배너 이미지 수면 반사",
+      ],
+      changed: [
         "터치 타겟·호버 액션 보강",
         "할 일 행 진행·마감 칩 통일",
         "모바일 월 캘린더 칩 수 제한",
-        "배너 이미지 수면 반사",
       ],
       fixed: [
         "세션 만료 시 위젯 로드 실패 오탐 토스트 억제",
@@ -104,8 +106,10 @@ export const CHANGELOG: ChangelogEntry[] = [
         "로그인 쿠키만으로 API를 쓰도록 맞춤",
         "잘못된 입력·ID를 더 엄격히 걸러 냄",
       ],
-      changed: [
+      added: [
         "홈이 뜨기 전 안내 화면을 보여 줌",
+      ],
+      changed: [
         "배너·프로필 이미지 로딩을 최적화",
       ],
     },
@@ -116,9 +120,11 @@ export const CHANGELOG: ChangelogEntry[] = [
     summary:
       "캘린더 숨김·에러 안내 개선, 접근성 보강, 일정 저장 속도·세션 안정화입니다.",
     sections: {
+      added: [
+        "오류 안내를 토스트로 통일하고, 중요한 확인은 대화상자로 표시",
+      ],
       changed: [
         "일정 추가/수정 폼을 앱 테마에 맞춤",
-        "오류 안내를 토스트로 통일하고, 중요한 확인은 대화상자로 표시",
         "일정 저장 후 불필요한 다시 불러오기를 줄여 반응이 빨라짐",
         "개인정보처리방침을 Google 데이터 이용 기준에 맞게 갱신",
       ],
@@ -237,11 +243,11 @@ export const CHANGELOG: ChangelogEntry[] = [
 export const APP_VERSION = CHANGELOG[0]?.version ?? "0.0.0"
 
 export const SECTION_LABELS: Record<keyof ChangelogSection, string> = {
-  added: "추가됨",
-  changed: "변경됨",
+  added: "새 기능",
+  changed: "변경",
   deprecated: "곧 제거",
-  removed: "제거됨",
-  fixed: "수정됨",
+  removed: "제거",
+  fixed: "버그 수정",
   security: "보안",
 }
 
@@ -253,3 +259,9 @@ export const SECTION_ORDER: (keyof ChangelogSection)[] = [
   "fixed",
   "security",
 ]
+
+export function entrySectionKeys(
+  sections: ChangelogSection,
+): (keyof ChangelogSection)[] {
+  return SECTION_ORDER.filter((k) => (sections[k]?.length ?? 0) > 0)
+}
