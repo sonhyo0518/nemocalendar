@@ -41,15 +41,17 @@ export function useCalendarDashboardModel() {
     disconnectCalendar,
   } = useAuthSession({ onSignedOut: resetDashboardOnSignOut })
 
+  const sessionEmail = authReady ? user?.email : undefined
+
   const calendar = useCalendarEvents({
-    userEmail: user?.email,
+    userEmail: sessionEmail,
     calendarConnected,
     setCalendarConnected,
     onUnauthorized: handleUnauthorized,
   })
-
+  
   const widgets = useDashboardWidgets({
-    userEmail: user?.email,
+    userEmail: sessionEmail,
     onUnauthorized: handleUnauthorized,
   })
 

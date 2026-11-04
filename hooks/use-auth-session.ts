@@ -41,6 +41,7 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
       calendarConnected: Boolean(userData.calendarConnected),
     }
     persistUser(next)
+    setAuthReady(false)
     setUser(next)
     setCalendarConnected(Boolean(userData.calendarConnected))
   }, [])
