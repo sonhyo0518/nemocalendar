@@ -30,6 +30,16 @@
 4. git 태그 `vX.Y.Z`를 만든다. (VERSIONING.md 참고)
 -->
 
+## [0.3.5] - 2026-11-04
+
+### Changed
+
+- 캘린더 헤더 Google 연동 옆에 수동 새로고침 버튼 추가
+
+### Fixed
+
+- Google(웹·앱)에서 지운 일정이 대시보드·로컬 캐시에 남던 문제 (범위 교체 + 탭 복귀 soft revalidate, soft 시 `fresh=1`로 서버 캐시 스킵)
+
 ## [0.3.4] - 2026-11-01
 
 ### Changed

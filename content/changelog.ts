@@ -17,6 +17,20 @@ export type ChangelogEntry = {
 /** Newest first. Keep in sync with frontend/CHANGELOG.md (released versions only). */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "0.3.5",
+    date: "2026-11-04",
+    summary:
+      "Google에서 지운 일정이 남지 않도록 고치고, 수동 새로고침을 추가했습니다.",
+    sections: {
+      changed: [
+        "캘린더 헤더에 Google 연동 옆 수동 새로고침 버튼",
+      ],
+      fixed: [
+        "외부에서 삭제한 Google 캘린더 일정이 UI·로컬 캐시에 남던 문제",
+      ],
+    },
+  },
+  {
     version: "0.3.4",
     date: "2026-11-01",
     summary:
