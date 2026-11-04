@@ -8,6 +8,7 @@ import {
   Settings,
   Sun,
   Trash2,
+  Loader2,
 } from "lucide-react"
 import { useCallback, useState } from "react"
 import dynamic from "next/dynamic"
@@ -155,9 +156,13 @@ export function HeaderBanner({
         </div>
 
         {!authReady ? (
-          <div className="flex h-9 items-center gap-2 text-sm text-muted-foreground">
-            <div className="h-9 w-28 animate-pulse rounded-md bg-muted/80" />
-            <span className="hidden sm:inline">세션 확인 중…</span>
+          <div
+            className="inline-flex h-8 items-center gap-2 rounded-full border border-border bg-card/80 px-3 text-xs text-muted-foreground shadow-sm backdrop-blur"
+            role="status"
+            aria-live="polite"
+          >
+            <Loader2 className="size-3.5 shrink-0 animate-spin opacity-70" aria-hidden />
+            <span>세션 확인 중</span>
           </div>
         ) : user ? (
           <div className="flex items-center gap-2">
