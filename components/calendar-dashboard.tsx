@@ -288,12 +288,13 @@ export function CalendarDashboard() {
                     />
                   </div>
                   <div className="order-10 lg:order-30">
-                    <WeatherWidget
-                      isLoggedIn={Boolean(user)}
-                      location={user?.location ?? "서울"}
-                      onLocationChange={handleLocationChange}
-                      onUnauthorized={handleUnauthorized}
-                    />
+                  <WeatherWidget
+                    isLoggedIn={Boolean(user)}
+                    ready={authReady}
+                    location={user?.location ?? "서울"}
+                    onLocationChange={handleLocationChange}
+                    onUnauthorized={handleUnauthorized}
+                  />
                   </div>
                   <div className="order-30 lg:order-40">
                     {annivLoadError && anniversaries.length === 0 ? (

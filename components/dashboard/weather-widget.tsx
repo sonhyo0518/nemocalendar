@@ -43,12 +43,15 @@ const ICONS: Record<Condition, React.ElementType> = {
 export function WeatherWidget({
   className,
   isLoggedIn = false,
+  /** false면 로그인 세션 확정 전 — authed weather 요청 보류 */
+  ready = true,
   location: savedLocation = "서울",
   onLocationChange,
   onUnauthorized,
 }: {
   className?: string
   isLoggedIn?: boolean
+  ready?: boolean
   location?: string
   onLocationChange?: (location: string) => void
   onUnauthorized?: () => void
@@ -85,6 +88,8 @@ export function WeatherWidget({
   }, [savedLocation, mounted, isLoggedIn])
 
   React.useEffect(() => {
+    if (isLoggedIn && !ready) return
+
     const ctrl = new AbortController()
 
     const city = isLoggedIn ? location : "서울"
@@ -153,7 +158,7 @@ export function WeatherWidget({
     return () => {
       ctrl.abort()
     }
-  }, [location, onUnauthorized, isLoggedIn, reloadToken])
+  }, [location, onUnauthorized, isLoggedIn, ready, reloadToken])
   
   const activeSuggestions =
   open && draft.trim().length >= 1 ? suggestions : []
