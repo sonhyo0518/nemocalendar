@@ -232,6 +232,10 @@ Render 빌드 단계에서는 `npx prisma generate`만 실행하고, **migration
   - `/health`는 DB `SELECT 1`로 TiDB까지 워밍
   - 워크플로: API 레포 `.github/workflows/keep-alive.yml` (로컬: `backend/.github/workflows/keep-alive.yml`)
   - URL 오버라이드: repo Actions variable `API_HEALTH_URL`
+- **실패 알림 (P3-2):** ping이 비-2xx(예: `db:false` → 503)이거나 타임아웃이면 **통지**가 가게 둔다
+  - Actions: 워크플로 실패 시 GitHub 알림(메일/모바일) 또는 repo Actions → 외부 웹훅(Discord 등)
+  - UptimeRobot 등: Down/HTTP 오류 알림 채널 연결
+  - 에러 SaaS(Sentry 등)는 필수가 아님 — 알림 + Render 로그(`requestId`·`[health]`)로 추적
 
 ---
 
@@ -324,6 +328,7 @@ DB `users.banner_img_url`에는 공개 URL 문자열이 저장됩니다. 설정 
 - [ ] `GOOGLE_REDIRECT_URI=postmessage`
 - [ ] `GET /health` → `{ ok: true, db: true }`
 - [ ] UptimeRobot 또는 Actions: `/health` 5분 ping
+- [ ] keep-alive/`/health` **실패 알림** 수신 확인 (Actions 실패 알림 또는 Uptime 채널)
 
 ### Vercel ([nemocalendar](https://github.com/sonhyo0518/nemocalendar))
 
