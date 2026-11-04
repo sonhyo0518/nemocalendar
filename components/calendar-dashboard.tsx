@@ -209,6 +209,8 @@ export function CalendarDashboard() {
                       themeColor={user?.theme_color ?? DEFAULT_BANNER_COLOR}
                       calendarConnected={calendarConnected}
                       isLoggedIn={Boolean(user)}
+                      onRefreshEvents={invalidateEventsReload}
+                      eventsLoading={eventsLoading}
                       flush
                     />
                   )

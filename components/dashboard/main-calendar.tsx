@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, RefreshCw } from "lucide-react"
 import { onColor } from "@/lib/contrast"
 import { toast } from "sonner"
 import {
@@ -62,6 +62,8 @@ interface MainCalendarProps {
   calendarConnected?: boolean
   isLoggedIn?: boolean
   onRequireLogin?: () => void
+  onRefreshEvents?: () => void
+  eventsLoading?: boolean
   flush?: boolean
 }
 
@@ -80,6 +82,8 @@ export function MainCalendar({
   calendarConnected = false,
   isLoggedIn = false,
   onRequireLogin,
+  onRefreshEvents,
+  eventsLoading = false,
 }: MainCalendarProps) {
   const accent = themeColor ?? "var(--theme)"
   const [mode, setMode] = React.useState<ViewMode>("month")
@@ -316,19 +320,35 @@ export function MainCalendar({
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">
-          {mode === "month" ? (
-            `${viewDate.getFullYear()}년 ${MONTHS_KO[viewDate.getMonth()]}`
-          ) : (
-            <>
-              {weekOfMonthLabel}
-              <span className="ml-1.5 text-sm font-medium text-muted-foreground">
-                ({weekRangeLabel})
-              </span>
-            </>
-          )}
-        </h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            {mode === "month" ? (
+              `${viewDate.getFullYear()}년 ${MONTHS_KO[viewDate.getMonth()]}`
+            ) : (
+              <>
+                {weekOfMonthLabel}
+                <span className="ml-1.5 text-sm font-medium text-muted-foreground">
+                  ({weekRangeLabel})
+                </span>
+              </>
+            )}
+          </h2>
           <GoogleBadge />
+          {isLoggedIn && calendarConnected && onRefreshEvents ? (
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="outline"
+              onClick={onRefreshEvents}
+              disabled={eventsLoading}
+              aria-label="캘린더 새로고침"
+              title="캘린더 새로고침"
+              className="rounded-full bg-card/80"
+            >
+              <RefreshCw
+                className={cn("size-3.5", eventsLoading && "animate-spin")}
+              />
+            </Button>
+          ) : null}
         </div>
         <div className="flex items-center gap-2">
           <Tabs value={mode} onValueChange={(v) => setMode(v as ViewMode)}>

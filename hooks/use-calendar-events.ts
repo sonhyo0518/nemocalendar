@@ -80,6 +80,7 @@ export function useCalendarEvents({
   const [eventsReloadToken, setEventsReloadToken] = useState(0)
   
   const invalidateEventsReload = useCallback(() => {
+    pendingFreshRef.current = true
     loadedRangesRef.current.clear()
     rangeFetchedAtRef.current.clear()
     setEventsReloadToken((n) => n + 1)
