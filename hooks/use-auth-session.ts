@@ -11,6 +11,7 @@ import {
   clearAuthSession,
   notifyApiError,
 } from "@/lib/api"
+import { toast } from "sonner"
 
 type UseAuthSessionOptions = {
   onSignedOut?: (email?: string) => void
@@ -106,8 +107,12 @@ export function useAuthSession(options: UseAuthSessionOptions = {}) {
     setAuthReady(true)
     document.documentElement.style.removeProperty("--banner-img")
     document.documentElement.style.removeProperty("--banner-theme")
+    toast.message("다시 로그인해 주세요.", {
+      description:
+        "세션이 만료되었거나, 브라우저가 로그인 쿠키를 저장하지 못했을 수 있습니다.",
+    })
   }, [user?.email, onSignedOut])
-  
+
   const deleteAccount = useCallback(async () => {
     signedOutRef.current = true
     const email = user?.email

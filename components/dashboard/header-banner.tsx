@@ -155,7 +155,10 @@ export function HeaderBanner({
         </div>
 
         {!authReady ? (
-          <div className="h-9 w-28 animate-pulse rounded-md bg-muted/80" />
+          <div className="flex h-9 items-center gap-2 text-sm text-muted-foreground">
+            <div className="h-9 w-28 animate-pulse rounded-md bg-muted/80" />
+            <span className="hidden sm:inline">세션 확인 중…</span>
+          </div>
         ) : user ? (
           <div className="flex items-center gap-2">
             {!calendarConnected && (
